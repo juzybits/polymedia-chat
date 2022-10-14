@@ -1,4 +1,4 @@
-## Journey
+## Polymedia
 
 ## How to run locally
 ```

@@ -1,4 +1,4 @@
-module journey::journey
+module polymedia::polymedia
 {
     use std::option::{Option};
     use std::string::{String};

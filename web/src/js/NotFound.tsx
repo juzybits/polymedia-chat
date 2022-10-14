@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 export function NotFound(props) {
     useEffect(() => {
-        document.title = 'Journey - Not found';
+        document.title = 'Polymedia - Not found';
     }, []);
 
     return <section className='outlet'>

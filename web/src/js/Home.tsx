@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 export function Home(props) {
     useEffect(() => {
-        document.title = 'Journey';
+        document.title = 'Polymedia';
     }, []);
 
     var width = window.innerWidth // TODO: dynamic resize
@@ -19,7 +19,7 @@ export function Home(props) {
 
         <iframe id='video-iframe' width={width} height={height}
             src='https://www.youtube.com/embed/UD0N7qjmrKY?controls=0&autoplay=1'
-            title='Journey video player' frameBorder='0'
+            title='Polymedia video player' frameBorder='0'
             allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
             allowFullScreen>
         </iframe>

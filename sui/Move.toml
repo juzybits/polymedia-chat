@@ -1,5 +1,5 @@
 [package]
-name = "Journey"
+name = "Polymedia"
 version = "0.0.1"
 authors = ["juzybits <https://twitter.com/juzybits>"]
 
@@ -7,4 +7,4 @@ authors = ["juzybits <https://twitter.com/juzybits>"]
 Sui = { local = "../../sui/crates/sui-framework" }
 
 [addresses]
-journey = "0x0"
+polymedia = "0x0"
