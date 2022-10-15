@@ -2,7 +2,9 @@ module polymedia::polymedia
 {
     use std::option::{Option};
     use std::string::{String};
-    use sui::object::{ID, UID};
+    use sui::balance::{Balance};
+    use sui::object::{UID};
+    use sui::sui::{SUI};
     use sui::vec_map::{VecMap};
 
     /// Generic media item
@@ -11,7 +13,12 @@ module polymedia::polymedia
         /// An Item belongs to a single Space. This can be used for things like:
         ///   - Determine where to send funds from ad payments and upvotes
         ///   - Use data from the parent Space, like ad configuration
-        space: ID,
+        space: address,
+
+        /// Generic data container
+        data: Option<DataStore>,
+
+        /* Media fields */
 
         /// The dominant media type in this Item. Examples:
         ///   long form text = 'post'
@@ -37,13 +44,20 @@ module polymedia::polymedia
         /// Thumbnail image URL
         thumbnail: String,
 
-        /// How much SUI this Item costs. 0 means not for sale.
-        price: u64,
+        /* Commerce fields */
 
-        /// Generic data container
-        data: Option<DataStore>,
         /// Ad configuration
         ads: Option<Ads>,
+
+        /// How much SUI this Item costs to "buy now". 0 means not listed.
+        price: u64,
+        /// People can place an offer the Item, whether it's listed or not
+        offers: vector<BuyOffer>,
+        /// Minimum amount of SUI that someone can offer for this Item
+        min_offer: u64,
+
+        /* Social fields */
+
         /// How much SUI has been paid to like this Item
         upvoted: u64,
         /// How much SUI has been paid to dislike this Item
@@ -52,7 +66,9 @@ module polymedia::polymedia
         /// Ideas:
         ///   - People can comment for free, but also add a tip. Then UI sorts comments by `tip_size + upvoted - downvoted`
         ///   - Add MAX_COMMENTS. When reached, people must pay to comment (this will delete lower-value comments by pricing them out).
-        comments: vector<ID>,
+        comments: vector<address>,
+
+        /* Ideas */
 
         // markup language used in the Item.text field
         // markup: String, // (MAYBE) plaintext, html, markdown, asciiDoc, textile
@@ -64,11 +80,13 @@ module polymedia::polymedia
     struct Space has key, store {
         id: UID,
         /// A Space belongs to a single Account
-        account: ID,
-        /// An Item that describes this Space and defines default values for ads/data/etc
+        account: address,
+        /// To describe this Space as a media Item
         config: Item,
+        /// To define default values for children Items
+        defaults: Item,
         /// Item objects created from this Space
-        items: vector<ID>,
+        items: vector<address>,
     }
 
     /// Container for Space objects
@@ -79,8 +97,8 @@ module polymedia::polymedia
         /// An Item that describes this Account and defines default values for ads/data/etc
         config: Item,
         /// Space objects created from this Account
-        spaces: vector<ID>,
-        // bookmarks: vector<ID>,
+        spaces: vector<address>,
+        // bookmarks: vector<address>,
     }
 
     /// Generic data container
@@ -106,9 +124,18 @@ module polymedia::polymedia
     /// Ad slot contents
     struct SlotData has store {
         /// List of 'ad' Items in this slot
-        ad_items: vector<ID>,
+        ad_items: vector<address>,
         start_epochs: vector<u64>,
         end_epochs: vector<u64>,
+    }
+
+    /* Commerce */
+
+    /// An offer to buy an object for an amount of SUI
+    struct BuyOffer has store {
+        balance: Balance<SUI>,
+        object: address,
+        buyer: address,
     }
 }
 
