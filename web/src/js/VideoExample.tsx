@@ -13,7 +13,7 @@ export function VideoExample(props) {
     || document.documentElement.clientHeight
     || document.body.clientHeight;
 
-    return <section className='outlet'>
+    return <section className='main'>
 
         <h1>Akira Bangers</h1>
 
