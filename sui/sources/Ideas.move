@@ -2,8 +2,8 @@ module polymedia::polymedia
 {
     use std::option::{Option};
     use std::string::{String};
-    use sui::balance::{Balance};
     use sui::object::{UID};
+    use sui::coin::{Coin};
     use sui::sui::{SUI};
     use sui::vec_map::{VecMap};
 
@@ -12,13 +12,8 @@ module polymedia::polymedia
         id: UID,
         /// An Item belongs to a single Space. This can be used for things like:
         ///   - Determine where to send funds from ad payments and upvotes
-        ///   - Use data from the parent Space, like ad configuration
+        ///   - Use data from the Space, like ad configuration
         space: address,
-
-        /// Generic data container
-        data: Option<DataStore>,
-
-        /* Media fields */
 
         /// The dominant media type in this Item. Examples:
         ///   long form text = 'post'
@@ -44,10 +39,23 @@ module polymedia::polymedia
         /// Thumbnail image URL
         thumbnail: String,
 
-        /* Commerce fields */
-
         /// Ad configuration
         ads: Option<Ads>,
+
+        /* Ideas
+
+        /// Generic data container
+        data: Option<DataStore>,
+
+        /// List of 'comment' Item objects that replied to this Item. Ideas:
+        ///   - People can comment for free, but also add a tip. Then UIs can sort the comments by tip size.
+        ///   - Add MAX_COMMENTS. When reached, people must pay to comment (this will delete lower-value comments by pricing them out).
+        comments: vector<address>,
+
+        /// How much SUI has been paid to like this Item
+        upvoted: u64,
+        /// How much SUI has been paid to dislike this Item
+        downvoted: u64,
 
         /// How much SUI this Item costs to "buy now". 0 means not listed.
         price: u64,
@@ -56,54 +64,26 @@ module polymedia::polymedia
         /// Minimum amount of SUI that someone can offer for this Item
         min_offer: u64,
 
-        /* Social fields */
+        /// markup language used in the Item.text field
+        markup: String, // (MAYBE) plaintext, html, markdown, asciiDoc, textile
 
-        /// How much SUI has been paid to like this Item
-        upvoted: u64,
-        /// How much SUI has been paid to dislike this Item
-        downvoted: u64,
-        /// List of 'comment' Item objects that replied to this Item
-        /// Ideas:
-        ///   - People can comment for free, but also add a tip. Then UI sorts comments by `tip_size + upvoted - downvoted`
-        ///   - Add MAX_COMMENTS. When reached, people must pay to comment (this will delete lower-value comments by pricing them out).
-        comments: vector<address>,
-
-        /* Ideas */
-
-        // markup language used in the Item.text field
-        // markup: String, // (MAYBE) plaintext, html, markdown, asciiDoc, textile
-        // CSS rules
-        // styles: Option<CssStyles>,
+        /// CSS rules
+        styles: Option<CssStyles>,
+        */
     }
+
+    public entry fun place_ad(_host_item: &Item, _ad_item: &Item, _slot: String, _start_epoch: u64, _end_epoch: u64, _coin: Coin<SUI>, _amount: u64) { abort(0) }
 
     /// Container for Item objects
     struct Space has key, store {
         id: UID,
-        /// A Space belongs to a single Account
-        account: address,
+        owner: address,
         /// To describe this Space as a media Item
         config: Item,
         /// To define default values for children Items
         defaults: Item,
         /// Item objects created from this Space
         items: vector<address>,
-    }
-
-    /// Container for Space objects
-    struct Account has key, store {
-        id: UID,
-        /// An Account belongs to a single address
-        owner: address, // MAYBE: consider using OwnerCapability: https://github.com/MystenLabs/sui/blob/aba2cca6cedcf1aa05d266a94f8dac68106dba42/crates/sui-framework/sources/safe.move#L91
-        /// An Item that describes this Account and defines default values for ads/data/etc
-        config: Item,
-        /// Space objects created from this Account
-        spaces: vector<address>,
-        // bookmarks: vector<address>,
-    }
-
-    /// Generic data container
-    struct DataStore has store {
-        strings: VecMap<String, vector<String>>,
     }
 
     /* Ads */
@@ -129,7 +109,29 @@ module polymedia::polymedia
         end_epochs: vector<u64>,
     }
 
-    /* Commerce */
+}
+
+/* Ideas
+
+    /// Container for Item objects
+    struct Account has key, store {
+        id: UID,
+        /// An Account belongs to a single address
+        owner: address, // MAYBE: consider using OwnerCapability: https://github.com/MystenLabs/sui/blob/aba2cca6cedcf1aa05d266a94f8dac68106dba42/crates/sui-framework/sources/safe.move#L91
+        /// An Item that describes this Account and defines default values for ads/data/etc
+        config: Item,
+        /// Item objects created from this Account, organized by tag/collection name
+        items: VecMap<String, address>,
+
+        /* Ideas
+        bookmarks: vector<address>,
+        */
+    }
+
+    /// Generic data container
+    struct DataStore has store {
+        strings: VecMap<String, vector<String>>,
+    }
 
     /// An offer to buy an object for an amount of SUI
     struct BuyOffer has store {
@@ -137,9 +139,7 @@ module polymedia::polymedia
         object: address,
         buyer: address,
     }
-}
 
-/*
     /// A collection of CSS rules
     struct CssStyles {
         styles: VecMap<String, CssRules>, // <'#css.selector', CssRules>
