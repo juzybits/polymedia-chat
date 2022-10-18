@@ -1,7 +1,9 @@
-module polymedia::polymedia
+/// DEV_ONLY To keep track of potential features
+module polymedia::ideas
 {
     use std::option::{Option};
     use std::string::{String};
+    use sui::balance::{Balance};
     use sui::object::{UID};
     use sui::coin::{Coin};
     use sui::sui::{SUI};
@@ -15,37 +17,8 @@ module polymedia::polymedia
         ///   - Use data from the Space, like ad configuration
         space: address,
 
-        /// The dominant media type in this Item. Examples:
-        ///   long form text = 'post'
-        ///   quick thought = 'chirp'
-        ///   spotify.com = 'audio'
-        ///   youtube.com = 'video'
-        ///   pinterest.com = 'image'
-        ///   media playlist = 'gallery'
-        ///   reply to Item = 'comment'
-        ///   advertisement = 'ad'
-        media_type: String,
-        /// The format of fields like `text` or `data` may evolve over time
-        media_version: u64,
-
-        /// A title or identifier
-        name: String,
-        /// Longer text like a description or an article body
-        text: String,
-        /// The main URL for this resource (e.g. the 'src' in <img> or <video>)
-        url: String,
-        /// Banner image URL
-        banner: String,
-        /// Thumbnail image URL
-        thumbnail: String,
-
         /// Ad configuration
         ads: Option<Ads>,
-
-        /* Ideas
-
-        /// Generic data container
-        data: Option<DataStore>,
 
         /// List of 'comment' Item objects that replied to this Item. Ideas:
         ///   - People can comment for free, but also add a tip. Then UIs can sort the comments by tip size.
@@ -69,7 +42,6 @@ module polymedia::polymedia
 
         /// CSS rules
         styles: Option<CssStyles>,
-        */
     }
 
     public entry fun place_ad(_host_item: &Item, _ad_item: &Item, _slot: String, _start_epoch: u64, _end_epoch: u64, _coin: Coin<SUI>, _amount: u64) { abort(0) }
@@ -84,6 +56,20 @@ module polymedia::polymedia
         defaults: Item,
         /// Item objects created from this Space
         items: vector<address>,
+    }
+
+    /// Container for Space objects
+    struct Account has key, store {
+        id: UID,
+        /// An Account belongs to a single address
+        owner: address, // MAYBE: consider using OwnerCapability: https://github.com/MystenLabs/sui/blob/aba2cca6cedcf1aa05d266a94f8dac68106dba42/crates/sui-framework/sources/safe.move#L91
+        /// An Item that describes this Account and defines default values for ads/data/etc
+        config: Item,
+        /// Space objects created from this Account, organized by tag/collection name
+        spaces: VecMap<String, address>,
+        /* Ideas
+        bookmarks: vector<address>,
+        */
     }
 
     /* Ads */
@@ -109,29 +95,7 @@ module polymedia::polymedia
         end_epochs: vector<u64>,
     }
 
-}
-
-/* Ideas
-
-    /// Container for Item objects
-    struct Account has key, store {
-        id: UID,
-        /// An Account belongs to a single address
-        owner: address, // MAYBE: consider using OwnerCapability: https://github.com/MystenLabs/sui/blob/aba2cca6cedcf1aa05d266a94f8dac68106dba42/crates/sui-framework/sources/safe.move#L91
-        /// An Item that describes this Account and defines default values for ads/data/etc
-        config: Item,
-        /// Item objects created from this Account, organized by tag/collection name
-        items: VecMap<String, address>,
-
-        /* Ideas
-        bookmarks: vector<address>,
-        */
-    }
-
-    /// Generic data container
-    struct DataStore has store {
-        strings: VecMap<String, vector<String>>,
-    }
+    /* Commerce */
 
     /// An offer to buy an object for an amount of SUI
     struct BuyOffer has store {
@@ -140,12 +104,15 @@ module polymedia::polymedia
         buyer: address,
     }
 
+    /* Display */
+
     /// A collection of CSS rules
-    struct CssStyles {
+    struct CssStyles has store {
         styles: VecMap<String, CssRules>, // <'#css.selector', CssRules>
     }
-    struct CssRules {
+    struct CssRules has store {
         properties: vector<String>,
         values: vector<String>,
     }
-*/
+
+}
