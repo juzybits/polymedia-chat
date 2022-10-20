@@ -18,8 +18,6 @@
         "build": "rm -rf dist/ && parcel build --no-source-maps src/index.html && cp src/static/* dist/",
 
         "serve-teaser": "rm -rf .parcel-cache/ && parcel teaser/index.html",
-        "build-teaser": "rm -rf dist/ && parcel build --no-source-maps teaser/index.html && cp src/static/* dist/",
-        "preview-teaser": "firebase serve",
-        "deploy-teaser": "firebase deploy"
+        "build-teaser": "rm -rf dist/ && parcel build --no-source-maps teaser/index.html && cp src/static/* dist/"
     }
 }
