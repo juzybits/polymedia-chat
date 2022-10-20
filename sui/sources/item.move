@@ -11,15 +11,15 @@ module polymedia::item
         id: UID,
         owner: address, // TODO: use OwnerCap instead
         /// The dominant media type in this Item. Examples:
-        ///   long form text = 'post'
-        ///   quick thought = 'chirp'
-        ///   spotify.com = 'audio'
-        ///   youtube.com = 'video'
-        ///   pinterest.com = 'image'
-        ///   media playlist = 'gallery'
-        ///   reply to Item = 'comment'
-        ///   advertisement = 'ad'
-        ///   curriculum vitae = 'resume'
+        ///   'ad': advertisement that can be embedded in other Items
+        ///   'audio': link to spotify.com, yoursite.com/song.mp3
+        ///   'chirp': short text similar to twitter.com
+        ///   'comment': reply to an Item
+        ///   'gallery': media playlist
+        ///   'image': link to pinterest.com, flickr.com, imgur.com
+        ///   'post': long form text
+        ///   'resume': curriculum vitae
+        ///   'video': link to youtube.com, vimeo.com, yoursite.com/movie.mp4
         media_type: String,
         /// Semantic versioning (the format of Item fields like `data` may evolve over time)
         media_version: String,

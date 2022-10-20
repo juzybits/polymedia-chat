@@ -1,6 +1,5 @@
 /* Variables */
 
-@page-max-width: 1000px;
 @text-color: #eee;
 @background-color: rgb(20 20 20);
 
@@ -31,9 +30,20 @@ h1 {
 /* Specific elements */
 
 #page {
+    max-width: 1000px;
     margin: 0 auto;
-    max-width: @page-max-width;
     padding: 1em;
+}
+
+#page-video {
+    .video-menu {
+        position: absolute;
+        margin-top: 4.5em;
+        margin-left: 2em;
+        padding: 1em 2em;
+        border-radius: 1em;
+        background: rgba(0, 0, 0, 0.7);
+    }
 }
 
 /* Mobile */

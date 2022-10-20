@@ -5,7 +5,7 @@ export function ItemCreate(props) {
         document.title = 'Polymedia - Create Item';
     }, []);
 
-    return <section className='main'>
+    return <div id='page'>
 
         <h1>ItemCreate</h1>
 
@@ -13,5 +13,5 @@ export function ItemCreate(props) {
             Enter your text here
         </div>
 
-    </section>;
+    </div>;
 }

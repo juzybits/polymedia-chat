@@ -8,7 +8,7 @@ export function ItemView(props) {
 
     const uid = useParams().uid;
 
-    return <section className='main'>
+    return <div id='page'>
 
         <h1>ItemView</h1>
 
@@ -16,5 +16,5 @@ export function ItemView(props) {
         Viewing: {uid}
         </p>
 
-    </section>;
+    </div>;
 }

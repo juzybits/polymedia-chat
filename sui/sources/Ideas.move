@@ -20,7 +20,7 @@ module polymedia::ideas
         /// Ad configuration
         ads: Option<Ads>,
 
-        /// List of 'comment' Item objects that replied to this Item. Ideas:
+        /// List of 'comment' Items that replied to this Item. Ideas:
         ///   - People can comment for free, but also add a tip. Then UIs can sort the comments by tip size.
         ///   - Add MAX_COMMENTS. When reached, people must pay to comment (this will delete lower-value comments by pricing them out).
         comments: vector<address>,
@@ -46,7 +46,7 @@ module polymedia::ideas
 
     public entry fun place_ad(_host_item: &Item, _ad_item: &Item, _slot: String, _start_epoch: u64, _end_epoch: u64, _coin: Coin<SUI>, _amount: u64) { abort(0) }
 
-    /// Container for Item objects
+    /// Container for Items
     struct Space has key, store {
         id: UID,
         owner: address,
@@ -54,7 +54,7 @@ module polymedia::ideas
         config: Item,
         /// To define default values for children Items
         defaults: Item,
-        /// Item objects created from this Space
+        /// Items created from this Space
         items: vector<address>,
     }
 

@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 
-export function VideoExample(props) {
+export function SampleVideo(props) {
     useEffect(() => {
-        document.title = 'VideoExample';
+        document.title = 'SampleVideo';
     }, []);
 
     var width = window.innerWidth
@@ -13,16 +13,19 @@ export function VideoExample(props) {
     || document.documentElement.clientHeight
     || document.body.clientHeight;
 
-    return <section className='main'>
+    return <div id='page-video'>
 
-        <h1>Akira Bangers</h1>
+        <section className='video-menu'>
+            <h1>Video title</h1>
+            <p>Lorem ipsum dolor sit amet.</p>
+        </section>
 
         <iframe id='video-iframe' width={width} height={height}
             src='https://www.youtube.com/embed/UD0N7qjmrKY?controls=0&autoplay=1'
             title='Polymedia video player' frameBorder='0'
-            allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
+            allow='accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
             allowFullScreen>
         </iframe>
 
-    </section>;
+    </div>;
 }

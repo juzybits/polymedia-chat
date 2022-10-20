@@ -6,7 +6,7 @@ export function Home(props) {
         document.title = 'Polymedia';
     }, []);
 
-    return <section className='main'>
+    return <div id='page'>
 
         <h1>Home</h1>
 
@@ -14,6 +14,9 @@ export function Home(props) {
         <br/>
         <br/>
         <Link to='/item/view/123'>VIEW</Link>
+        <br/>
+        <br/>
+        <Link to='/samples'>SAMPLES</Link>
 
-    </section>;
+    </div>;
 }
