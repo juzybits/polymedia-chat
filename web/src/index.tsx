@@ -9,7 +9,7 @@ import { Samples } from './js/Samples';
 import { SampleVideo } from './js/SampleVideo';
 
 ReactDOM
-    .createRoot( document.getElementById('app') )
+    .createRoot( document.getElementById('app') as Element )
     .render(
         <BrowserRouter>
         <Routes>

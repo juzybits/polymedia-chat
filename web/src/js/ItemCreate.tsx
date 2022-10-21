@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-export function ItemCreate(props) {
+export function ItemCreate(props: any) {
     useEffect(() => {
         document.title = 'Polymedia - Create Item';
     }, []);
@@ -9,7 +9,7 @@ export function ItemCreate(props) {
 
         <h1>ItemCreate</h1>
 
-        <div className='editor' contenteditable='true'>
+        <div className='editor' contentEditable='true'>
             Enter your text here
         </div>
 

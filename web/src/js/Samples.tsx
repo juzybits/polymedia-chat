@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-export function Samples(props) {
+export function Samples(props: any) {
     useEffect(() => {
         document.title = 'Polymedia - Samples';
     }, []);

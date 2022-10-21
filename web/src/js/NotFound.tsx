@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-export function NotFound(props) {
+export function NotFound(props: any) {
     useEffect(() => {
         document.title = 'Polymedia - Not found';
     }, []);

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
-export function ItemView(props) {
+export function ItemView(props: any) {
     useEffect(() => {
         document.title = 'Polymedia - Create Item';
     }, []);

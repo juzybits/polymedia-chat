@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-export function SampleVideo(props) {
+export function SampleVideo(props: any) {
     useEffect(() => {
         document.title = 'SampleVideo';
     }, []);
