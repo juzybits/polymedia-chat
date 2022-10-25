@@ -36,58 +36,71 @@ export async function getAddresses(): Promise<string[]> {
     });
 }
 
-/* RPC functions */
+/* Types */
 
 /// Represents a `polymedia::item::Item` Sui object.
 export type Item = {
     id: string, // The Sui object UID
+    kind: string,
+    version: string,
     name: string,
     text: string,
-    // ...
+    url: string,
+    addressesKeys: string[],
+    addressesVals: string[],
+    stringsKeys: string[],
+    stringsVals: string[],
+    u64sKeys: string[],
+    u64sVals: number[],
 };
 
-// export async function getItems(objIds: string[]): Promise<Item[]> {
+function parseItem(data: GetObjectDataResponse): Item { // TODO
+    const item: Item = {
+        id: '',
+        kind: '',
+        version: '',
+        name: '',
+        text: '',
+        url: '',
+        addressesKeys: [],
+        addressesVals: [],
+        stringsKeys: [],
+        stringsVals: [],
+        u64sKeys: [],
+        u64sVals: [],
+    };
+    return item;
+}
 
-/// Fetch and parse a `polymedia::item::Item` Sui object into our custom Item type
-export async function getItem(objId: string): Promise<Item|null> {
-    console.debug('[getItem] Looking up:', objId);
+/* RPC functions */
 
-    const typeRegex = new RegExp(`^${POLYMEDIA_PACKAGE}::item::Item<0x.+::.+::.+>$`);
-    return rpc.getObject(objId)
-        .then((obj: GetObjectDataResponse) => {
-            if (obj.status != 'Exists') {
-                console.warn('[getItem] Object does not exist. Status:', obj.status);
-                return null;
-            }
-
-            const details = obj.details as any;
-            if (!details.data.type.match(typeRegex)) {
-                // TODO: '0x0ab' is returned as '0xab' by the RPC
-                console.warn('[getItem] Found wrong object type:', details.data.type);
-                return null;
-            } else {
-                console.debug('[getItem] Found Item object:', obj);
-                const fields = details.data.fields;
-                const item: Item = {
-                    id: fields.id.id,
-                    name: fields.name,
-                    text: fields.text,
-                    // ...
-                };
-                return item;
-            }
+/// Fetch and parse `polymedia::item::Item` Sui objects
+export async function getItems(objectIds: string[]): Promise<Item[]> {
+    console.debug(`[getItem] Fetching ${objectIds.length} objects`);
+    return rpc.getObjectBatch(objectIds)
+        .then((objectsData: GetObjectDataResponse[]) => {
+            return objectsData.map(data => parseItem(data));
         })
         .catch(error => {
-            console.warn('[getItem] RPC error:', error.message);
-            return null;
+            console.warn('[getItems] RPC error:', error.message);
+            return [];
         });
 }
 
 /* Functions to call the `public entry` functions in the `gotbeef::bet` Sui package */
 
 export async function createItem(
+    kind: string,
+    version: string,
     name: string,
     text: string,
+    url: string,
+    addressesKeys: string[],
+    addressesVals: string[],
+    stringsKeys: string[],
+    stringsVals: string[],
+    u64sKeys: string[],
+    u64sVals: number[],
 ): Promise<SuiTransactionResponse>
 {
     console.debug(`[createItem] Calling item::create on package: ${POLYMEDIA_PACKAGE}`);
@@ -97,10 +110,28 @@ export async function createItem(
         function: 'create',
         typeArguments: [],
         arguments: [
-            name,
-            text,
-            // ...
+            stringToIntArray(kind),
+            stringToIntArray(version),
+            stringToIntArray(name),
+            stringToIntArray(text),
+            stringToIntArray(url),
+            stringsToIntArrays(addressesKeys),
+            stringsToIntArrays(addressesVals),
+            stringsToIntArrays(stringsKeys),
+            stringsToIntArrays(stringsVals),
+            stringsToIntArrays(u64sKeys),
+            u64sVals,
         ],
         gasBudget: GAS_BUDGET,
     });
+}
+
+/* Helpers */
+
+function stringToIntArray(text: string): number[] {
+    return Array.from( (new TextEncoder()).encode(text) );
+}
+
+function stringsToIntArrays(texts: string[]): any[] {
+    return texts.map(text => stringToIntArray(text) );
 }
