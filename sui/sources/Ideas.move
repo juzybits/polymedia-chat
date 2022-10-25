@@ -12,6 +12,12 @@ module polymedia::ideas
     /// Generic media item
     struct Item has key, store {
         id: UID,
+
+        /// Banner image URL
+        banner: String, // move to `data`?
+        /// Thumbnail image URL
+        thumbnail: String, // move to `data`?
+
         /// An Item belongs to a single Space. This can be used for things like:
         ///   - Determine where to send funds from ad payments and upvotes
         ///   - Use data from the Space, like ad configuration
@@ -76,6 +82,8 @@ module polymedia::ideas
 
     /// Ad management
     struct Ads has store {
+        title: String,
+        description: String,
         enabled: bool,
         /// Ad slot configuration. Keys are slot names.
         slot_conf: VecMap<String, SlotConf>,
@@ -84,6 +92,8 @@ module polymedia::ideas
     }
     /// Ad slot configuration
     struct SlotConf has store {
+        title: String,
+        description: String,
         price: u64,
         max_days: u64,
     }

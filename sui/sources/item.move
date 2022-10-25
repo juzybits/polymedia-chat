@@ -20,31 +20,25 @@ module polymedia::item
         ///   'post': long form text
         ///   'resume': curriculum vitae
         ///   'video': link to youtube.com, vimeo.com, yoursite.com/movie.mp4
-        media_type: String,
+        kind: String,
         /// Semantic versioning (the format of Item fields like `data` may evolve over time)
-        media_version: String,
+        version: String,
         /// A title or identifier
         name: String,
         /// Longer text like a description or an article body
         text: String,
         /// The main URL for this resource (e.g. the 'src' in <img> or <video>)
         url: String,
-        /// Banner image URL
-        banner: String,
-        /// Thumbnail image URL
-        thumbnail: String,
         /// Generic data container
         data: DataStore,
     }
 
     public entry fun create(
-        media_type: vector<u8>,
-        media_version: u64,
+        kind: vector<u8>,
+        version: vector<u8>,
         name: vector<u8>,
         text: vector<u8>,
         url: vector<u8>,
-        banner: vector<u8>,
-        thumbnail: vector<u8>,
         addresses_keys: vector<String>,
         addresses_vals: vector<address>,
         strings_keys: vector<String>,
@@ -56,13 +50,11 @@ module polymedia::item
         let item = Item {
             id: object::new(ctx),
             owner: tx_context::sender(ctx),
-            media_type: string::utf8(media_type),
-            media_version: media_version,
+            kind: string::utf8(kind),
+            version: string::utf8(version),
             name: string::utf8(name),
             text: string::utf8(text),
             url: string::utf8(url),
-            banner: string::utf8(banner),
-            thumbnail: string::utf8(thumbnail),
             data: data_store::create_from_vectors(addresses_keys, addresses_vals, strings_keys, strings_vals, u64s_keys, u64s_vals),
         };
         transfer::share_object(item);

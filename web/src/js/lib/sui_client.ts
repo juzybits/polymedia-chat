@@ -46,6 +46,8 @@ export type Item = {
     // ...
 };
 
+// export async function getItems(objIds: string[]): Promise<Item[]> {
+
 /// Fetch and parse a `polymedia::item::Item` Sui object into our custom Item type
 export async function getItem(objId: string): Promise<Item|null> {
     console.debug('[getItem] Looking up:', objId);
