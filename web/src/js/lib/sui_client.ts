@@ -3,12 +3,20 @@
 import { JsonRpcProvider, SuiTransactionResponse, GetObjectDataResponse } from '@mysten/sui.js';
 import { SuiWalletAdapter } from '@mysten/wallet-adapter-sui-wallet';
 
-const POLYMEDIA_PACKAGE = 'TODO';
+const POLYMEDIA_PACKAGE = '0x4938aa0dbf8e67c4d9aefe069c70281c417a7b13';
 const GAS_BUDGET = 10000;
 const rpc = new JsonRpcProvider('https://fullnode.devnet.sui.io:443');
 const wallet = new SuiWalletAdapter();
 
 /* Wallet functions */
+
+export function isInstalled(): boolean {
+    return window.hasOwnProperty('suiWallet');
+}
+
+export function isConnected(): boolean {
+    return wallet.connected;
+}
 
 export async function connect(): Promise<void> {
     return wallet.connect();
@@ -18,27 +26,14 @@ export async function disconnect(): Promise<void> {
     return wallet.disconnect();
 }
 
-export function isConnected(): boolean {
-    return wallet.connected;
-}
-
-export function isInstalled(): boolean {
-    return window.hasOwnProperty('suiWallet');
-}
-
 /// Get the addresses from the current wallet
 export async function getAddresses(): Promise<string[]> {
-    return wallet.getAccounts().then(accounts => {
-        if (!accounts) {
-            throw 'No accounts found'; // should never happen
-        }
-        return accounts;
-    });
+    return wallet.getAccounts();
 }
 
 /* Types */
 
-/// Represents a `polymedia::item::Item` Sui object.
+/// Represents a `polymedia::item::Item` Sui object
 export type Item = {
     id: string, // The Sui object UID
     kind: string,
@@ -46,28 +41,33 @@ export type Item = {
     name: string,
     text: string,
     url: string,
-    addressesKeys: string[],
-    addressesVals: string[],
-    stringsKeys: string[],
-    stringsVals: string[],
-    u64sKeys: string[],
-    u64sVals: number[],
+    data: string,
 };
 
-function parseItem(data: GetObjectDataResponse): Item { // TODO
+function parseItem(resp: GetObjectDataResponse): Item|null
+{
+    if (resp.status != 'Exists') {
+        console.warn('[getBet] Object does not exist. Status:', resp.status);
+        return null;
+    }
+
+    const details = resp.details as any;
+    const typeRegex = new RegExp(`^${POLYMEDIA_PACKAGE}::item::Item$`);
+    if (!details.data.type.match(typeRegex)) {
+        // TODO: '0x0ab' is returned as '0xab' by the RPC
+        console.warn('[getBet] Wrong object type:', details.data.type);
+        return null;
+    }
+
+    const fields = details.data.fields;
     const item: Item = {
-        id: '',
-        kind: '',
-        version: '',
-        name: '',
-        text: '',
-        url: '',
-        addressesKeys: [],
-        addressesVals: [],
-        stringsKeys: [],
-        stringsVals: [],
-        u64sKeys: [],
-        u64sVals: [],
+        id: fields.id.id,
+        kind: fields.kind,
+        version: fields.version,
+        name: fields.name,
+        text: fields.text,
+        url: fields.url,
+        data: JSON.parse(fields.data),
     };
     return item;
 }
@@ -75,11 +75,16 @@ function parseItem(data: GetObjectDataResponse): Item { // TODO
 /* RPC functions */
 
 /// Fetch and parse `polymedia::item::Item` Sui objects
-export async function getItems(objectIds: string[]): Promise<Item[]> {
+export async function getItems(objectIds: string[]): Promise<Item[]>
+{
     console.debug(`[getItem] Fetching ${objectIds.length} objects`);
     return rpc.getObjectBatch(objectIds)
         .then((objectsData: GetObjectDataResponse[]) => {
-            return objectsData.map(data => parseItem(data));
+            return objectsData.reduce((items: Item[], resp: GetObjectDataResponse) => {
+                const item = parseItem(resp);
+                item && items.push(item);
+                return items;
+            }, []);
         })
         .catch(error => {
             console.warn('[getItems] RPC error:', error.message);
@@ -95,12 +100,7 @@ export async function createItem(
     name: string,
     text: string,
     url: string,
-    addressesKeys: string[],
-    addressesVals: string[],
-    stringsKeys: string[],
-    stringsVals: string[],
-    u64sKeys: string[],
-    u64sVals: number[],
+    data: string,
 ): Promise<SuiTransactionResponse>
 {
     console.debug(`[createItem] Calling item::create on package: ${POLYMEDIA_PACKAGE}`);
@@ -115,12 +115,7 @@ export async function createItem(
             stringToIntArray(name),
             stringToIntArray(text),
             stringToIntArray(url),
-            stringsToIntArrays(addressesKeys),
-            stringsToIntArrays(addressesVals),
-            stringsToIntArrays(stringsKeys),
-            stringsToIntArrays(stringsVals),
-            stringsToIntArrays(u64sKeys),
-            u64sVals,
+            stringToIntArray(data),
         ],
         gasBudget: GAS_BUDGET,
     });
@@ -129,9 +124,6 @@ export async function createItem(
 /* Helpers */
 
 function stringToIntArray(text: string): number[] {
-    return Array.from( (new TextEncoder()).encode(text) );
-}
-
-function stringsToIntArrays(texts: string[]): any[] {
-    return texts.map(text => stringToIntArray(text) );
+    const encoder = new TextEncoder();
+    return Array.from( encoder.encode(text) );
 }
