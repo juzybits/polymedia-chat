@@ -4,7 +4,8 @@
     "private": true,
     "dependencies": {
         "@mysten/sui.js": "latest",
-        "@mysten/wallet-adapter-sui-wallet": "latest",
+        "@mysten/wallet-adapter-all-wallets": "latest",
+        "@mysten/wallet-adapter-react": "latest",
         "react": "18",
         "react-dom": "18",
         "react-router-dom": "6"

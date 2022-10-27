@@ -3,12 +3,12 @@ module polymedia::item
     use std::string::{Self, String};
     use sui::object::{Self, UID};
     use sui::transfer;
-    use sui::tx_context::{Self, TxContext};
+    use sui::tx_context::{TxContext};
 
     /// Generic media item
     struct Item has key, store {
         id: UID,
-        owner: address, // TODO: use OwnerCap instead
+        account: address,
         /// The dominant media type in this Item. Examples:
         ///   'ad': advertisement that can be embedded in other Items
         ///   'audio': link to spotify.com, yoursite.com/song.mp3
@@ -34,6 +34,7 @@ module polymedia::item
 
     public entry fun create(
         kind: vector<u8>,
+        account: address,
         version: vector<u8>,
         name: vector<u8>,
         text: vector<u8>,
@@ -43,7 +44,7 @@ module polymedia::item
     {
         let item = Item {
             id: object::new(ctx),
-            owner: tx_context::sender(ctx),
+            account: account,
             kind: string::utf8(kind),
             version: string::utf8(version),
             name: string::utf8(name),

@@ -24,6 +24,7 @@ module polymedia::ideas
         space: address,
 
         /// Ad configuration
+        /// sui::dynamic_field and sui::dynamic_object_field might work well here
         ads: Option<Ads>,
 
         /// List of 'comment' Items that replied to this Item. Ideas:

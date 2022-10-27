@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { createItem } from './lib/sui_client';
+import { useWallet } from '@mysten/wallet-adapter-react';
+import { POLYMEDIA_PACKAGE, getItems } from './lib/sui_client';
 
 export function ItemCreate(props: any) {
     useEffect(() => {
         document.title = 'Polymedia - Create Item';
-
         fillPost();
     }, []);
 
     const [error, setError] = useState('');
 
     const [kind, setKind] = useState('');
+    const [account, setAccount] = useState('0x0000000000000000000000000000000000000000');
     const [version, setVersion] = useState('');
     const [name, setName] = useState('');
     const [text, setText] = useState('');
@@ -37,15 +38,28 @@ export function ItemCreate(props: any) {
         }));
     };
 
+    const { signAndExecuteTransaction } = useWallet();
     const onClickCreateItem = () => {
-        createItem(
-            kind,
-            version,
-            name,
-            text,
-            url,
-            data,
-        )
+        console.debug(`[onClickCreateItem] Calling item::create on package: ${POLYMEDIA_PACKAGE}`);
+        signAndExecuteTransaction({
+            kind: 'moveCall',
+            data: {
+                packageObjectId: POLYMEDIA_PACKAGE,
+                module: 'item',
+                function: 'create',
+                typeArguments: [],
+                arguments: [
+                    stringToIntArray(kind),
+                    '0x0000000000000000000000000000000000000000',
+                    stringToIntArray(version),
+                    stringToIntArray(name),
+                    stringToIntArray(text),
+                    stringToIntArray(url),
+                    stringToIntArray(data),
+                ],
+                gasBudget: 10000,
+            }
+        })
         .then((resp: any) => {
             if (resp.effects.status.status == 'success') {
                 console.debug('[onClickCreateItem] Success:', resp);
@@ -62,12 +76,12 @@ export function ItemCreate(props: any) {
         });
     };
 
-
     return <div id='page'>
 
         <h1>ItemCreate</h1>
 
         kind: {JSON.stringify(kind)} <hr/>
+        account: {JSON.stringify(account)} <hr/>
         version: {JSON.stringify(version)} <hr/>
         name: {JSON.stringify(name)} <hr/>
         text: {JSON.stringify(text)} <hr/>
@@ -78,5 +92,16 @@ export function ItemCreate(props: any) {
         <br/>
         <button onClick={onClickCreateItem}>CREATE</button>
 
+        <br/>
+        <br/>
+        {error}
+
     </div>;
+}
+
+/* Helpers */
+
+function stringToIntArray(text: string): number[] {
+    const encoder = new TextEncoder();
+    return Array.from( encoder.encode(text) );
 }
