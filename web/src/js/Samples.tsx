@@ -10,6 +10,7 @@ export function Samples(props: any) {
         <h1>Samples</h1>
         <div>
             <Link to='/samples/video'>VIDEO</Link><br/><br/>
+            <Link to='/samples/chat'>CHAT</Link><br/><br/>
             {/*<Link to='/samples/ad'>AD</Link>*/}AD<br/><br/>
             {/*<Link to='/samples/audio'>AUDIO</Link>*/}AUDIO<br/><br/>
             {/*<Link to='/samples/chirp'>CHIRP</Link>*/}CHIRP<br/><br/>

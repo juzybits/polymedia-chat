@@ -7,6 +7,7 @@ import { ItemView } from './js/ItemView';
 import { NotFound } from './js/NotFound';
 import { Samples } from './js/Samples';
 import { SampleVideo } from './js/SampleVideo';
+import { SampleChat } from './js/SampleChat';
 
 ReactDOM
     .createRoot( document.getElementById('app') as Element )
@@ -19,6 +20,7 @@ ReactDOM
                 <Route path='/item/view/:uid' element={<ItemView />} />
                 <Route path='/samples' element={<Samples />} />
                 <Route path='/samples/video' element={<SampleVideo />} />
+                <Route path='/samples/chat' element={<SampleChat />} />
                 <Route path='*' element={<NotFound />} />
             </Route>
         </Routes>

@@ -2,7 +2,7 @@
 
 import { JsonRpcProvider, SuiTransactionResponse, GetObjectDataResponse } from '@mysten/sui.js';
 
-export const POLYMEDIA_PACKAGE = '0x3a83baf63000998f3f830be5a29490a80af2fa02';
+export const POLYMEDIA_PACKAGE = '0xa36ff3bb7ae6a3ef8ff17a863e8c1a851618e022';
 const rpc = new JsonRpcProvider('https://fullnode.devnet.sui.io:443');
 
 /* Types */
