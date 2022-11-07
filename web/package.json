@@ -6,12 +6,14 @@
         "@mysten/sui.js": "latest",
         "@mysten/wallet-adapter-all-wallets": "latest",
         "@mysten/wallet-adapter-react": "latest",
+        "node-polyglot": "2",
         "react": "18",
         "react-dom": "18",
         "react-router-dom": "6"
     },
     "devDependencies": {
         "@parcel/transformer-less": "latest",
+        "@types/node-polyglot": "2",
         "@types/react": "latest",
         "@types/react-dom": "latest",
         "parcel": "latest",

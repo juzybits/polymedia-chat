@@ -16,6 +16,7 @@ module polymedia::item
         ///   'comment': reply to an Item
         ///   'gallery': media playlist
         ///   'image': link to pinterest.com, flickr.com, imgur.com
+        ///   'message': a chat message
         ///   'post': long form text
         ///   'resume': curriculum vitae
         ///   'video': link to youtube.com, vimeo.com, yoursite.com/movie.mp4
