@@ -3,9 +3,12 @@
     "author": "juzybits <https://twitter.com/juzybits>",
     "private": true,
     "dependencies": {
+        "@emoji-mart/data": "1",
+        "@emoji-mart/react": "1",
         "@mysten/sui.js": "latest",
         "@mysten/wallet-adapter-all-wallets": "latest",
         "@mysten/wallet-adapter-react": "latest",
+        "emoji-mart": "5",
         "node-polyglot": "2",
         "react": "18",
         "react-dom": "18",
