@@ -1,13 +1,14 @@
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { App } from './js/App';
+import { DevPage } from './js/DevPage';
 import { Home } from './js/Home';
 import { ItemCreate } from './js/ItemCreate';
 import { ItemView } from './js/ItemView';
 import { NotFound } from './js/NotFound';
+import { SampleChat } from './js/SampleChat';
 import { Samples } from './js/Samples';
 import { SampleVideo } from './js/SampleVideo';
-import { SampleChat } from './js/SampleChat';
 
 ReactDOM
     .createRoot( document.getElementById('app') as Element )
@@ -16,6 +17,7 @@ ReactDOM
         <Routes>
             <Route path='/' element={<App />} >
                 <Route index element={<Home />} />
+                <Route path='/dev' element={<DevPage />} />
                 <Route path='/item/create' element={<ItemCreate />} />
                 <Route path='/item/view/:uid' element={<ItemView />} />
                 <Route path='/samples' element={<Samples />} />
