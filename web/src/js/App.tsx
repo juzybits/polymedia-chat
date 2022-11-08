@@ -7,6 +7,8 @@ export function App(props: any)
 {
     const walletAdapters = useMemo(() => [new WalletStandardAdapterProvider()], []);
     return <WalletProvider adapters={walletAdapters}>
-        <Outlet context={[]} />
+        <div id='layout'>
+            <Outlet context={[]} />
+        </div>
     </WalletProvider>;
 }

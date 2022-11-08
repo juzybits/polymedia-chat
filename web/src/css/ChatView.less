@@ -1,0 +1,28 @@
+.chat-wrapper {
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+    .chat-top {
+        flex-grow: 0;
+        padding-top: 1em;
+    }
+    .chat-middle {
+        flex-grow: 1;
+    }
+    .chat-bottom {
+        flex-grow: 0;
+        padding-bottom: 1em;
+    }
+    #message-list {
+        background: #37393f;
+        color: rgb(224, 224, 224);
+        border: 2px solid black;
+        border-radius: 1em;
+        margin-bottom: 1em;
+        overflow-y: scroll;
+    }
+    .message {
+        padding: 0.8em 1em;
+    }
+}
+

@@ -7,10 +7,16 @@ cargo install --locked --git https://github.com/MystenLabs/sui.git --branch devn
 ```
 2. Connect to devnet:
 ```
-sui client switch --rpc https://fullnode.devnet.sui.io:443
+sui client switch --env devnet
 ```
 
 ## Publish the package
 ```
 sui client publish --gas-budget 30000
+```
+
+## How to use from `sui console`
+#### Create a chat
+```
+call --package PACKAGE_ID --module chat --function create --args MAX_SIZE MAX_LENGTH --gas-budget 1000
 ```
