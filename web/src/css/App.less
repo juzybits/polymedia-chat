@@ -1,22 +1,25 @@
-@font-face {
-    font-family: 'Manrope';
-    src: url('./Manrope-VariableFont_wght.ttf');
+:root {
+    --text-color: rgb(224, 224, 224);
+    --panel-color: #303336;
+    --panel-border: 3px solid #2b2c30;
+    --background-color: #202225;
 }
 
-@text-color: black;
-@background-color: #2f3137;
-@panel-color: #ddd;
+@font-face {
+    font-family: 'Quicksand';
+    src: url('./Quicksand-VariableFont_wght.ttf');
+}
 
 html, body, p, h1, h2, h3, h4, h5, input, button {
     padding: 0;
     margin: 0;
-    font-family: 'Manrope', Helvetica, Arial, sans-serif;
+    font-family: 'Quicksand', Helvetica, Arial, sans-serif;
     // font-variation-settings: "wght" 700;
-    color: @text-color;
+    color: var(--text-color);
 }
 
 body {
-    background: @background-color;
+    background: var(--background-color);
 }
 
 #layout, input, button {
@@ -27,7 +30,7 @@ body {
     max-width: 800px;
     height: 100vh;
     margin: 0 auto;
-    background-color: @panel-color;
+    background-color: var(--panel-color);
 }
 
 #page-video {
@@ -57,12 +60,13 @@ input, button {
     padding: 0.5em 1em;
 }
 input {
-    border: 1px solid black;
+    background: var(--panel-color);
+    border: 0;
 }
 button {
     &.is-primary {
         background-color: #008bff;
-        color: @panel-color;
+        color: var(--panel-color);
         font-weight: bold;
     }
     &:hover {

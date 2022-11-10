@@ -1,14 +1,17 @@
 import React, { useEffect, useState, SyntheticEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useWallet } from '@mysten/wallet-adapter-react';
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
+
 import { shorten } from './lib/common';
 import { rpc } from './lib/sui_client';
 import '../css/ChatView.less';
 
 export function ChatView(props: any) {
     const uid = useParams().uid;
-    const POLYMEDIA_PACKAGE = '0xbd445c1241668e4d47e92c6282803a2dfadb0e55';
-    const CHAT_ID = '0xaffa2e0c7e0c70f6bca644da8c2a48db6adeb0b1';
+    const POLYMEDIA_PACKAGE = '0x5277fc5bb90ebf82fe680a80cdfb95e8b147d224';
+    const CHAT_ID = '0x32895711429b47e92a67e12c70cc900230477500';
     const GAS_BUDGET = 10000;
 
     const [error, setError] = useState('');
@@ -16,6 +19,7 @@ export function ChatView(props: any) {
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
     const [waiting, setWaiting] = useState(false);
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
     const { connected, signAndExecuteTransaction } = useWallet();
 
@@ -32,6 +36,12 @@ export function ChatView(props: any) {
     useEffect(() => {
         scrollToEndOfChat();
     }, [messages]);
+
+    useEffect(() => {
+        if (showEmojiPicker) {
+            placeEmojiPicker();
+        }
+    }, [showEmojiPicker]);
 
     /* Helpers */
 
@@ -63,6 +73,16 @@ export function ChatView(props: any) {
 
     const focusOnChatInput = () => {
         document.getElementById('chat-input')?.focus();
+    }
+
+    const placeEmojiPicker = () => {
+        const chatBottom = document.getElementById('chat-bottom');
+        const emojiPicker = document.getElementsByTagName('em-emoji-picker') as HTMLCollectionOf<HTMLElement>;
+        if (!chatBottom || !emojiPicker.length) {
+            return;
+        }
+        emojiPicker[0].style.right = `${chatBottom.offsetLeft}px`;
+        emojiPicker[0].style.bottom = `${chatBottom.offsetHeight}px`;
     }
 
     /* Event handlers */
@@ -230,8 +250,8 @@ export function ChatView(props: any) {
         )}
         </div>
 
-        <div className='chat-bottom'>
-            <form onSubmit={onSubmitAddMessage} className='button-container'>
+        <div id='chat-bottom'>
+            <form onSubmit={onSubmitAddMessage} className='chat-input-wrapper'>
                 <input id='chat-input' type='text' required maxLength={512}
                     className={`nes-input ${waiting ? 'is-disabled' : ''}`} disabled={waiting}
                     spellCheck='false' autoCorrect='off' autoComplete='off'
@@ -240,10 +260,17 @@ export function ChatView(props: any) {
                     {chatError &&
                         <i className='nes-text is-error' style={{fontSize: '0.8em'}}>{chatError}</i>
                     }
+
+                <div id='chat-emoji-button' onClick={() => { setShowEmojiPicker(!showEmojiPicker); }}>
+                    😜
+                </div>
             </form>
 
             { error && <><br/>ERROR:<br/>{error}</> }
         </div>
-    </div>
-    </div>;
+
+        { showEmojiPicker && <Picker data={data} onEmojiSelect={console.log} /> }
+    </div> {/* end of .chat-wrapper */}
+
+    </div>; // end of #page
 }

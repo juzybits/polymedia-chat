@@ -5,31 +5,52 @@
     .chat-top {
         flex-grow: 0;
         padding: 0 1em;
+        border-bottom: var(--panel-border);
     }
     .chat-middle {
         flex-grow: 1;
+        border-bottom: var(--panel-border);
     }
-    .chat-bottom {
+    #chat-bottom {
         flex-grow: 0;
-        padding: 0.3em;
     }
     .chat-title {
         margin: 0.4em 0 0;
     }
     .chat-description {
-        height: 3em;
+        height: 2em;
         overflow-y: scroll;
         margin-bottom: 0.5em;
         padding: 0.5em 0;
+    }
+    .chat-input-wrapper {
+        display: flex;
+        flex-flow: row;
+    }
+    #chat-emoji-button {
+        background: var(--panel-color);
+        font-size: 1.7em;
+        line-height: 50px;
+        width: 50px;
+        height: 50px;
+        text-align: center;
+        vertical-align: middle;
+        border-left: var(--panel-border);
+        &:hover {
+            cursor: pointer;
+            font-size: 2em;
+        }
     }
     #message-list {
         background: #37393f;
         color: rgb(224, 224, 224);
         overflow-y: scroll;
-        box-shadow: rgba(4,4,5,0.2) 0px 1px 0px 0px, rgba(6,6,7,0.05) 0px 1.5px 0px 0px, rgba(4,4,5,0.05) 0px 2px 0px 0px;
+
     }
     .message {
         padding: 0.8em;
     }
+    em-emoji-picker {
+        position: absolute;
+    }
 }
-
