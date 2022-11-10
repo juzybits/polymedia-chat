@@ -4,25 +4,32 @@
     height: 100%;
     .chat-top {
         flex-grow: 0;
-        padding-top: 1em;
+        padding: 0 1em;
     }
     .chat-middle {
         flex-grow: 1;
     }
     .chat-bottom {
         flex-grow: 0;
-        padding-bottom: 1em;
+        padding: 0.3em;
+    }
+    .chat-title {
+        margin: 0.4em 0 0;
+    }
+    .chat-description {
+        height: 3em;
+        overflow-y: scroll;
+        margin-bottom: 0.5em;
+        padding: 0.5em 0;
     }
     #message-list {
         background: #37393f;
         color: rgb(224, 224, 224);
-        border: 2px solid black;
-        border-radius: 1em;
-        margin-bottom: 1em;
         overflow-y: scroll;
+        box-shadow: rgba(4,4,5,0.2) 0px 1px 0px 0px, rgba(6,6,7,0.05) 0px 1.5px 0px 0px, rgba(4,4,5,0.05) 0px 2px 0px 0px;
     }
     .message {
-        padding: 0.8em 1em;
+        padding: 0.8em;
     }
 }
 

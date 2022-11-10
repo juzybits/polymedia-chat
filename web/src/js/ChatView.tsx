@@ -1,14 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, SyntheticEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { useWallet } from '@mysten/wallet-adapter-react';
 import { shorten } from './lib/common';
 import { rpc } from './lib/sui_client';
 import '../css/ChatView.less';
 
 export function ChatView(props: any) {
-    useEffect(() => {
-        document.title = 'Polymedia - Create Item';
-    }, []);
-
     const uid = useParams().uid;
     const POLYMEDIA_PACKAGE = '0xbd445c1241668e4d47e92c6282803a2dfadb0e55';
     const CHAT_ID = '0xaffa2e0c7e0c70f6bca644da8c2a48db6adeb0b1';
@@ -20,12 +17,13 @@ export function ChatView(props: any) {
     const [messages, setMessages] = useState([]);
     const [waiting, setWaiting] = useState(false);
 
-    // const { connected, signAndExecuteTransaction } = useWallet();
+    const { connected, signAndExecuteTransaction } = useWallet();
 
     /* Effects */
 
     useEffect(() => {
         document.title = `Polymedia - Chat - ${uid}`;
+        focusOnChatInput();
         reloadChat();
         const interval = setInterval(() => { reloadChat(); }, 15000);
         return () => { clearInterval(interval); }
@@ -62,6 +60,10 @@ export function ChatView(props: any) {
             div.scrollTop = div.scrollHeight;
         }
     };
+
+    const focusOnChatInput = () => {
+        document.getElementById('chat-input')?.focus();
+    }
 
     /* Event handlers */
 
@@ -163,7 +165,7 @@ export function ChatView(props: any) {
         };
         const onClick = (e: SyntheticEvent) => {
             e.preventDefault();
-            document.getElementById('chat-input')?.focus();
+            focusOnChatInput();
             navigator.clipboard
                 .writeText(props.address)
                 .then( () => tooltip('Copied!') )
@@ -198,14 +200,26 @@ export function ChatView(props: any) {
     return <div id='page'>
     <div className='chat-wrapper'>
         <div className='chat-top'>
-            <h2>CHAT: {uid}</h2>
-            <p>
+            <h2 className='chat-title'>CHAT: {uid}</h2>
+            <p className='chat-description'>
+                <b>A message board to find other players.</b>
+                <br/>
                 A message board to find other players.
+                <br/>
+                <i>A message board to find other players.</i>
                 <br/>
                 <br/>
                 <i>Pro tip #1: click an address to copy it.</i>
                 <br/>
                 <i>Pro tip #2: paste an address to link it.</i>
+                <br/>
+                <br/>
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+                tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+                consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+                cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+                proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
             </p>
         </div>
 
@@ -221,13 +235,11 @@ export function ChatView(props: any) {
                 <input id='chat-input' type='text' required maxLength={512}
                     className={`nes-input ${waiting ? 'is-disabled' : ''}`} disabled={waiting}
                     spellCheck='false' autoCorrect='off' autoComplete='off'
-                    value={message} onChange={e => setMessage(e.target.value)} />
+                    value={message} onChange={e => setMessage(e.target.value)}
+                    placeholder='Send a message' />
                     {chatError &&
                         <i className='nes-text is-error' style={{fontSize: '0.8em'}}>{chatError}</i>
                     }
-                <button type='submit' className={waiting ? 'is-disabled' : 'is-primary'} disabled={waiting}>
-                    {waiting ? 'SENDING' : 'SEND MESSAGE'}
-                </button>
             </form>
 
             { error && <><br/>ERROR:<br/>{error}</> }
