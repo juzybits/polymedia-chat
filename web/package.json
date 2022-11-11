@@ -19,6 +19,7 @@
         "@types/node-polyglot": "2",
         "@types/react": "latest",
         "@types/react-dom": "latest",
+        "buffer": "^5.5.0",
         "parcel": "latest",
         "process": "latest",
         "react-devtools": "latest"

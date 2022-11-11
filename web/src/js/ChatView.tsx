@@ -2,7 +2,7 @@ import React, { useEffect, useState, SyntheticEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useWallet } from '@mysten/wallet-adapter-react';
 import data from '@emoji-mart/data';
-import Picker from '@emoji-mart/react';
+import EmojiPicker from './components/EmojiPicker';
 
 import { Header } from './components/Header';
 import { shorten } from './lib/common';
@@ -17,10 +17,11 @@ export function ChatView(props: any) {
 
     const [error, setError] = useState('');
     const [chatError, setChatError] = useState('');
-    const [message, setMessage] = useState('');
+    const [chatInput, setChatInput] = useState('');
     const [messages, setMessages] = useState([]);
     const [waiting, setWaiting] = useState(false);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [chatInputCursor, setChatInputCursor] = useState(0);
 
     const { connected, signAndExecuteTransaction } = useWallet();
 
@@ -28,21 +29,44 @@ export function ChatView(props: any) {
 
     useEffect(() => {
         document.title = `Polymedia - Chat - ${uid}`;
-        focusOnChatInput();
+        focusChatInput();
         reloadChat();
-        const interval = setInterval(() => { reloadChat(); }, 60000);
-        return () => { clearInterval(interval); }
     }, []);
 
+    /// Periodically update the list of messages
+    useEffect(() => {
+        const interval = setInterval(() => { reloadChat(); }, 60000);
+        return () => {
+            clearInterval(interval);
+        };
+    }, []);
+
+    /// Scroll to the bottom of the message list when it gets updated. TODO: improve UX.
     useEffect(() => {
         scrollToEndOfChat();
     }, [messages]);
 
+    /// Close emoji picker when user clicks outside of it
+    useEffect(() => {
+        window.addEventListener('click', onClickOutsideCloseEmojiPicker, false);
+        return () => {
+            window.removeEventListener('click', onClickOutsideCloseEmojiPicker, false);
+        };
+    }, []);
+
+    /// Position the emoji picker next to the emoji button
     useEffect(() => {
         if (showEmojiPicker) {
-            placeEmojiPicker();
+            placeEmojiPickerInBottomRight();
         }
     }, [showEmojiPicker]);
+
+    // After inserting an emoji, focus back on the text input and restore the original cursor position.
+    useEffect(() => {
+        focusChatInput();
+        (document.getElementById('chat-input') as HTMLInputElement)
+            .setSelectionRange(chatInputCursor, chatInputCursor);
+    }, [chatInputCursor]);
 
     /* Helpers */
 
@@ -54,9 +78,9 @@ export function ChatView(props: any) {
                 setError(`[reloadChat] Object does not exist. Status: ${obj.status}`);
             } else {
                 setError('');
-                const messages = obj.details.data.fields.messages;
-                if (messages) {
-                    setMessages( messages.map((msg: any) => msg.fields) );
+                const msgs = obj.details.data.fields.messages;
+                if (msgs) {
+                    setMessages( msgs.map((msg: any) => msg.fields) );
                 }
             }
         })
@@ -72,29 +96,34 @@ export function ChatView(props: any) {
         }
     };
 
-    const focusOnChatInput = () => {
+    const getEmojiPickerElement = (): HTMLElement|null => {
+        const picker = document.getElementsByTagName('em-emoji-picker') as HTMLCollectionOf<HTMLElement>;
+        return picker.length ? picker[0] : null;
+    };
+
+    const focusChatInput = () => {
         document.getElementById('chat-input')?.focus();
     }
 
-    const placeEmojiPicker = () => {
+    const placeEmojiPickerInBottomRight = () => {
         const chatBottom = document.getElementById('chat-bottom');
-        const emojiPicker = document.getElementsByTagName('em-emoji-picker') as HTMLCollectionOf<HTMLElement>;
-        if (!chatBottom || !emojiPicker.length) {
+        const emojiPicker = getEmojiPickerElement();
+        if (!chatBottom || !emojiPicker) {
             return;
         }
-        emojiPicker[0].style.right = `${chatBottom.offsetLeft}px`;
-        emojiPicker[0].style.bottom = `${chatBottom.offsetHeight}px`;
+        emojiPicker.style.right = `${chatBottom.offsetLeft}px`;
+        emojiPicker.style.bottom = `${chatBottom.offsetHeight}px`;
     }
 
     /* Event handlers */
 
     const onSubmitAddMessage = (e: SyntheticEvent) => {
         e.preventDefault();
-        return;
+        console.log("TODO: sending:", chatInput); return;
         setError('');
         // Message validation
         const forbiddenWords = ['hello', 'hallo', 'hello guys'];
-        if (message.length < 4 || forbiddenWords.includes(message.toLowerCase()) ) {
+        if (chatInput.length < 4 || forbiddenWords.includes(chatInput.toLowerCase()) ) {
             setChatError(`I'm sure you can come up with something more creative ;)`);
             return;
         }
@@ -110,7 +139,7 @@ export function ChatView(props: any) {
                 typeArguments: [],
                 arguments: [
                     CHAT_ID,
-                    Array.from( (new TextEncoder()).encode(message) ),
+                    Array.from( (new TextEncoder()).encode(chatInput) ),
                 ],
                 gasBudget: GAS_BUDGET,
             }
@@ -118,17 +147,36 @@ export function ChatView(props: any) {
         .then((resp: any) => {
             if (resp.effects.status.status == 'success') {
                 reloadChat();
-                setMessage('');
+                setChatInput('');
             } else {
                 setError(resp.effects.status.error);
             }
         })
-        .catch(error => {
+        .catch((error: any) => {
             setError(error.message);
         })
         .finally(() => {
             setWaiting(false);
         });
+    };
+
+    const onSelectEmojiAddToChatInput = (emoji: any) => {
+        const cut = (document.getElementById('chat-input') as HTMLInputElement).selectionStart || 0;
+        setChatInput( chatInput.slice(0,cut) + emoji.native + chatInput.slice(cut) );
+        setChatInputCursor(cut+2);
+    };
+
+    const onClickOutsideCloseEmojiPicker = (e: any) => {
+        const emojiPicker = getEmojiPickerElement();
+        const emojiButton = document.getElementById('chat-emoji-button');
+        if (!emojiPicker || !emojiButton) {
+            return;
+        }
+        const isClickOutside = !emojiPicker.contains(e.target) && !emojiButton.contains(e.target);
+        if (isClickOutside) {
+            setShowEmojiPicker(false);
+            focusChatInput();
+        }
     };
 
     /* DEV_ONLY
@@ -158,7 +206,7 @@ export function ChatView(props: any) {
                 setError(resp.effects.status.error);
             }
         })
-        .catch(error => {
+        .catch((error: any) => {
             setError(error.message);
         });
     };
@@ -181,12 +229,12 @@ export function ChatView(props: any) {
 
     /// Shorten a 0x address, style it, and make it clickable
     const MagicAddress = (props: any) => {
-        const tooltip = (message: string) => {
+        const tooltip = (message: string) => { // TODO
             console.debug('[MagicAddress] ' + message);
         };
         const onClick = (e: SyntheticEvent) => {
             e.preventDefault();
-            focusOnChatInput();
+            focusChatInput();
             navigator.clipboard
                 .writeText(props.address)
                 .then( () => tooltip('Copied!') )
@@ -257,7 +305,7 @@ export function ChatView(props: any) {
                 <input id='chat-input' type='text' required maxLength={512}
                     className={`nes-input ${waiting ? 'is-disabled' : ''}`} disabled={waiting}
                     spellCheck='false' autoCorrect='off' autoComplete='off'
-                    value={message} onChange={e => setMessage(e.target.value)}
+                    value={chatInput} onChange={e => setChatInput(e.target.value)}
                     placeholder='Send a message' />
                     {chatError &&
                         <i className='nes-text is-error' style={{fontSize: '0.8em'}}>{chatError}</i>
@@ -271,7 +319,7 @@ export function ChatView(props: any) {
             { error && <><br/>ERROR:<br/>{error}</> }
         </div>
 
-        { showEmojiPicker && <Picker data={data} onEmojiSelect={console.log} /> }
+        { showEmojiPicker && <EmojiPicker data={data} onEmojiSelect={onSelectEmojiAddToChatInput} /> }
     </div> {/* end of .chat-wrapper */}
 
     </div>; // end of #page

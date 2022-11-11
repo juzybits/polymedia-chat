@@ -71,7 +71,7 @@ export function ItemCreate(props: any) {
                 setError(resp.effects.status.error);
             }
         })
-        .catch(error => {
+        .catch((error: any) => {
             setError(error.message);
         });
     };

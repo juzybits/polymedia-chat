@@ -40,7 +40,7 @@ export function SampleChat(props: any) {
                 setError(resp.effects.status.error);
             }
         })
-        .catch(error => {
+        .catch((error: any) => {
             setError(error.message);
         });
     };
@@ -71,7 +71,7 @@ export function SampleChat(props: any) {
                 setError(resp.effects.status.error);
             }
         })
-        .catch(error => {
+        .catch((error: any) => {
             setError(error.message);
         });
     };
