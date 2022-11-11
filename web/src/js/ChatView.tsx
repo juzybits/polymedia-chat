@@ -4,6 +4,7 @@ import { useWallet } from '@mysten/wallet-adapter-react';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 
+import { Header } from './components/Header';
 import { shorten } from './lib/common';
 import { rpc } from './lib/sui_client';
 import '../css/ChatView.less';
@@ -29,7 +30,7 @@ export function ChatView(props: any) {
         document.title = `Polymedia - Chat - ${uid}`;
         focusOnChatInput();
         reloadChat();
-        const interval = setInterval(() => { reloadChat(); }, 15000);
+        const interval = setInterval(() => { reloadChat(); }, 60000);
         return () => { clearInterval(interval); }
     }, []);
 
@@ -219,6 +220,7 @@ export function ChatView(props: any) {
 
     return <div id='page'>
     <div className='chat-wrapper'>
+        <Header />
         <div className='chat-top'>
             <h2 className='chat-title'>CHAT: {uid}</h2>
             <p className='chat-description'>

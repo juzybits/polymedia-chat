@@ -27,7 +27,7 @@ body {
 }
 
 #page {
-    max-width: 800px;
+    max-width: 820px;
     height: 100vh;
     margin: 0 auto;
     background-color: var(--panel-color);
@@ -41,6 +41,27 @@ body {
         padding: 1em 2em;
         border-radius: 1em;
         background: rgba(0, 0, 0, 0.7);
+    }
+}
+
+#header {
+    display: grid;
+    grid-auto-flow: column;
+    justify-content: space-between;
+    padding: 0.2em 0.8em;
+    background: var(--panel-color);
+    border-bottom: var(--panel-border);
+    font-family: Monospace;
+    font-size: 1.4em;
+    span {
+        vertical-align: middle;
+    }
+    #header-title-link {
+        img {
+            height: 1.15em;
+            margin-right: 0.25em;
+            vertical-align: middle;
+        }
     }
 }
 
