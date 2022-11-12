@@ -23,7 +23,6 @@ export function ChatView(props: any) {
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [chatInputCursor, setChatInputCursor] = useState(0);
 
-    // const { connected, signAndExecuteTransaction } = useWallet();
     const { status, wallet } = ethos.useWallet();
 
     /* Effects */

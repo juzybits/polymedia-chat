@@ -6,16 +6,20 @@
 }
 
 @font-face {
-    font-family: 'Quicksand';
-    src: url('./Quicksand-VariableFont_wght.ttf');
+    font-family: 'Exo 2';
+    src: url('./Exo2-VariableFont_wght.ttf');
 }
 
 html, body, p, h1, h2, h3, h4, h5, input, button {
     padding: 0;
     margin: 0;
-    font-family: 'Quicksand', Helvetica, Arial, sans-serif;
-    // font-variation-settings: "wght" 700;
     color: var(--text-color);
+    font-family: 'Exo 2', Helvetica, Arial, sans-serif;
+    font-variation-settings: "wght" 300;
+}
+
+b {
+    font-variation-settings: "wght" 500;
 }
 
 body {
@@ -48,20 +52,24 @@ body {
     display: grid;
     grid-auto-flow: column;
     justify-content: space-between;
-    padding: 0.2em 0.8em;
+    padding: 0.25em 0.8em 0.3em;
     background: var(--panel-color);
     border-bottom: var(--panel-border);
-    font-family: Monospace;
-    font-size: 1.4em;
+    font-variation-settings: "wght" 400;
     span {
         vertical-align: middle;
     }
     #header-title-link {
+        margin-top: -2px;
+        font-size: 1.2em;
         img {
             height: 1.15em;
             margin-right: 0.25em;
             vertical-align: middle;
         }
+    }
+    #header-menu-btn, #header-user-btn {
+        font-size: 1.1em;
     }
 }
 
