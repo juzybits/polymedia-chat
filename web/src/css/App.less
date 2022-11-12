@@ -3,6 +3,8 @@
     --panel-color: #303336;
     --panel-border: 3px solid #2b2c30;
     --background-color: #202225;
+    --green: #55ff52;
+    --red: #ff5252;
 }
 
 @font-face {
@@ -51,33 +53,56 @@ body {
 #header {
     display: grid;
     grid-auto-flow: column;
-    justify-content: space-between;
+    grid-template-columns: 1fr max-content 1fr;
     padding: 0.25em 0.8em 0.3em;
-    background: var(--panel-color);
     border-bottom: var(--panel-border);
+    background: var(--panel-color);
     font-variation-settings: "wght" 400;
-    span {
-        vertical-align: middle;
+    .header-btn {
+        span {
+            vertical-align: middle;
+            &:hover {
+                cursor: pointer;
+                color: white;
+            }
+        }
+        a:hover {
+            text-decoration: none;
+        }
     }
-    #header-title-link {
-        margin-top: -2px;
+    #header-btn-menu {
+        font-size: 1.1em;
+    }
+    #header-btn-user {
+        font-size: 1.1em;
+        text-align: right;
+    }
+    #header-btn-title {
         font-size: 1.2em;
+        margin-top: -2px;
         img {
             height: 1.15em;
             margin-right: 0.25em;
             vertical-align: middle;
         }
     }
-    #header-menu-btn, #header-user-btn {
-        font-size: 1.1em;
+    #header-btn-connect {
+        &:hover {
+            color: var(--green);
+        }
+    }
+    #header-btn-disconnect {
+        &:hover {
+            color: var(--red);
+        }
     }
 }
 
 a {
-    color: #ff60ff;
+    color: var(--text-color);
     text-decoration: none;
     &:hover {
-        color: #54ee54;
+        color: white;
         text-decoration: underline;
     }
 }

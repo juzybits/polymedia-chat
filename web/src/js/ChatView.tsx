@@ -5,7 +5,7 @@ import data from '@emoji-mart/data';
 import EmojiPicker from './components/EmojiPicker';
 
 import { Header } from './components/Header';
-import { shorten } from './lib/common';
+import { shortenAddress } from './lib/common';
 import { rpc } from './lib/sui_client';
 import '../css/ChatView.less';
 
@@ -242,7 +242,7 @@ export function ChatView(props: any) {
         };
         return <>
             <a onClick={onClick} style={cssAuthor(props.address)}>
-                {'@' + shorten(props.address, 0, 4, '')}
+                {shortenAddress(props.address)}
             </a>
         </>;
     };
@@ -317,9 +317,11 @@ export function ChatView(props: any) {
             </form>
 
             { error && <><br/>ERROR:<br/>{error}</> }
+
+            { showEmojiPicker && <EmojiPicker data={data} onEmojiSelect={onSelectEmojiAddToChatInput} /> }
+
         </div>
 
-        { showEmojiPicker && <EmojiPicker data={data} onEmojiSelect={onSelectEmojiAddToChatInput} /> }
     </div> {/* end of .chat-wrapper */}
 
     </div>; // end of #page
