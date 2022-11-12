@@ -1,6 +1,6 @@
 import React, { useEffect, useState, SyntheticEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useWallet } from '@mysten/wallet-adapter-react';
+import { ethos } from 'ethos-connect';
 import data from '@emoji-mart/data';
 import EmojiPicker from './components/EmojiPicker';
 
@@ -23,7 +23,8 @@ export function ChatView(props: any) {
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [chatInputCursor, setChatInputCursor] = useState(0);
 
-    const { connected, signAndExecuteTransaction } = useWallet();
+    // const { connected, signAndExecuteTransaction } = useWallet();
+    const { status, wallet } = ethos.useWallet();
 
     /* Effects */
 
@@ -130,7 +131,7 @@ export function ChatView(props: any) {
         // Send transaction
         setWaiting(true);
         console.debug(`[onSubmitAddMessage] Calling chat::add_message on package: ${POLYMEDIA_PACKAGE}`);
-        signAndExecuteTransaction({
+        wallet?.signAndExecuteTransaction({
             kind: 'moveCall',
             data: {
                 packageObjectId: POLYMEDIA_PACKAGE,
@@ -182,7 +183,7 @@ export function ChatView(props: any) {
     /* DEV_ONLY
     const onClickCreateChat = () => {
         console.debug(`[onClickCreateChat] Calling item::create on package: ${POLYMEDIA_PACKAGE}`);
-        signAndExecuteTransaction({
+        wallet?.signAndExecuteTransaction({
             kind: 'moveCall',
             data: {
                 packageObjectId: POLYMEDIA_PACKAGE,

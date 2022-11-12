@@ -1,14 +1,18 @@
 import React, { useMemo } from 'react';
 import { Outlet } from 'react-router-dom';
-import { WalletProvider } from '@mysten/wallet-adapter-react';
-import { WalletStandardAdapterProvider } from '@mysten/wallet-adapter-all-wallets';
+import { EthosConnectProvider } from 'ethos-connect';
+import imgLogo from '../img/logo.png';
 
 export function App(props: any)
 {
-    const walletAdapters = useMemo(() => [new WalletStandardAdapterProvider()], []);
-    return <WalletProvider adapters={walletAdapters}>
+    return <EthosConnectProvider
+        ethosConfiguration={{hideEmailSignIn: true}}
+        dappName='Polymedia'
+        dappIcon={<img src={imgLogo} alt='Polymedia logo' />}
+        connectMessage='POLYMEDIA'
+    >
         <div id='layout'>
             <Outlet context={[]} />
         </div>
-    </WalletProvider>;
+    </EthosConnectProvider>;
 }

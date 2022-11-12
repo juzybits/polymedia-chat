@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useWallet } from '@mysten/wallet-adapter-react';
+import { ethos } from 'ethos-connect';
 import { POLYMEDIA_PACKAGE, getItems } from './lib/sui_client';
 
 export function ItemCreate(props: any) {
@@ -38,10 +38,10 @@ export function ItemCreate(props: any) {
         }));
     };
 
-    const { signAndExecuteTransaction } = useWallet();
+    const { wallet } = ethos.useWallet();
     const onClickCreateItem = () => {
         console.debug(`[onClickCreateItem] Calling item::create on package: ${POLYMEDIA_PACKAGE}`);
-        signAndExecuteTransaction({
+        wallet?.signAndExecuteTransaction({
             kind: 'moveCall',
             data: {
                 packageObjectId: POLYMEDIA_PACKAGE,

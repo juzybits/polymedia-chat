@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useWallet } from '@mysten/wallet-adapter-react';
+import { ethos } from 'ethos-connect';
 import { POLYMEDIA_PACKAGE } from './lib/sui_client';
 
 const CHAT_ID = '0xcaa6977b329e49e6c0acfbd0c3d2c4dbf7efb2bc';
@@ -7,17 +7,17 @@ const CHAT_ID = '0xcaa6977b329e49e6c0acfbd0c3d2c4dbf7efb2bc';
 export function SampleChat(props: any) {
     useEffect(() => {
         document.title = 'Polymedia - SampleChat';
-        select('Ethos Wallet');
+        // select('Ethos Wallet');
     }, []);
 
     const [error, setError] = useState('');
     const [maxSize, setMaxSize] = useState(3);
     const [message, setMessage] = useState('');
 
-    const { select, signAndExecuteTransaction } = useWallet();
+    const { wallet } = ethos.useWallet();
     const onClickCreateChat = () => {
         console.debug(`[onClickCreateChat] Calling item::create on package: ${POLYMEDIA_PACKAGE}`);
-        signAndExecuteTransaction({
+        wallet?.signAndExecuteTransaction({
             kind: 'moveCall',
             data: {
                 packageObjectId: POLYMEDIA_PACKAGE,
@@ -47,7 +47,7 @@ export function SampleChat(props: any) {
     const onSubmitAddMessage = (e: any) => {
         e.preventDefault();
         console.debug(`[onSubmitAddMessage] Calling item::add_message on package: ${POLYMEDIA_PACKAGE}`);
-        signAndExecuteTransaction({
+        wallet?.signAndExecuteTransaction({
             kind: 'moveCall',
             data: {
                 packageObjectId: POLYMEDIA_PACKAGE,
