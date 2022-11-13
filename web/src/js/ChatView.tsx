@@ -51,14 +51,6 @@ export function ChatView(props: any) {
         scrollToEndOfChat();
     }, [messages]);
 
-    /// Close emoji picker when user clicks outside of it
-    useEffect(() => {
-        window.addEventListener('click', onClickOutsideCloseEmojiPicker, false);
-        return () => {
-            window.removeEventListener('click', onClickOutsideCloseEmojiPicker, false);
-        };
-    }, []);
-
     /// Position the emoji picker next to the emoji button
     useEffect(() => {
         if (showEmojiPicker) {
@@ -168,16 +160,15 @@ export function ChatView(props: any) {
         setChatInputCursor(cut+2);
     };
 
+    let skipClick = showEmojiPicker;
     const onClickOutsideCloseEmojiPicker = (e: any) => {
-        const emojiPicker = getEmojiPickerElement();
-        if (!emojiPicker || !refEmojiBtn.current) {
-            return;
-        }
-        const isClickOutside = !emojiPicker.contains(e.target) &&
-                   !refEmojiBtn.current.contains(e.target);
-        if (isClickOutside) {
-            setShowEmojiPicker(false);
-            focusChatInput();
+        if (showEmojiPicker) {
+            if (skipClick) { // ignore the 1st click that opens the emoji picker
+                skipClick = false;
+            } else {
+                setShowEmojiPicker(false);
+                focusChatInput();
+            }
         }
     };
 
@@ -320,7 +311,7 @@ export function ChatView(props: any) {
 
             { error && <><br/>ERROR:<br/>{error}</> }
 
-            { showEmojiPicker && <EmojiPicker data={data} onEmojiSelect={onSelectEmojiAddToChatInput} /> }
+            { showEmojiPicker && <EmojiPicker data={data} onEmojiSelect={onSelectEmojiAddToChatInput} onClickOutside={onClickOutsideCloseEmojiPicker} /> }
 
         </div>
 
