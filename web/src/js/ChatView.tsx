@@ -36,10 +36,7 @@ export function ChatView(props: any) {
         document.title = `Polymedia - Chat - ${uid}`;
         focusChatInput();
         reloadChat();
-    }, []);
-
-    /// Periodically update the list of messages
-    useEffect(() => {
+        /// Periodically update the list of messages
         const interval = setInterval(() => { reloadChat(); }, 60000);
         return () => {
             clearInterval(interval);
@@ -48,14 +45,23 @@ export function ChatView(props: any) {
 
     /// Scroll to the bottom of the message list when it gets updated. TODO: improve UX.
     useEffect(() => {
-        scrollToEndOfChat();
+        if (refMessageList.current) {
+            refMessageList.current.scrollTop = refMessageList.current.scrollHeight;
+        }
     }, [messages]);
 
     /// Position the emoji picker next to the emoji button
     useEffect(() => {
-        if (showEmojiPicker) {
-            placeEmojiPickerInBottomRight();
+        if (!showEmojiPicker) {
+            return;
         }
+        const pickers = document.getElementsByTagName('em-emoji-picker') as HTMLCollectionOf<HTMLElement>;
+        const emojiPicker = pickers.length ? pickers[0] : null;
+        if (!emojiPicker || !refChatBottom.current) {
+            return;
+        }
+        emojiPicker.style.right = `${refChatBottom.current.offsetLeft}px`;
+        emojiPicker.style.bottom = `${refChatBottom.current.offsetHeight}px`;
     }, [showEmojiPicker]);
 
     // After inserting an emoji, focus back on the text input and restore the original cursor position.
@@ -64,52 +70,25 @@ export function ChatView(props: any) {
         refChatInput.current?.setSelectionRange(chatInputCursor, chatInputCursor);
     }, [chatInputCursor]);
 
-    /* Helpers */
-
-    const reloadChat = async () => {
-        console.debug('[reloadChat] Fetching object:', CHAT_ID);
-        rpc.getObject(CHAT_ID)
-        .then((obj: any) => {
-            if (obj.status != 'Exists') {
-                setError(`[reloadChat] Object does not exist. Status: ${obj.status}`);
-            } else {
-                setError('');
-                const msgs = obj.details.data.fields.messages;
-                if (msgs) {
-                    setMessages( msgs.map((msg: any) => msg.fields) );
-                }
-            }
-        })
-        .catch(err => {
-            setError(`[reloadChat] RPC error: ${err.message}`)
-        });
-    };
-
-    const scrollToEndOfChat = async () => {
-        if (refMessageList.current) {
-            refMessageList.current.scrollTop = refMessageList.current.scrollHeight;
-        }
-    };
-
-    const getEmojiPickerElement = (): HTMLElement|null => {
-        const picker = document.getElementsByTagName('em-emoji-picker') as HTMLCollectionOf<HTMLElement>;
-        return picker.length ? picker[0] : null;
-    };
-
-    const focusChatInput = () => {
-        refChatInput.current?.focus();
-    }
-
-    const placeEmojiPickerInBottomRight = () => {
-        const emojiPicker = getEmojiPickerElement();
-        if (!emojiPicker || !refChatBottom.current) {
-            return;
-        }
-        emojiPicker.style.right = `${refChatBottom.current.offsetLeft}px`;
-        emojiPicker.style.bottom = `${refChatBottom.current.offsetHeight}px`;
-    }
-
     /* Event handlers */
+
+    const onSelectEmojiAddToChatInput = (emoji: any) => {
+        const cut = refChatInput.current?.selectionStart || 0;
+        setChatInput( chatInput.slice(0,cut) + emoji.native + chatInput.slice(cut) );
+        setChatInputCursor(cut+2);
+    };
+
+    let skipClick = showEmojiPicker;
+    const onClickOutsideCloseEmojiPicker = (e: any) => {
+        if (showEmojiPicker) {
+            if (skipClick) { // ignore the 1st click that opens the emoji picker
+                skipClick = false;
+            } else {
+                setShowEmojiPicker(false);
+                focusChatInput();
+            }
+        }
+    };
 
     const onSubmitAddMessage = (e: SyntheticEvent) => {
         e.preventDefault();
@@ -154,58 +133,32 @@ export function ChatView(props: any) {
         });
     };
 
-    const onSelectEmojiAddToChatInput = (emoji: any) => {
-        const cut = refChatInput.current?.selectionStart || 0;
-        setChatInput( chatInput.slice(0,cut) + emoji.native + chatInput.slice(cut) );
-        setChatInputCursor(cut+2);
-    };
+    /* Helpers */
 
-    let skipClick = showEmojiPicker;
-    const onClickOutsideCloseEmojiPicker = (e: any) => {
-        if (showEmojiPicker) {
-            if (skipClick) { // ignore the 1st click that opens the emoji picker
-                skipClick = false;
+    const reloadChat = async () => {
+        console.debug('[reloadChat] Fetching object:', CHAT_ID);
+        rpc.getObject(CHAT_ID)
+        .then((obj: any) => {
+            if (obj.status != 'Exists') {
+                setError(`[reloadChat] Object does not exist. Status: ${obj.status}`);
             } else {
-                setShowEmojiPicker(false);
-                focusChatInput();
-            }
-        }
-    };
-
-    /* DEV_ONLY
-    const onClickCreateChat = () => {
-        console.debug(`[onClickCreateChat] Calling item::create on package: ${POLYMEDIA_PACKAGE}`);
-        wallet?.signAndExecuteTransaction({
-            kind: 'moveCall',
-            data: {
-                packageObjectId: POLYMEDIA_PACKAGE,
-                module: 'chat',
-                function: 'create',
-                typeArguments: [],
-                arguments: [
-                    100, // max message count
-                    512, // max message length
-                ],
-                gasBudget: GAS_BUDGET,
+                setError('');
+                const msgs = obj.details.data.fields.messages;
+                if (msgs) {
+                    setMessages( msgs.map((msg: any) => msg.fields) );
+                }
             }
         })
-        .then((resp: any) => {
-            if (resp.effects.status.status == 'success') {
-                console.debug('[onClickCreateChat] Success:', resp);
-                const newObjId = resp.effects.created[0].reference.objectId;
-                console.log(`https://explorer.devnet.sui.io/objects/${newObjId}`);
-                console.log(newObjId);
-            } else {
-                setError(resp.effects.status.error);
-            }
-        })
-        .catch((error: any) => {
-            setError(error.message);
+        .catch(err => {
+            setError(`[reloadChat] RPC error: ${err.message}`)
         });
     };
-    */
 
-    /* Render */
+    const focusChatInput = () => {
+        refChatInput.current?.focus();
+    }
+
+    /* Magic text (make addreses clickable, etc) */
 
     const cssAuthor = (author_address: string) => {
         let red = parseInt( author_address.slice(2, 4), 16 );
@@ -259,6 +212,8 @@ export function ChatView(props: any) {
         return <>{result}</>;
     };
 
+    /* HTML */
+
     return <div id='page'>
     <div className='chat-wrapper'>
         <Header />
@@ -311,7 +266,9 @@ export function ChatView(props: any) {
 
             { error && <><br/>ERROR:<br/>{error}</> }
 
-            { showEmojiPicker && <EmojiPicker data={data} onEmojiSelect={onSelectEmojiAddToChatInput} onClickOutside={onClickOutsideCloseEmojiPicker} /> }
+            { showEmojiPicker &&
+                <EmojiPicker data={data} onEmojiSelect={onSelectEmojiAddToChatInput} onClickOutside={onClickOutsideCloseEmojiPicker} />
+            }
 
         </div>
 
@@ -319,3 +276,36 @@ export function ChatView(props: any) {
 
     </div>; // end of #page
 }
+
+/* DEV_ONLY
+const onClickCreateChat = () => {
+    console.debug(`[onClickCreateChat] Calling item::create on package: ${POLYMEDIA_PACKAGE}`);
+    wallet?.signAndExecuteTransaction({
+        kind: 'moveCall',
+        data: {
+            packageObjectId: POLYMEDIA_PACKAGE,
+            module: 'chat',
+            function: 'create',
+            typeArguments: [],
+            arguments: [
+                100, // max message count
+                512, // max message length
+            ],
+            gasBudget: GAS_BUDGET,
+        }
+    })
+    .then((resp: any) => {
+        if (resp.effects.status.status == 'success') {
+            console.debug('[onClickCreateChat] Success:', resp);
+            const newObjId = resp.effects.created[0].reference.objectId;
+            console.log(`https://explorer.devnet.sui.io/objects/${newObjId}`);
+            console.log(newObjId);
+        } else {
+            setError(resp.effects.status.error);
+        }
+    })
+    .catch((error: any) => {
+        setError(error.message);
+    });
+};
+*/
