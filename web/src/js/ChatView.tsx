@@ -1,4 +1,4 @@
-import React, { useEffect, useState, SyntheticEvent } from 'react';
+import React, { useEffect, useRef, useState, SyntheticEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ethos } from 'ethos-connect';
 import data from '@emoji-mart/data';
@@ -24,6 +24,11 @@ export function ChatView(props: any) {
     const [chatInputCursor, setChatInputCursor] = useState(0);
 
     const { status, wallet } = ethos.useWallet();
+
+    const refChatInput = useRef<HTMLInputElement>(null);
+    const refMessageList = useRef<HTMLDivElement>(null);
+    const refChatBottom = useRef<HTMLDivElement>(null);
+    const refEmojiBtn = useRef<HTMLDivElement>(null);
 
     /* Effects */
 
@@ -64,8 +69,7 @@ export function ChatView(props: any) {
     // After inserting an emoji, focus back on the text input and restore the original cursor position.
     useEffect(() => {
         focusChatInput();
-        (document.getElementById('chat-input') as HTMLInputElement)
-            .setSelectionRange(chatInputCursor, chatInputCursor);
+        refChatInput.current?.setSelectionRange(chatInputCursor, chatInputCursor);
     }, [chatInputCursor]);
 
     /* Helpers */
@@ -90,9 +94,8 @@ export function ChatView(props: any) {
     };
 
     const scrollToEndOfChat = async () => {
-        var div = document.getElementById('message-list');
-        if (div) {
-            div.scrollTop = div.scrollHeight;
+        if (refMessageList.current) {
+            refMessageList.current.scrollTop = refMessageList.current.scrollHeight;
         }
     };
 
@@ -102,17 +105,16 @@ export function ChatView(props: any) {
     };
 
     const focusChatInput = () => {
-        document.getElementById('chat-input')?.focus();
+        refChatInput.current?.focus();
     }
 
     const placeEmojiPickerInBottomRight = () => {
-        const chatBottom = document.getElementById('chat-bottom');
         const emojiPicker = getEmojiPickerElement();
-        if (!chatBottom || !emojiPicker) {
+        if (!emojiPicker || !refChatBottom.current) {
             return;
         }
-        emojiPicker.style.right = `${chatBottom.offsetLeft}px`;
-        emojiPicker.style.bottom = `${chatBottom.offsetHeight}px`;
+        emojiPicker.style.right = `${refChatBottom.current.offsetLeft}px`;
+        emojiPicker.style.bottom = `${refChatBottom.current.offsetHeight}px`;
     }
 
     /* Event handlers */
@@ -161,18 +163,18 @@ export function ChatView(props: any) {
     };
 
     const onSelectEmojiAddToChatInput = (emoji: any) => {
-        const cut = (document.getElementById('chat-input') as HTMLInputElement).selectionStart || 0;
+        const cut = refChatInput.current?.selectionStart || 0;
         setChatInput( chatInput.slice(0,cut) + emoji.native + chatInput.slice(cut) );
         setChatInputCursor(cut+2);
     };
 
     const onClickOutsideCloseEmojiPicker = (e: any) => {
         const emojiPicker = getEmojiPickerElement();
-        const emojiButton = document.getElementById('chat-emoji-button');
-        if (!emojiPicker || !emojiButton) {
+        if (!emojiPicker || !refEmojiBtn.current) {
             return;
         }
-        const isClickOutside = !emojiPicker.contains(e.target) && !emojiButton.contains(e.target);
+        const isClickOutside = !emojiPicker.contains(e.target) &&
+                   !refEmojiBtn.current.contains(e.target);
         if (isClickOutside) {
             setShowEmojiPicker(false);
             focusChatInput();
@@ -293,16 +295,16 @@ export function ChatView(props: any) {
             </p>
         </div>
 
-        <div id='message-list' className='chat-middle'>{messages.map((msg: any, idx) =>
+        <div ref={refMessageList} id='message-list' className='chat-middle'>{messages.map((msg: any, idx) =>
             <div key={idx} className='message'>
                 <MagicAddress address={msg.author} />: <MagicText plainText={msg.text} />
             </div>
         )}
         </div>
 
-        <div id='chat-bottom'>
+        <div ref={refChatBottom} className='chat-bottom'>
             <form onSubmit={onSubmitAddMessage} className='chat-input-wrapper'>
-                <input id='chat-input' type='text' required maxLength={512}
+                <input ref={refChatInput} type='text' required maxLength={512}
                     className={`nes-input ${waiting ? 'is-disabled' : ''}`} disabled={waiting}
                     spellCheck='false' autoCorrect='off' autoComplete='off'
                     value={chatInput} onChange={e => setChatInput(e.target.value)}
@@ -311,7 +313,7 @@ export function ChatView(props: any) {
                         <i className='nes-text is-error' style={{fontSize: '0.8em'}}>{chatError}</i>
                     }
 
-                <div id='chat-emoji-button' onClick={() => { setShowEmojiPicker(!showEmojiPicker); }}>
+                <div ref={refEmojiBtn} id='chat-emoji-btn' onClick={() => { setShowEmojiPicker(!showEmojiPicker); }}>
                     😜
                 </div>
             </form>
