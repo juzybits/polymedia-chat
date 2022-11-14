@@ -47,6 +47,17 @@
     }
     .message {
         padding: 0.8em;
+        .message-author {
+            display: inline-block;
+            min-width: 3.9em;
+            margin-right: 0.5em;
+            font-variation-settings: "wght" 400;
+            &:hover {
+                cursor: pointer;
+            }
+        }
+        .message-text {
+        }
     }
     em-emoji-picker {
         position: absolute;

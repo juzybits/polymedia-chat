@@ -243,7 +243,12 @@ export function ChatView(props: any) {
 
         <div ref={refMessageList} id='message-list' className='chat-middle'>{messages.map((msg: any, idx) =>
             <div key={idx} className='message'>
-                <MagicAddress address={msg.author} />: <MagicText plainText={msg.text} />
+                <span className='message-author'>
+                    <MagicAddress address={msg.author} />:
+                </span>
+                <span className='message-text'>
+                    <MagicText plainText={msg.text} />
+                </span>
             </div>
         )}
         </div>
