@@ -216,7 +216,7 @@ export function ChatView(props: any) {
 
     return <div id='page'>
     <div className='chat-wrapper'>
-        <Header />
+        <Header menuPath={`/chat/${uid}/menu`} />
         <div className='chat-top'>
             <h2 className='chat-title'>CHAT: {uid}</h2>
             <p className='chat-description'>

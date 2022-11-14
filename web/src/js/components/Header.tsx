@@ -10,7 +10,7 @@ export function Header(props: any) {
     return <footer id='header'>
 
         <div id='header-btn-menu' className='header-btn'>
-            <span>MENU</span>
+            <span><Link to={props.menuPath}>{props.menuTitle||'MENU'}</Link></span>
         </div>
 
         <div id='header-btn-title' className='header-btn'>
