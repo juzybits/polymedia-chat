@@ -6,13 +6,12 @@ import EmojiPicker from './components/EmojiPicker';
 
 import { Header } from './components/Header';
 import { shortenAddress } from './lib/common';
-import { rpc } from './lib/sui_client';
+import { POLYMEDIA_PACKAGE, rpc } from './lib/sui_client';
 import '../css/ChatView.less';
 
 export function ChatView(props: any) {
     const uid = useParams().uid;
-    const POLYMEDIA_PACKAGE = '0x5277fc5bb90ebf82fe680a80cdfb95e8b147d224';
-    const CHAT_ID = '0x32895711429b47e92a67e12c70cc900230477500';
+    const CHAT_ID = '0x502916e2e58004a686fae5de1308d487c0d9fa4a';
     const GAS_BUDGET = 10000;
 
     const [error, setError] = useState('');

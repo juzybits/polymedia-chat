@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ethos } from 'ethos-connect';
-import { POLYMEDIA_PACKAGE, getItems } from './lib/sui_client';
+import { POLYMEDIA_PACKAGE, getItems } from '../lib/sui_client';
 
 export function ItemCreate(props: any) {
     useEffect(() => {

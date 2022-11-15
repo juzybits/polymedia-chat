@@ -18,5 +18,5 @@ sui client publish --gas-budget 30000
 ## How to use from `sui console`
 #### Create a chat
 ```
-call --package PACKAGE_ID --module chat --function create --args 200 512 --gas-budget 1000
+call --package PACKAGE_ID --module chat --function create --args 100 512 --gas-budget 1000
 ```
