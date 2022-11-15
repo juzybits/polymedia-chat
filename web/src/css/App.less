@@ -2,10 +2,12 @@
     --text-color: rgb(224, 224, 224);
     --panel-color: #303336;
     --panel-border: 3px solid #2b2c30;
-    --background-color: #202225;
+    --bg-color: #202225;
+    --bg-color-content: #37393f;
     --padding-rail: 0.8em;
+    --padding-top: 0.6em;
     --green: #55ff52;
-    --red: #ff5252;
+    --red: #ff7777;
 }
 
 @font-face {
@@ -22,7 +24,7 @@ html, body, p, h1, h2, h3, h4, h5, input, button {
 }
 
 h1 {
-    font-size: 1.7em;
+    font-size: 1.6em;
 }
 
 b {
@@ -30,7 +32,7 @@ b {
 }
 
 body {
-    background: var(--background-color);
+    background: var(--bg-color);
 }
 
 #layout, input, button {
@@ -68,11 +70,14 @@ body {
             vertical-align: middle;
             &:hover {
                 cursor: pointer;
-                color: white;
             }
         }
-        a:hover {
-            text-decoration: none;
+        a {
+            color: var(--text-color);
+            &:hover {
+                color: white;
+                text-decoration: none;
+            }
         }
     }
     #header-btn-menu {
@@ -104,33 +109,42 @@ body {
 }
 
 a {
-    color: var(--text-color);
+    color: #79eeff;
     text-decoration: none;
     &:hover {
-        color: white;
+        color: #a8faff;
         text-decoration: underline;
     }
 }
 
-input, button {
-    display: block;
+input, button, .btn {
     box-sizing: border-box;
-    width: 100%;
     padding: 0.5em 1em;
+    border: 0;
 }
 input {
+    display: block;
+    width: 100%;
     background: var(--panel-color);
     border: 0;
     outline: none;
 }
-button {
+button, .btn {
+    color: white;
+    display: inline-block;
+    font-variation-settings: "wght" 500;
+    font-size: 1.2em;
+    border-radius: 4px;
     &.is-primary {
         background-color: #008bff;
-        color: var(--panel-color);
-        font-weight: bold;
     }
     &:hover {
+        color: white;
         background-color: #00aaff;
         cursor: pointer;
+        text-decoration: none;
     }
+}
+.error {
+    color: var(--red);
 }

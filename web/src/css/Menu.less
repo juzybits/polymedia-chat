@@ -1,6 +1,33 @@
 .menu-wrapper {
-    background: var(--panel-color);
+    background: var(--bg-color-content);
+    height: 100%;
+    word-wrap: break-word;
 }
 .menu-content {
-    padding: 0.6em var(--padding-rail);
+    background: var(--bg-color-content);
+    padding: var(--padding-top) var(--padding-rail);
+    .error {
+        margin-top: 1em;
+    }
+}
+.menu-section {
+    background: var(--bg-color-content);
+    margin-top: 1em;
+    padding-bottom: var(--padding-top);
+    border-bottom: var(--panel-border);
+    &:last-child {
+        border-bottom: 0;
+    }
+    p {
+        margin: 1em 0;
+    }
+}
+.menu-field {
+    margin: 0.5em 0;
+    .menu-field-label {
+        margin-right: 0.5em;
+        font-variation-settings: "wght" 500;
+    }
+    .menu-field-value {
+    }
 }

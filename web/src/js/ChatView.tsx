@@ -1,17 +1,16 @@
 import React, { useEffect, useRef, useState, SyntheticEvent } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { ethos } from 'ethos-connect';
 import data from '@emoji-mart/data';
 import EmojiPicker from './components/EmojiPicker';
 
 import { Header } from './components/Header';
-import { shortenAddress } from './lib/common';
+import { shorten, shortenAddress } from './lib/common';
 import { POLYMEDIA_PACKAGE, rpc } from './lib/sui_client';
-import '../css/ChatView.less';
+import '../css/Chat.less';
 
 export function ChatView(props: any) {
-    const uid = useParams().uid;
-    const CHAT_ID = '0x502916e2e58004a686fae5de1308d487c0d9fa4a';
+    const chatId = useParams().uid || '';
     const GAS_BUDGET = 10000;
 
     const [error, setError] = useState('');
@@ -32,7 +31,7 @@ export function ChatView(props: any) {
     /* Effects */
 
     useEffect(() => {
-        document.title = `Polymedia - Chat - ${uid}`;
+        document.title = `Polymedia - Chat - ${chatId}`;
         focusChatInput();
         reloadChat();
         /// Periodically update the list of messages
@@ -110,7 +109,7 @@ export function ChatView(props: any) {
                 function: 'add_message',
                 typeArguments: [],
                 arguments: [
-                    CHAT_ID,
+                    chatId,
                     Array.from( (new TextEncoder()).encode(chatInput) ),
                 ],
                 gasBudget: GAS_BUDGET,
@@ -135,8 +134,8 @@ export function ChatView(props: any) {
     /* Helpers */
 
     const reloadChat = async () => {
-        console.debug('[reloadChat] Fetching object:', CHAT_ID);
-        rpc.getObject(CHAT_ID)
+        console.debug('[reloadChat] Fetching object:', chatId);
+        rpc.getObject(chatId)
         .then((obj: any) => {
             if (obj.status != 'Exists') {
                 setError(`[reloadChat] Object does not exist. Status: ${obj.status}`);
@@ -215,9 +214,9 @@ export function ChatView(props: any) {
 
     return <div id='page'>
     <div className='chat-wrapper'>
-        <Header menuPath={`/chat/${uid}/menu`} />
+        <Header menuPath={`/chat/${chatId}/menu`} />
         <div className='chat-top'>
-            <h2 className='chat-title'>CHAT: {uid}</h2>
+            <h1 className='chat-title'> CHAT&nbsp;&nbsp;➭&nbsp;&nbsp;{shorten(chatId, 5, 3, '...')}</h1>
             <p className='chat-description'>
                 <b>A message board to find other players.</b>
                 <br/>
@@ -268,7 +267,7 @@ export function ChatView(props: any) {
                 </div>
             </form>
 
-            { error && <><br/>ERROR:<br/>{error}</> }
+            { error && <div className='error'>ERROR:<br/>{error}</div> }
 
             { showEmojiPicker &&
                 <EmojiPicker data={data} onEmojiSelect={onSelectEmojiAddToChatInput} onClickOutside={onClickOutsideCloseEmojiPicker} />

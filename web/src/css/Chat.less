@@ -3,11 +3,8 @@
     flex-flow: column;
     height: 100%;
     .chat-top {
-        padding: 0 var(--padding-rail);
+        padding: var(--padding-top) var(--padding-rail) 0;
         border-bottom: var(--panel-border);
-        .chat-title {
-            margin: 0.4em 0 0;
-        }
     }
     .chat-middle {
         flex-grow: 1;
@@ -40,7 +37,7 @@
         }
     }
     #message-list {
-        background: #37393f;
+        background: var(--bg-color-content);
         color: rgb(224, 224, 224);
         overflow-y: scroll;
 
@@ -58,6 +55,12 @@
         .message-text {
             line-height: 1.3em;
         }
+    }
+    .error {
+        padding: var(--padding-rail);
+        border-top: var(--panel-border);
+        max-height: 14em;
+        overflow-y: scroll;
     }
     em-emoji-picker {
         position: absolute;

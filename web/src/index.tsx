@@ -2,6 +2,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { App } from './js/App';
 import { ChatMenu } from './js/ChatMenu';
+import { ChatNew } from './js/ChatNew';
 import { ChatView } from './js/ChatView';
 import { Home } from './js/Home';
 import { NotFound } from './js/NotFound';
@@ -18,6 +19,7 @@ ReactDOM
         <Routes>
             <Route path='/' element={<App />} >
                 <Route index element={<Home />} />
+                <Route path='/chat/new' element={<ChatNew />} />
                 <Route path='/chat/:uid' element={<ChatView />} />
                 <Route path='/chat/:uid/menu' element={<ChatMenu />} />
                 <Route path='*' element={<NotFound />} />
