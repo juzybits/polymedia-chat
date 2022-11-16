@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, SyntheticEvent } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useOutletContext } from 'react-router-dom';
 import { ethos } from 'ethos-connect';
 import data from '@emoji-mart/data';
 import EmojiPicker from './components/EmojiPicker';
@@ -14,13 +14,13 @@ export function ChatView(props: any) {
     const GAS_BUDGET = 10000;
 
     const [error, setError] = useState('');
-    const [chatError, setChatError] = useState('');
     const [chatInput, setChatInput] = useState('');
     const [messages, setMessages] = useState([]);
     const [waiting, setWaiting] = useState(false);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [chatInputCursor, setChatInputCursor] = useState(0);
 
+    const [notify] = useOutletContext();
     const { status, wallet } = ethos.useWallet();
 
     const refChatInput = useRef<HTMLInputElement>(null);
@@ -35,7 +35,7 @@ export function ChatView(props: any) {
         focusChatInput();
         reloadChat();
         /// Periodically update the list of messages
-        const interval = setInterval(() => { reloadChat(); }, 60000);
+        const interval = setInterval(() => { reloadChat(); }, 86_400_000);
         return () => {
             clearInterval(interval);
         };
@@ -90,12 +90,11 @@ export function ChatView(props: any) {
 
     const onSubmitAddMessage = (e: SyntheticEvent) => {
         e.preventDefault();
-        console.log("TODO: sending:", chatInput); return;
         setError('');
         // Message validation
         const forbiddenWords = ['hello', 'hallo', 'hello guys'];
         if (chatInput.length < 4 || forbiddenWords.includes(chatInput.toLowerCase()) ) {
-            setChatError(`I'm sure you can come up with something more creative ;)`);
+            setError('I\'m sure you can come up with something more creative ;)');
             return;
         }
         // Send transaction
@@ -178,11 +177,12 @@ export function ChatView(props: any) {
         };
         const onClick = (e: SyntheticEvent) => {
             e.preventDefault();
-            focusChatInput();
             navigator.clipboard
                 .writeText(props.address)
                 .then( () => tooltip('Copied!') )
                 .catch( (err) => console.error(`[MagicAddress] Error copying to clipboard: ${err}`) );
+            focusChatInput();
+            notify('COPIED!');
         };
         return <>
             <a onClick={onClick} style={cssAuthor(props.address)}>
@@ -218,8 +218,6 @@ export function ChatView(props: any) {
         <div className='chat-top'>
             <h1 className='chat-title'> CHAT&nbsp;&nbsp;➭&nbsp;&nbsp;{shorten(chatId, 5, 3, '...')}</h1>
             <p className='chat-description'>
-                <b>A message board to find other players.</b>
-                <br/>
                 A message board to find other players.
                 <br/>
                 <i>A message board to find other players.</i>
@@ -254,20 +252,16 @@ export function ChatView(props: any) {
         <div ref={refChatBottom} className='chat-bottom'>
             <form onSubmit={onSubmitAddMessage} className='chat-input-wrapper'>
                 <input ref={refChatInput} type='text' required maxLength={512}
-                    className={`nes-input ${waiting ? 'is-disabled' : ''}`} disabled={waiting}
+                    className={waiting ? 'waiting' : ''} disabled={waiting}
                     spellCheck='false' autoCorrect='off' autoComplete='off'
                     value={chatInput} onChange={e => setChatInput(e.target.value)}
                     placeholder='Send a message' />
-                    {chatError &&
-                        <i className='nes-text is-error' style={{fontSize: '0.8em'}}>{chatError}</i>
-                    }
-
                 <div ref={refEmojiBtn} id='chat-emoji-btn' onClick={() => { setShowEmojiPicker(!showEmojiPicker); }}>
                     😜
                 </div>
             </form>
 
-            { error && <div className='error'>ERROR:<br/>{error}</div> }
+            { error && <div className='error'>{error}</div> }
 
             { showEmojiPicker &&
                 <EmojiPicker data={data} onEmojiSelect={onSelectEmojiAddToChatInput} onClickOutside={onClickOutsideCloseEmojiPicker} />
