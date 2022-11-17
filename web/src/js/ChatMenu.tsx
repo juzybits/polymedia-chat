@@ -44,7 +44,7 @@ export function ChatMenu(props: any) {
 
         <div className='menu-content'>
 
-            <h1>CHAT&nbsp;&nbsp;➭&nbsp;&nbsp;{shorten(chatId, 5, 3, '...')}&nbsp;&nbsp;➭&nbsp;&nbsp;INFO</h1>
+            <h1>CHAT DETAILS</h1>
             {
                 error
             ?
@@ -64,21 +64,29 @@ export function ChatMenu(props: any) {
                         </span>
                     </div>
                     <div className='menu-field'>
-                        <span className='menu-field-label'>Version:</span>
-                        <span className='menu-field-value'>{chatObj?.details.reference.version}</span>
+                        <span className='menu-field-label'>Name:</span>
+                        <span className='menu-field-value'>{chatObj?.details.data.fields.name}</span>
+                    </div>
+                    <div className='menu-field'>
+                        <span className='menu-field-label'>Description:</span>
+                        <span className='menu-field-value'>{chatObj?.details.data.fields.description}</span>
                     </div>
                     <div className='menu-field'>
                         <span className='menu-field-label'>Max messages:</span>
-                        <span className='menu-field-value'>{chatObj?.details.data.fields.max_size}</span>
+                        <span className='menu-field-value'>{chatObj?.details.data.fields.max_msg_amount}</span>
                     </div>
                     <div className='menu-field'>
                         <span className='menu-field-label'>Max message length:</span>
-                        <span className='menu-field-value'>{chatObj?.details.data.fields.max_length}</span>
+                        <span className='menu-field-value'>{chatObj?.details.data.fields.max_msg_length}</span>
                     </div>
+                    {/*<div className='menu-field'>
+                        <span className='menu-field-label'>Version:</span>
+                        <span className='menu-field-value'>{chatObj?.details.reference.version}</span>
+                    </div>*/}
                 </div>
 
                 <div className='menu-section'>
-                    <h1>NEW CHAT ROOM</h1>
+                    <h1>CREATE NEW CHAT</h1>
                     <p>
                         Start your own chat room now. It's very simple!
                     </p>

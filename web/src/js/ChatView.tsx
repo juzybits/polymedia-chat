@@ -15,6 +15,7 @@ export function ChatView(props: any) {
 
     const [error, setError] = useState('');
     const [chatInput, setChatInput] = useState('');
+    const [chatObj, setChatObj]: any = useState(null);
     const [messages, setMessages] = useState([]);
     const [waiting, setWaiting] = useState(false);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -140,6 +141,7 @@ export function ChatView(props: any) {
                 setError(`[reloadChat] Object does not exist. Status: ${obj.status}`);
             } else {
                 setError('');
+                setChatObj(obj);
                 const msgs = obj.details.data.fields.messages;
                 if (msgs) {
                     setMessages( msgs.map((msg: any) => msg.fields) );
@@ -216,24 +218,9 @@ export function ChatView(props: any) {
     <div className='chat-wrapper'>
         <Header menuPath={`/chat/${chatId}/menu`} />
         <div className='chat-top'>
-            <h1 className='chat-title'> CHAT&nbsp;&nbsp;➭&nbsp;&nbsp;{shorten(chatId, 5, 3, '...')}</h1>
+            <h1 className='chat-title'>{chatObj?.details.data.fields.name}</h1>
             <p className='chat-description'>
-                A message board to find other players.
-                <br/>
-                <i>A message board to find other players.</i>
-                <br/>
-                <br/>
-                <i>Pro tip #1: click an address to copy it.</i>
-                <br/>
-                <i>Pro tip #2: paste an address to link it.</i>
-                <br/>
-                <br/>
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-                consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-                cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-                proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                {chatObj?.details.data.fields.description}
             </p>
         </div>
 
