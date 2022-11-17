@@ -19,6 +19,7 @@ export function ChatView(props: any) {
     const [messages, setMessages] = useState([]);
     const [waiting, setWaiting] = useState(false);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [ignoreClickOutside, setIgnoreClickOutside] = useState(true);
     const [chatInputCursor, setChatInputCursor] = useState(0);
 
     const [notify] = useOutletContext();
@@ -49,11 +50,15 @@ export function ChatView(props: any) {
         }
     }, [messages]);
 
-    /// Position the emoji picker next to the emoji button
+    /// React to opening/closing emoji picker
     useEffect(() => {
         if (!showEmojiPicker) {
+            setIgnoreClickOutside(true);
+            focusChatInput();
             return;
         }
+        setIgnoreClickOutside(false);
+        // Position the emoji picker next to the emoji button
         const pickers = document.getElementsByTagName('em-emoji-picker') as HTMLCollectionOf<HTMLElement>;
         const emojiPicker = pickers.length ? pickers[0] : null;
         if (!emojiPicker || !refChatBottom.current) {
@@ -77,15 +82,13 @@ export function ChatView(props: any) {
         setChatInputCursor(cut+2);
     };
 
-    let skipClick = showEmojiPicker;
     const onClickOutsideCloseEmojiPicker = (e: any) => {
-        if (showEmojiPicker) {
-            if (skipClick) { // ignore the 1st click that opens the emoji picker
-                skipClick = false;
-            } else {
-                setShowEmojiPicker(false);
-                focusChatInput();
-            }
+        // ignore the 1st click that opens the emoji picker
+        if (ignoreClickOutside) {
+            setIgnoreClickOutside(false);
+        } else {
+            setShowEmojiPicker(false);
+            focusChatInput();
         }
     };
 
