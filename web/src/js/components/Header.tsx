@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ethos, SignInButton } from 'ethos-connect';
 import { shortenAddress } from '../lib/common';
+import '../../css/Header.less';
 import imgLogo from '../../img/logo.png';
 
 export function Header(props: any) {

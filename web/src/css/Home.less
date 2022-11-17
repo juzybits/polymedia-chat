@@ -1,27 +1,65 @@
-#page.teaser {
-    background-color: rgb(20 20 20);
-    color: white;
-    margin: 0;
-    padding: 0;
-    h1 {
-        position: absolute;
-        font-family: monospace;
-        text-align: center;
-        width:  100%;
-        padding: 0;
-        margin: 0.9em 0 0 0;
-        font-size: 2.4em;
+:root {
+    --category-border: 1px solid #555;
+}
+
+#home {
+    text-align: center;
+}
+#home-welcome {
+    margin-top: 1em;
+    h1#home-title {
+        margin-bottom: 0.5em;
+        img#home-logo {
+            height: 1em;
+            line-height: 1em;
+            vertical-align: top;
+            margin: 4px 5px 0 0;
+        }
     }
-    a {
-        text-decoration: none;
-        color: white;
+}
+#home-explore {
+    h2 {
+        margin-top: 1.5em;
     }
-    a:hover {
-        text-decoration: underline;
+    .categories {
+        max-width: 600px;
+        padding: 1em;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        grid-gap: 1em;
+        .category {
+            background: var(--bg-color-content);
+            overflow-wrap: break-word;
+            border: var(--category-border);
+            border-radius: 18px;
+            .category-title {
+                background-color: var(--panel-color);
+                padding: 0.5em;
+                border-bottom: var(--category-border);
+                border-radius: 18px 18px 0 0;
+            }
+            .category-description {
+                padding: 1em;
+                .btn {
+                    margin: 1em;
+                }
+            }
+        }
     }
-    #page {
-        max-width: none;
-        margin: 0;
-        padding: 0;
+}
+
+#home-stay-in-loop {
+    h2 {
+        margin-top: 1em;
+    }
+    .links {
+        margin-top: 0.5em;
+        margin-bottom: 1em;
+        a {
+            &:hover {
+                text-decoration: none;
+            }
+        }
     }
 }

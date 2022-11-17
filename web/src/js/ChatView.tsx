@@ -215,7 +215,7 @@ export function ChatView(props: any) {
     /* HTML */
 
     return <div id='page'>
-    <div className='chat-wrapper'>
+    <div id='chat-wrapper'>
         <Header menuPath={`/chat/${chatId}/menu`} />
         <div className='chat-top'>
             <h1 className='chat-title'>{chatObj?.details.data.fields.name}</h1>
@@ -256,7 +256,7 @@ export function ChatView(props: any) {
 
         </div>
 
-    </div> {/* end of .chat-wrapper */}
+    </div> {/* end of #chat-wrapper */}
 
     </div>; // end of #page
 }

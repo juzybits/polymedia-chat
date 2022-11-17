@@ -60,57 +60,6 @@ body {
     }
 }
 
-#header {
-    display: grid;
-    grid-auto-flow: column;
-    grid-template-columns: 1fr max-content 1fr;
-    padding: 0.3em var(--padding-rail) 0.39em;
-    border-bottom: var(--panel-border);
-    background: var(--panel-color);
-    font-variation-settings: "wght" 400;
-    .header-btn {
-        span {
-            vertical-align: middle;
-            &:hover {
-                cursor: pointer;
-            }
-        }
-        a {
-            color: var(--text-color);
-            &:hover {
-                color: white;
-                text-decoration: none;
-            }
-        }
-    }
-    #header-btn-menu {
-        font-size: 1.1em;
-    }
-    #header-btn-user {
-        font-size: 1.1em;
-        text-align: right;
-    }
-    #header-btn-title {
-        font-size: 1.2em;
-        margin-top: -2px;
-        img {
-            height: 1.15em;
-            margin-right: 0.25em;
-            vertical-align: middle;
-        }
-    }
-    #header-btn-connect {
-        &:hover {
-            color: var(--green);
-        }
-    }
-    #header-btn-disconnect {
-        &:hover {
-            color: var(--red);
-        }
-    }
-}
-
 a {
     color: #79eeff;
     text-decoration: none;
@@ -120,11 +69,6 @@ a {
     }
 }
 
-input, button, .btn {
-    box-sizing: border-box;
-    padding: 0.5em 1em;
-    border: 0;
-}
 input {
     display: block;
     width: 100%;
@@ -138,12 +82,17 @@ input {
         }
     }
 }
+input, button, .btn {
+    box-sizing: border-box;
+    padding: 0.5em 1em;
+    border: 0;
+}
 button, .btn {
     color: white;
     display: inline-block;
     font-variation-settings: "wght" 500;
     border-radius: 4px;
-    &.is-primary {
+    &.primary {
         background-color: #008bff;
     }
     &:hover {
