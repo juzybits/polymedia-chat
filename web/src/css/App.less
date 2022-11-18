@@ -1,10 +1,10 @@
 :root {
     --text-color: rgb(224, 224, 224);
     --page-width: 830px;
-    --panel-color: #303336;
     --panel-border: 3px solid #2b2c30;
-    --bg-color: #202225;
-    --bg-color-content: #37393f;
+    --bg-body: #202225;
+    --bg-panel: #303336;
+    --bg-content: #37393f;
     --padding-rail: 0.85em;
     --padding-top: 0.6em;
     --green: #55ff52;
@@ -35,7 +35,7 @@ b {
 }
 
 body {
-    background: var(--bg-color);
+    background: var(--bg-body);
 }
 
 #page, input, button {
@@ -47,7 +47,7 @@ body {
         max-width: var(--page-width);
         height: 100vh;
         margin: 0 auto;
-        background-color: var(--panel-color);
+        background-color: var(--bg-panel);
     }
 }
 
@@ -95,7 +95,7 @@ a {
 input {
     display: block;
     width: 100%;
-    background: var(--panel-color);
+    background: var(--bg-panel);
     border: 0;
     outline: none;
     &.waiting {
