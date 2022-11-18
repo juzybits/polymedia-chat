@@ -37,7 +37,7 @@ export function ChatMenu(props: any) {
 
     /* HTML */
 
-    return <div id='page'>
+    return <div id='page' className='page-tool'>
     <div className='menu-wrapper'>
 
         <Header menuPath={`/chat/${chatId}`} menuTitle='BACK' />

@@ -5,7 +5,7 @@ export function NotFound(props: any) {
         document.title = 'Polymedia - Not found';
     }, []);
 
-    return <div id='page'>
+    return <div id='page' className='page-tool'>
         <h1>404</h1>
         <div>
             Not found.

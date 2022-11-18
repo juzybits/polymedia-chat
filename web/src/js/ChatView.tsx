@@ -217,7 +217,7 @@ export function ChatView(props: any) {
 
     /* HTML */
 
-    return <div id='page'>
+    return <div id='page' className='page-tool'>
     <div id='chat-wrapper'>
         <Header menuPath={`/chat/${chatId}/menu`} />
         <div className='chat-top'>

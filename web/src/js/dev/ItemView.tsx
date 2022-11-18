@@ -8,7 +8,7 @@ export function ItemView(props: any) {
 
     const uid = useParams().uid;
 
-    return <div id='page'>
+    return <div id='page' className='page-tool'>
 
         <h1>ItemView</h1>
 

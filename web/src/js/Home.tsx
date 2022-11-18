@@ -8,7 +8,7 @@ export function Home(props: any) {
         document.title = 'Polymedia';
     }, []);
 
-    return <div id='home'>
+    return <div id='page' className='page-home'>
 
         <div id='home-welcome'>
             <h1 id='home-title'>
@@ -25,7 +25,7 @@ export function Home(props: any) {
                 Explore
             </h2>
 
-            <div class='categories'>
+            <div className='categories'>
                 <div className='category'>
                     <h3 className='category-title'>Chat</h3>
                     <div className='category-description'>
@@ -47,7 +47,7 @@ export function Home(props: any) {
             <h2>
                 Stay in the loop
             </h2>
-            <div class='links'>
+            <div className='links'>
                 <a href='https://twitter.com/polymedia_app'>Twitter</a> •&nbsp;
                 <a href='https://discord.gg/3ZaE69Eq78'>Discord</a>
                 <br/>

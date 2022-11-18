@@ -76,7 +76,7 @@ export function ItemCreate(props: any) {
         });
     };
 
-    return <div id='page'>
+    return <div id='page' className='page-tool'>
 
         <h1>ItemCreate</h1>
 

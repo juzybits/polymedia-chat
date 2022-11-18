@@ -38,27 +38,29 @@ body {
     background: var(--bg-color);
 }
 
-#layout, input, button {
+#page, input, button {
     font-size: 1.2em;
 }
 
 #page {
-    max-width: var(--page-width);
-    height: 100vh;
-    margin: 0 auto;
-    background-color: var(--panel-color);
-}
-
-#page-video {
-    .video-menu {
-        position: absolute;
-        margin-top: 4.5em;
-        margin-left: 2em;
-        padding: 1em 2em;
-        border-radius: 1em;
-        background: rgba(0, 0, 0, 0.7);
+    &.page-tool {
+        max-width: var(--page-width);
+        height: 100vh;
+        margin: 0 auto;
+        background-color: var(--panel-color);
     }
 }
+
+// #page-video {
+//     .video-menu {
+//         position: absolute;
+//         margin-top: 4.5em;
+//         margin-left: 2em;
+//         padding: 1em 2em;
+//         border-radius: 1em;
+//         background: rgba(0, 0, 0, 0.7);
+//     }
+// }
 
 a {
     color: #79eeff;

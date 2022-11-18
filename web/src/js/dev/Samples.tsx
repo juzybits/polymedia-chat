@@ -6,7 +6,7 @@ export function Samples(props: any) {
         document.title = 'Polymedia - Samples';
     }, []);
 
-    return <div id='page'>
+    return <div id='page' className='page-tool'>
         <h1>Samples</h1>
         <div>
             <Link to='/samples/video'>VIDEO</Link><br/><br/>

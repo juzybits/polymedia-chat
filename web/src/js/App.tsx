@@ -16,10 +16,8 @@ export function App(props: any)
         dappName='Polymedia'
         dappIcon={<img src={imgLogo} alt='Polymedia logo' />}
         connectMessage='POLYMEDIA'
-    >
+        >
         {notification && <div className='notification'>{notification}</div>}
-        <div id='layout'>
-            <Outlet context={[notify]} />
-        </div>
+        <Outlet context={[notify]} />
     </EthosConnectProvider>;
 }
