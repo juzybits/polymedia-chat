@@ -86,19 +86,7 @@ export function ChatMenu(props: any) {
                 </div>
 
                 <div className='menu-section'>
-                    <h1>CREATE CHAT</h1>
-                    <p>
-                        Start your own chat room now. It's very simple!
-                    </p>
-                    <Link className='btn primary' to='/chat/new'>CREATE</Link>
-                </div>
-
-                <div className='menu-section'>
-                    <h1>EXPLORE CHATS</h1>
-                    <p>
-                        Find out what else people are talking about.
-                    </p>
-                    <Link className='btn primary' to='/chat'>EXPLORE</Link>
+                    <Link className='btn primary' to='/chat'>GO TO CHATS</Link>
                 </div>
 
                 </>
