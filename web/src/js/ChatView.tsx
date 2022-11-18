@@ -4,7 +4,7 @@ import { ethos } from 'ethos-connect';
 import data from '@emoji-mart/data';
 import EmojiPicker from './components/EmojiPicker';
 
-import { Header } from './components/Header';
+import { Nav } from './components/Nav';
 import { shorten, shortenAddress } from './lib/common';
 import { POLYMEDIA_PACKAGE, rpc } from './lib/sui_client';
 import '../css/Chat.less';
@@ -219,7 +219,7 @@ export function ChatView(props: any) {
 
     return <div id='page' className='page-tool'>
     <div id='chat-wrapper'>
-        <Header menuPath={`/chat/${chatId}/menu`} />
+        <Nav menuPath={`/chat/${chatId}/menu`} />
         <div className='chat-top'>
             <h1 className='chat-title'>{chatObj?.details.data.fields.name}</h1>
             <p className='chat-description'>

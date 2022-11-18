@@ -70,6 +70,27 @@ a {
         text-decoration: underline;
     }
 }
+.header {
+    h1 {
+        font-size: 1.6em;
+    }
+    a {
+        color: var(--text-color);
+        img {
+            height: 1em;
+            line-height: 1em;
+            vertical-align: top;
+            margin: 4px 5px 0 0;
+        }
+        &:hover {
+            text-decoration: none;
+            color: white;
+            img {
+                filter: brightness(1.2);
+            }
+        }
+    }
+}
 
 input {
     display: block;

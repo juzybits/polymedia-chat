@@ -4,62 +4,56 @@
 
 #page.page-home {
     text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
 }
-#home-welcome {
-    margin-top: 1em;
-    h1#home-title {
+
+.home-welcome {
+    margin: 1em 0 2em;
+    h1 {
         margin-bottom: 0.5em;
-        img#home-logo {
-            height: 1em;
-            line-height: 1em;
-            vertical-align: top;
-            margin: 4px 5px 0 0;
-        }
     }
 }
-#home-explore {
+
+.home-section {
     h2 {
-        margin-top: 1.5em;
+        margin-top: 1em;
+        margin-bottom: 0.3em;
     }
-    .categories {
-        max-width: 600px;
-        padding: 1em;
-        margin: 0 auto;
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        grid-gap: 1em;
-        .category {
-            background: var(--bg-color-content);
-            overflow-wrap: break-word;
-            border: var(--category-border);
-            border-radius: 18px;
-            .category-title {
-                background-color: var(--panel-color);
-                padding: 0.5em;
-                border-bottom: var(--category-border);
-                border-radius: 18px 18px 0 0;
-            }
-            .category-description {
-                padding: 1em;
-                .btn {
-                    margin: 1em;
-                }
-            }
+    .btn {
+        margin: 0.8em;
+    }
+}
+
+.home-categories {
+    padding: 1em;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-gap: 1em;
+    .category {
+        background: var(--bg-color-content);
+        overflow-wrap: break-word;
+        border: var(--category-border);
+        border-radius: 18px;
+        .category-title {
+            background-color: var(--panel-color);
+            padding: 0.5em;
+            border-bottom: var(--category-border);
+            border-radius: 18px 18px 0 0;
+        }
+        .category-description {
+            padding: 1em;
         }
     }
 }
 
-#home-stay-in-loop {
-    h2 {
-        margin-top: 1em;
-    }
-    .links {
-        margin-top: 0.5em;
-        margin-bottom: 1em;
-        a {
-            &:hover {
-                text-decoration: none;
-            }
+.home-links {
+    margin-top: 0.5em;
+    margin-bottom: 1em;
+    a {
+        &:hover {
+            text-decoration: none;
         }
     }
 }

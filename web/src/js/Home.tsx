@@ -10,22 +10,24 @@ export function Home(props: any) {
 
     return <div id='page' className='page-home'>
 
-        <div id='home-welcome'>
-            <h1 id='home-title'>
-                <img id='home-logo' src={imgLogo} alt='Polymedia logo' />
-                POLYMEDIA
+        <div className='home-welcome header'>
+            <h1>
+                <Link to='/'>
+                    <img src={imgLogo} alt='Polymedia logo' />
+                    POLYMEDIA
+                </Link>
             </h1>
             <p>
                 Fully on-chain social media on Sui.
             </p>
         </div>
 
-        <div id='home-explore'>
+        <div className='home-section'>
             <h2>
                 Explore
             </h2>
 
-            <div className='categories'>
+            <div className='home-categories'>
                 <div className='category'>
                     <h3 className='category-title'>Chat</h3>
                     <div className='category-description'>
@@ -43,11 +45,11 @@ export function Home(props: any) {
             </div>
         </div>
 
-        <div id='home-stay-in-loop'>
+        <div className='home-section'>
             <h2>
                 Stay in the loop
             </h2>
-            <div className='links'>
+            <div className='home-links'>
                 <a href='https://twitter.com/polymedia_app'>Twitter</a> •&nbsp;
                 <a href='https://discord.gg/3ZaE69Eq78'>Discord</a>
                 <br/>

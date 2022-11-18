@@ -19,4 +19,5 @@ sui client publish --gas-budget 30000
 #### Create a chat
 ```
 call --package PACKAGE_ID --module chat --function create --args 'Got Beef?' 'Find players or judges to make bets on https://gotbeef.app' 100 512 --gas-budget 1000
+call --package PACKAGE_ID --module chat --function create --args 'Sui fans' 'A place to talk about all things Sui💧' 100 512 --gas-budget 1000
 ```

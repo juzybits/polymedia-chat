@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Header } from './components/Header';
+import { Nav } from './components/Nav';
 import { rpc } from './lib/sui_client';
 import { shorten } from './lib/common';
 import '../css/Menu.less';
@@ -40,7 +40,7 @@ export function ChatMenu(props: any) {
     return <div id='page' className='page-tool'>
     <div className='menu-wrapper'>
 
-        <Header menuPath={`/chat/${chatId}`} menuTitle='BACK' />
+        <Nav menuPath={`/chat/${chatId}`} menuTitle='BACK' />
 
         <div className='menu-content'>
 

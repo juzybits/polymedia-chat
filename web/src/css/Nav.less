@@ -1,4 +1,4 @@
-#header {
+#nav {
     display: grid;
     grid-auto-flow: column;
     grid-template-columns: 1fr max-content 1fr;
@@ -6,43 +6,32 @@
     border-bottom: var(--panel-border);
     background: var(--panel-color);
     font-variation-settings: "wght" 400;
-    .header-btn {
+    .nav-btn {
         span {
             vertical-align: middle;
             &:hover {
                 cursor: pointer;
             }
         }
-        a {
-            color: var(--text-color);
-            &:hover {
-                color: white;
-                text-decoration: none;
-            }
-        }
     }
-    #header-btn-menu {
+    #nav-btn-menu {
         font-size: 1.1em;
     }
-    #header-btn-user {
+    #nav-btn-user {
         font-size: 1.1em;
         text-align: right;
     }
-    #header-btn-title {
+    #nav-btn-title {
         font-size: 1.2em;
-        margin-top: -2px;
         img {
-            height: 1.15em;
-            margin-right: 0.25em;
-            vertical-align: middle;
         }
     }
-    #header-btn-connect {
+    #nav-btn-connect {
         &:hover {
             color: var(--green);
         }
     }
-    #header-btn-disconnect {
+    #nav-btn-disconnect {
         &:hover {
             color: var(--red);
         }
