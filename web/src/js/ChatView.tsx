@@ -22,7 +22,7 @@ export function ChatView(props: any) {
     const [ignoreClickOutside, setIgnoreClickOutside] = useState(true);
     const [chatInputCursor, setChatInputCursor] = useState(0);
 
-    const [notify] = useOutletContext();
+    const [notify]: any = useOutletContext();
     const { status, wallet } = ethos.useWallet();
 
     const refChatInput = useRef<HTMLInputElement>(null);
@@ -177,17 +177,13 @@ export function ChatView(props: any) {
 
     /// Shorten a 0x address, style it, and make it clickable
     const MagicAddress = (props: any) => {
-        const tooltip = (message: string) => { // TODO
-            console.debug('[MagicAddress] ' + message);
-        };
         const onClick = (e: SyntheticEvent) => {
             e.preventDefault();
             navigator.clipboard
                 .writeText(props.address)
-                .then( () => tooltip('Copied!') )
-                .catch( (err) => console.error(`[MagicAddress] Error copying to clipboard: ${err}`) );
+                .then( () => notify('COPIED!') )
+                .catch( err => notify('Error copying to clipboard') );
             focusChatInput();
-            notify('COPIED!');
         };
         return <>
             <a onClick={onClick} style={cssAuthor(props.address)}>
@@ -254,7 +250,11 @@ export function ChatView(props: any) {
             { error && <div className='error'>{error}</div> }
 
             { showEmojiPicker &&
-                <EmojiPicker data={data} onEmojiSelect={onSelectEmojiAddToChatInput} onClickOutside={onClickOutsideCloseEmojiPicker} />
+                <EmojiPicker data={data}
+                    onEmojiSelect={onSelectEmojiAddToChatInput}
+                    onClickOutside={onClickOutsideCloseEmojiPicker}
+                    autoFocus={true}
+                />
             }
 
         </div>
