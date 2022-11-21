@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState, SyntheticEvent } from 'react';
 import { useParams, useOutletContext } from 'react-router-dom';
 import { ethos } from 'ethos-connect';
-import data from '@emoji-mart/data';
+import emojiData from '@emoji-mart/data';
 import EmojiPicker from './components/EmojiPicker';
 
 import { Nav } from './components/Nav';
-import { shorten, shortenAddress } from './lib/common';
+import { shorten, shortenAddress, getAddressColor, getAddressEmoji } from './lib/common';
 import { POLYMEDIA_PACKAGE, rpc } from './lib/sui_client';
 import '../css/Chat.less';
 
@@ -32,6 +32,7 @@ export function ChatView(props: any) {
 
     /* Effects */
 
+    /// Set things up on 1st render
     useEffect(() => {
         document.title = `Polymedia - Chat - ${chatId}`;
         focusChatInput();
@@ -76,19 +77,20 @@ export function ChatView(props: any) {
 
     /* Event handlers */
 
-    const onSelectEmojiAddToChatInput = (emoji: any) => {
+    const onSelectEmoji = (emoji: any) => {
+        // Add the emoji to the chat input field
         const cut = refChatInput.current?.selectionStart || 0;
         setChatInput( chatInput.slice(0,cut) + emoji.native + chatInput.slice(cut) );
         setChatInputCursor(cut+2);
+        setShowEmojiPicker(false);
     };
 
-    const onClickOutsideCloseEmojiPicker = (e: any) => {
-        // ignore the 1st click that opens the emoji picker
+    const onclickOutsideEmojiPicker = () => {
+        // hack to ignore the 1st click (in the button that opens the picker)
         if (ignoreClickOutside) {
             setIgnoreClickOutside(false);
         } else {
             setShowEmojiPicker(false);
-            focusChatInput();
         }
     };
 
@@ -162,19 +164,6 @@ export function ChatView(props: any) {
 
     /* Magic text (make addreses clickable, etc) */
 
-    const cssAuthor = (author_address: string) => {
-        let red = parseInt( author_address.slice(2, 4), 16 );
-        let green = parseInt( author_address.slice(4, 6), 16 );
-        let blue = parseInt( author_address.slice(6, 8), 16 );
-        let min_val = 127;
-        if (red < min_val)   { red   = 255 - red; }
-        if (green < min_val) { green = 255 - green; }
-        if (blue < min_val)  { blue  = 255 - blue; }
-        return {
-            color: `rgb(${red}, ${green}, ${blue})`,
-        };
-    };
-
     /// Shorten a 0x address, style it, and make it clickable
     const MagicAddress = (props: any) => {
         const onClick = (e: SyntheticEvent) => {
@@ -186,7 +175,7 @@ export function ChatView(props: any) {
             focusChatInput();
         };
         return <>
-            <a onClick={onClick} style={cssAuthor(props.address)}>
+            <a onClick={onClick} style={{color: getAddressColor(props.address, 2, true)}}>
                 {shortenAddress(props.address)}
             </a>
         </>;
@@ -225,11 +214,18 @@ export function ChatView(props: any) {
 
         <div ref={refMessageList} id='message-list' className='chat-middle'>{messages.map((msg: any, idx) =>
             <div key={idx} className='message'>
-                <span className='message-author'>
-                    <MagicAddress address={msg.author} />:
-                </span>
-                <span className='message-text'>
-                    <MagicText plainText={msg.text} />
+                <div className='message-pfp-wrap'>
+                    <span className='message-pfp' style={{background: getAddressColor(msg.author, 8)}}>
+                        {getAddressEmoji(msg.author)}
+                    </span>
+                </div>
+                <span className='message-text-wrap'>
+                    <span className='message-author'>
+                        <MagicAddress address={msg.author} />
+                    </span>
+                    <div className='message-text'>
+                        <MagicText plainText={msg.text} />
+                    </div>
                 </span>
             </div>
         )}
@@ -250,9 +246,9 @@ export function ChatView(props: any) {
             { error && <div className='error'>{error}</div> }
 
             { showEmojiPicker &&
-                <EmojiPicker data={data}
-                    onEmojiSelect={onSelectEmojiAddToChatInput}
-                    onClickOutside={onClickOutsideCloseEmojiPicker}
+                <EmojiPicker data={emojiData}
+                    onEmojiSelect={onSelectEmoji}
+                    onClickOutside={onclickOutsideEmojiPicker}
                     autoFocus={true}
                 />
             }

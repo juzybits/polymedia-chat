@@ -43,21 +43,46 @@
 
     }
     .message {
+        display: flex;
+        flex-flow: row;
         padding: 0.5em var(--padding-rail);
-        .message-author {
-            display: inline-block;
-            margin-right: 0.5em;
-            font-variation-settings: "wght" 400;
-            &:hover {
-                cursor: pointer;
+        margin-bottom: 0.3em;
+        &:hover {
+            background-color: var(--bg-panel);
+        }
+        .message-pfp-wrap {
+            margin-right: 0.6em;
+            .message-pfp {
+                display: block;
+                background: white;
+                border-radius: 50%;
+                text-align: center;
+                width: 1.3em;
+                height: 1.3em;
+                font-size: 1.3em;
+                line-height: 1.3em;
+                padding: 0.2em;
             }
         }
-        .message-text {
-            line-height: 1.3em;
-            a {
+        .message-text-wrap {
+            flex-grow: 1;
+            .message-author {
+                display: inline-block;
+                font-variation-settings: "wght" 400;
+                margin-bottom: 0.1em;
                 &:hover {
                     cursor: pointer;
                 }
+            }
+            .message-text {
+                display: block;
+                line-height: 1.3em;
+                a {
+                    &:hover {
+                        cursor: pointer;
+                    }
+                }
+                overflow-wrap: anywhere;
             }
         }
     }
