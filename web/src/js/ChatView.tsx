@@ -136,6 +136,15 @@ export function ChatView(props: any) {
         });
     };
 
+    const onClickCopyAddress = (e: SyntheticEvent, address: string) => {
+        e.preventDefault();
+        navigator.clipboard
+            .writeText(address)
+            .then( () => notify('COPIED!') )
+            .catch( err => notify('Error copying to clipboard') );
+        focusChatInput();
+    };
+
     /* Helpers */
 
     const reloadChat = async () => {
@@ -166,16 +175,10 @@ export function ChatView(props: any) {
 
     /// Shorten a 0x address, style it, and make it clickable
     const MagicAddress = (props: any) => {
-        const onClick = (e: SyntheticEvent) => {
-            e.preventDefault();
-            navigator.clipboard
-                .writeText(props.address)
-                .then( () => notify('COPIED!') )
-                .catch( err => notify('Error copying to clipboard') );
-            focusChatInput();
-        };
         return <>
-            <a onClick={onClick} style={{color: getAddressColor(props.address, 2, true)}}>
+            <a onClick={(e) => onClickCopyAddress(e, props.address)}
+               style={{color: getAddressColor(props.address, 2, true)}}
+            >
                 {shortenAddress(props.address)}
             </a>
         </>;
@@ -215,7 +218,10 @@ export function ChatView(props: any) {
         <div ref={refMessageList} id='message-list' className='chat-middle'>{messages.map((msg: any, idx) =>
             <div key={idx} className='message'>
                 <div className='message-pfp-wrap'>
-                    <span className='message-pfp' style={{background: getAddressColor(msg.author, 8)}}>
+                    <span className='message-pfp'
+                          style={{background: getAddressColor(msg.author, 8)}}
+                          onClick={(e) => onClickCopyAddress(e, msg.author)}
+                    >
                         {getAddressEmoji(msg.author)}
                     </span>
                 </div>
