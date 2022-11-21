@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, SyntheticEvent } from 'react';
-import { useParams, useOutletContext } from 'react-router-dom';
+import { Link, useParams, useOutletContext } from 'react-router-dom';
 import { ethos } from 'ethos-connect';
 import emojiData from '@emoji-mart/data';
 import EmojiPicker from './components/EmojiPicker';
@@ -44,7 +44,7 @@ export function ChatView(props: any) {
         };
     }, []);
 
-    /// Scroll to the bottom of the message list when it gets updated. TODO: improve UX.
+    /// Scroll to the bottom of the message list when it gets updated.
     useEffect(() => {
         if (refMessageList.current) {
             refMessageList.current.scrollTop = refMessageList.current.scrollHeight;
@@ -97,9 +97,10 @@ export function ChatView(props: any) {
     const onSubmitAddMessage = (e: SyntheticEvent) => {
         e.preventDefault();
         setError('');
+        const input = chatInput.trim();
         // Message validation
-        const forbiddenWords = ['hello', 'hallo', 'hello guys'];
-        if (chatInput.length < 4 || forbiddenWords.includes(chatInput.toLowerCase()) ) {
+        const forbiddenWords = ['hello', 'hallo', 'morning'];
+        if (input.length < 4 || forbiddenWords.includes(input.toLowerCase()) ) {
             setError('I\'m sure you can come up with something more creative ;)');
             return;
         }
@@ -115,7 +116,7 @@ export function ChatView(props: any) {
                 typeArguments: [],
                 arguments: [
                     chatId,
-                    Array.from( (new TextEncoder()).encode(chatInput) ),
+                    Array.from( (new TextEncoder()).encode(input) ),
                 ],
                 gasBudget: GAS_BUDGET,
             }
@@ -205,18 +206,21 @@ export function ChatView(props: any) {
 
     /* HTML */
 
+    const isConnected = wallet && wallet.address && status=='connected';
+    const description = chatObj ? chatObj.details.data.fields.description : '';
     return <div id='page' className='page-tool'>
     <div id='chat-wrapper'>
         <Nav menuPath={`/chat/${chatId}/menu`} />
         <div className='chat-top'>
             <h1 className='chat-title'>{chatObj?.details.data.fields.name}</h1>
-            <p className='chat-description'>
-                {chatObj?.details.data.fields.description}
-            </p>
+            <span className='chat-top-divider'></span>
+            <Link className='chat-description' to={`/chat/${chatId}/menu`}>
+                { description.length > 70 ? description.slice(0, 70)+' ...': description }
+            </Link>
         </div>
 
         <div ref={refMessageList} id='message-list' className='chat-middle'>{messages.map((msg: any, idx) =>
-            <div key={idx} className='message'>
+            <div key={idx} className='message'> {/* TODO: memoize */}
                 <div className='message-pfp-wrap'>
                     <span className='message-pfp'
                           style={{background: getAddressColor(msg.author, 8)}}
@@ -239,11 +243,11 @@ export function ChatView(props: any) {
 
         <div ref={refChatBottom} className='chat-bottom'>
             <form onSubmit={onSubmitAddMessage} className='chat-input-wrapper'>
-                <input ref={refChatInput} type='text' required maxLength={512}
-                    className={waiting ? 'waiting' : ''} disabled={waiting}
+                <input ref={refChatInput} type='text' required maxLength={chatObj?.details.data.fields.max_msg_length}
+                    className={waiting ? 'waiting' : ''} disabled={!isConnected || waiting}
                     spellCheck='false' autoCorrect='off' autoComplete='off'
                     value={chatInput} onChange={e => setChatInput(e.target.value)}
-                    placeholder='Send a message' />
+                    placeholder={isConnected ? 'Send a message' : 'Log in to send a message'} />
                 <div ref={refEmojiBtn} id='chat-emoji-btn' onClick={() => { setShowEmojiPicker(!showEmojiPicker); }}>
                     😜
                 </div>
