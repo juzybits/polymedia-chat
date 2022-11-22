@@ -1,12 +1,16 @@
+/// Miscellaneous convenience functions and constants
+
 import emojiData from '@emoji-mart/data';
 
-// const emojiCategories = [ 'people', 'nature', 'foods', 'activity', 'places', 'objects' ];
-// const emojiNames = [];
-// for ( category of (emojiData as any).categories ) {
-//     if ( emojiCategories.includes(category.id) ) {
-//         emojiNames.push(...category.emojis);
-//     }
-// }
+/*
+const emojiCategories = [ 'people', 'nature', 'foods', 'activity', 'places', 'objects' ];
+const emojiNames = [];
+for ( category of (emojiData as any).categories ) {
+    if ( emojiCategories.includes(category.id) ) {
+        emojiNames.push(...category.emojis);
+    }
+}
+*/
 // This list of emoji names was calculated with the above code on 2022-11-21. We hard-code it here
 // to prevent the list from changing when '@emoji-mart/data' gets updated, which would lead to bad UX
 // by changing the emojis that get assigned to user addresses.
@@ -36,8 +40,6 @@ export function getAddressColor(address: string, offset: number, bright=false): 
     return `rgb(${red}, ${green}, ${blue})`;
 }
 
-/// Miscellaneous convenience functions and constants
-
 export function shorten(text: string, start: number, end: number, separator: string): string {
     return !text ? '' : text.slice(0, start) + separator + (end?text.slice(-end):'')
 }
@@ -46,3 +48,88 @@ export function shorten(text: string, start: number, end: number, separator: str
 export function shortenAddress(address: string): string {
     return '@' + shorten(address, 0, 5, '');
 }
+
+/// Get a date in relative time, e.g. "5 days ago"
+/// Copied and modified from sui/apps/explorer/src/utils/timeUtils.ts
+export function timeAgo(
+    epochMilliSecs: number | null | undefined,
+    timeNow?: number,
+    shortenTimeLabel: boolean = true
+): string {
+    if (!epochMilliSecs) return '';
+
+    timeNow = timeNow ? timeNow : Date.now();
+
+    const timeLabel = {
+        year: {
+            full: 'year',
+            short: 'y',
+        },
+        month: {
+            full: 'month',
+            short: 'm',
+        },
+        day: {
+            full: 'day',
+            short: 'd',
+        },
+        hour: {
+            full: 'hour',
+            short: 'h',
+        },
+        min: {
+            full: 'min',
+            short: 'm',
+        },
+        sec: {
+            full: 'sec',
+            short: 's',
+        },
+    };
+    const dateKeyType = shortenTimeLabel ? 'short' : 'full';
+
+    let timeUnit: [string, number][];
+    let timeCol = timeNow - epochMilliSecs;
+
+    if (timeCol >= 1000 * 60 * 60 * 24 * 7) { // over a week ago
+        timeUnit = [
+            [timeLabel.day[dateKeyType], 1000 * 60 * 60 * 24],
+        ];
+    } else if (timeCol >= 1000 * 60 * 60 * 24) { // over a day ago
+        timeUnit = [
+            [timeLabel.day[dateKeyType], 1000 * 60 * 60 * 24],
+            [timeLabel.hour[dateKeyType], 1000 * 60 * 60],
+        ];
+    } else if (timeCol >= 1000 * 60 * 60) { // over an hour ago
+        timeUnit = [
+            [timeLabel.hour[dateKeyType], 1000 * 60 * 60],
+            [timeLabel.min[dateKeyType], 1000 * 60],
+        ];
+    } else if (timeCol >= 1000 * 60) { // over a minute ago
+        timeUnit = [
+            [timeLabel.min[dateKeyType], 1000 * 60],
+        ];
+    } else { // less than a minute ago
+        timeUnit = [
+            [timeLabel.sec[dateKeyType], 1000],
+        ];
+    }
+
+    const convertAmount = (amount: number, label: string) => {
+        const spacing = shortenTimeLabel ? '' : ' ';
+        if (amount > 1)
+            return `${amount}${spacing}${label}${!shortenTimeLabel ? 's' : ''}`;
+        if (amount === 1) return `${amount}${spacing}${label}`;
+        return '';
+    };
+
+    const resultArr = timeUnit.map(([label, denom]) => {
+        const whole = Math.floor(timeCol / denom);
+        timeCol = timeCol - whole * denom;
+        return convertAmount(whole, label);
+    });
+
+    const result = resultArr.join(' ').trim();
+
+    return result ? result : `< 1s`;
+};

@@ -5,8 +5,8 @@ import emojiData from '@emoji-mart/data';
 import EmojiPicker from './components/EmojiPicker';
 
 import { Nav } from './components/Nav';
-import { shorten, shortenAddress, getAddressColor, getAddressEmoji } from './lib/common';
-import { POLYMEDIA_PACKAGE, rpc } from './lib/sui_client';
+import { shorten, shortenAddress, getAddressColor, getAddressEmoji, timeAgo } from './lib/common';
+import { POLYMEDIA_PACKAGE, rpc, isExpectedType } from './lib/sui_client';
 import '../css/Chat.less';
 
 export function ChatView(props: any) {
@@ -116,7 +116,9 @@ export function ChatView(props: any) {
                 typeArguments: [],
                 arguments: [
                     chatId,
+                    Date.now(),
                     Array.from( (new TextEncoder()).encode(input) ),
+                    0, // TODO: support replies
                 ],
                 gasBudget: GAS_BUDGET,
             }
@@ -154,6 +156,8 @@ export function ChatView(props: any) {
         .then((obj: any) => {
             if (obj.status != 'Exists') {
                 setError(`[reloadChat] Object does not exist. Status: ${obj.status}`);
+            } else if (!isExpectedType(obj.details.data.type, POLYMEDIA_PACKAGE, 'chat', 'ChatRoom')) {
+                setError(`[reloadChat] Wrong object type: ${obj.details.data.type}`);
             } else {
                 setError('');
                 setChatObj(obj);
@@ -232,6 +236,9 @@ export function ChatView(props: any) {
                 <span className='message-text-wrap'>
                     <span className='message-author'>
                         <MagicAddress address={msg.author} />
+                    </span>
+                    <span className='message-timestamp'>
+                        {timeAgo(msg.timestamp)}
                     </span>
                     <div className='message-text'>
                         <MagicText plainText={msg.text} />

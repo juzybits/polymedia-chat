@@ -21,8 +21,10 @@ module polymedia::chat
     }
 
     struct ChatMessage has store, drop {
+        timestamp: u64, // user time from their browser
         author: address,
         text: String,
+        reply: u32, // distance of an older message to which this message is replying (0 = not a reply)
     }
 
     public entry fun create(
@@ -45,7 +47,12 @@ module polymedia::chat
         transfer::share_object(chat);
     }
 
-    public entry fun add_message(chat: &mut ChatRoom, text: vector<u8>, ctx: &mut TxContext)
+    public entry fun add_message(
+        chat: &mut ChatRoom,
+        timestamp: u64,
+        text: vector<u8>,
+        reply: u32,
+        ctx: &mut TxContext)
     {
         let text_len = vector::length(&text);
         assert!(text_len > 0 && text_len <= chat.max_msg_length, E_INVALID_TEXT_LENGTH);
@@ -53,8 +60,10 @@ module polymedia::chat
             vector::remove(&mut chat.messages, 0);
         };
         let newMessage = ChatMessage {
+            timestamp,
             author: tx_context::sender(ctx),
             text: string::utf8(text),
+            reply,
         };
         vector::push_back(&mut chat.messages, newMessage);
     }

@@ -2,7 +2,7 @@
 
 import { JsonRpcProvider, SuiTransactionResponse, GetObjectDataResponse } from '@mysten/sui.js';
 
-export const POLYMEDIA_PACKAGE = '0x9358adf89e99417c397e274a30fca2ee6d54214c';
+export const POLYMEDIA_PACKAGE = '0x6425a6bb08d4171a641cd09b59e9ed0e033e91cd';
 export const rpc = new JsonRpcProvider('https://fullnode.devnet.sui.io:443');
 
 /* Types */
@@ -19,6 +19,13 @@ export type Item = {
     data: string,
 };
 
+export function isExpectedType(type: string, expectPackage: string, expectModule: string, expectType: string): bool {
+    // Handle missing leading zeros ('0x00ab::x::Y' is returned as '0xab::x::Y' by the RPC)
+    const packageName = expectPackage.replace(/0x0+/, '0x0*');
+    const typeRegex = new RegExp(`^${packageName}::${expectModule}::${expectType}`);
+    return !!type.match(typeRegex);
+}
+
 function parseItem(resp: GetObjectDataResponse): Item|null
 {
     if (resp.status != 'Exists') {
@@ -27,10 +34,7 @@ function parseItem(resp: GetObjectDataResponse): Item|null
     }
 
     const details = resp.details as any;
-    // Handle leading zeros ('0x00ab::item::Item' is returned as '0xab::item::Item' by the RPC)
-    const packageName = POLYMEDIA_PACKAGE.replace(/0x0+/, '0x0*'); // handle leading zeros
-    const typeRegex = new RegExp(`^${packageName}::item::Item$`);
-    if (!details.data.type.match(typeRegex)) {
+    if (!isExpectedType(details.data.type, POLYMEDIA_PACKAGE, 'item', 'Item')) {
         console.warn('[getBet] Wrong object type:', details.data.type);
         return null;
     }
