@@ -19,7 +19,7 @@ export type Item = {
     data: string,
 };
 
-export function isExpectedType(type: string, expectPackage: string, expectModule: string, expectType: string): bool {
+export function isExpectedType(type: string, expectPackage: string, expectModule: string, expectType: string): boolean {
     // Handle missing leading zeros ('0x00ab::x::Y' is returned as '0xab::x::Y' by the RPC)
     const packageName = expectPackage.replace(/0x0+/, '0x0*');
     const typeRegex = new RegExp(`^${packageName}::${expectModule}::${expectType}`);

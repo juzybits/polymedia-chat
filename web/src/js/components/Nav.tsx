@@ -1,18 +1,23 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ethos, SignInButton } from 'ethos-connect';
 import { shortenAddress } from '../lib/common';
 import '../../css/Nav.less';
 import imgLogo from '../../img/logo.png';
 
-export function Nav(props: any) {
+type NavProps = {
+    menuPath?: string,
+    menuTitle?: string | ReactNode,
+}
+
+export function Nav({ menuPath, menuTitle }: NavProps) {
     const { status, wallet } = ethos.useWallet();
 
     return <header id='nav' className='header'>
 
         <div id='nav-btn-menu' className='nav-btn'>
-            {props.menuPath &&
-                <span><Link to={props.menuPath}>{props.menuTitle||'MENU'}</Link></span>
+            {menuPath &&
+                <span><Link to={menuPath}>{menuTitle||'MENU'}</Link></span>
             }
         </div>
 

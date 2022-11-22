@@ -105,13 +105,17 @@ export function timeAgo(
             [timeLabel.hour[dateKeyType], 1000 * 60 * 60],
             [timeLabel.min[dateKeyType], 1000 * 60],
         ];
-    } else if (timeCol >= 1000 * 60) { // over a minute ago
+    // } else if (timeCol >= 1000 * 60) { // over a minute ago
+    //     timeUnit = [
+    //         [timeLabel.min[dateKeyType], 1000 * 60],
+    //     ];
+    // } else { // less than a minute ago
+    //     timeUnit = [
+    //         [timeLabel.sec[dateKeyType], 1000],
+    //     ];
+    } else { // less than one hour ago
         timeUnit = [
             [timeLabel.min[dateKeyType], 1000 * 60],
-        ];
-    } else { // less than a minute ago
-        timeUnit = [
-            [timeLabel.sec[dateKeyType], 1000],
         ];
     }
 
@@ -131,5 +135,5 @@ export function timeAgo(
 
     const result = resultArr.join(' ').trim();
 
-    return result ? result : `< 1s`;
+    return result ? result : `< 1m`;
 };
