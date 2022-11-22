@@ -179,32 +179,51 @@ export function ChatView(props: any) {
 
     /// Shorten a 0x address, style it, and make it clickable
     const MagicAddress = (props: any) => {
-        return <>
-            <a onClick={(e) => onClickCopyAddress(e, props.address)}
-               style={{color: getAddressColor(props.address, 2, true)}}
-            >
-                {shortenAddress(props.address)}
-            </a>
-        </>;
+        return <a onClick={(e) => onClickCopyAddress(e, props.address)}
+            style={{color: getAddressColor(props.address, 2, true)}} >
+            {shortenAddress(props.address)}
+        </a>;
     };
 
-    /// Parse plaintext and format the 0x addresses in it
-    const MagicText = (props: any) => {
-        const addressRegex = new RegExp(/0x[a-fA-F0-9]+/g);
-        const addresses = props.plainText.match(addressRegex) || [];
-        const texts = props.plainText.split(addressRegex);
+    const MagicLink = (props: any) => {
+        return <a href={props.href} target='_blank'>{props.href}</a>;
+    };
 
+    /// Parse plaintext and format any URLs and 0x addresses in it
+    const MagicText = (props: any) =>
+    {
         let key = 0;
         const chunk = (contents: any) => {
             return <React.Fragment key={key++}>{contents}</React.Fragment>;
         };
 
-        let result = [ chunk(texts.shift()) ];
-        for (let address of addresses) {
-            result.push( chunk(<MagicAddress address={address} />) );
-            result.push( chunk(texts.shift()) );
-        }
-        return <>{result}</>;
+        const ReplaceAddresses = (props: any) => {
+            const addressRegex = new RegExp(/0x[a-fA-F0-9]{40}/g);
+            const addresses = props.plainText.match(addressRegex) || [];
+            const nonAddresses = props.plainText.split(addressRegex);
+
+            let result = [ chunk(nonAddresses.shift()) ];
+            for (let address of addresses) {
+                result.push( chunk(<MagicAddress address={address} />) );
+                result.push( chunk(nonAddresses.shift()) );
+            }
+            return <>{result}</>;
+        };
+
+        const ReplaceUrls = (props: any) => {
+            const urlRegex = new RegExp(/(?:https?|ipfs):\/\/[^\s]+\.[^\s]+/g);
+            const urls = props.plainText.match(urlRegex) || [];
+            const nonUrls = props.plainText.split(urlRegex);
+
+            let result = [ chunk(<ReplaceAddresses plainText={nonUrls.shift()} />) ];
+            for (let url of urls) {
+                result.push( chunk(<MagicLink href={url} text={url} />) );
+                result.push( chunk(<ReplaceAddresses plainText={nonUrls.shift()} />) );
+            }
+            return <>{result}</>;
+        };
+
+        return <ReplaceUrls plainText={props.plainText} />;
     };
 
     /* HTML */
