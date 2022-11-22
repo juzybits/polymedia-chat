@@ -24,7 +24,7 @@ module polymedia::chat
         timestamp: u64, // user time from their browser
         author: address,
         text: String,
-        reply: u32, // distance of an older message to which this message is replying (0 = not a reply)
+        // reply: u32, // distance of an older message to which this message is replying (0 = not a reply)
     }
 
     public entry fun create(
@@ -51,7 +51,7 @@ module polymedia::chat
         chat: &mut ChatRoom,
         timestamp: u64,
         text: vector<u8>,
-        reply: u32,
+        // reply: u32,
         ctx: &mut TxContext)
     {
         let text_len = vector::length(&text);
@@ -63,7 +63,7 @@ module polymedia::chat
             timestamp,
             author: tx_context::sender(ctx),
             text: string::utf8(text),
-            reply,
+            // reply,
         };
         vector::push_back(&mut chat.messages, newMessage);
     }

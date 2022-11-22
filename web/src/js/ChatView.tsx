@@ -118,7 +118,6 @@ export function ChatView(props: any) {
                     chatId,
                     Date.now(),
                     Array.from( (new TextEncoder()).encode(input) ),
-                    0, // TODO: support replies
                 ],
                 gasBudget: GAS_BUDGET,
             }
@@ -251,10 +250,12 @@ export function ChatView(props: any) {
         <div ref={refChatBottom} className='chat-bottom'>
             <form onSubmit={onSubmitAddMessage} className='chat-input-wrapper'>
                 <input ref={refChatInput} type='text' required maxLength={chatObj?.details.data.fields.max_msg_length}
-                    className={waiting ? 'waiting' : ''} disabled={!isConnected || waiting}
+                    className={`${waiting ? 'waiting' : (!isConnected ? 'disabled' : '')}`}
+                    disabled={!isConnected || waiting}
                     spellCheck='false' autoCorrect='off' autoComplete='off'
                     value={chatInput} onChange={e => setChatInput(e.target.value)}
-                    placeholder={isConnected ? 'Send a message' : 'Log in to send a message'} />
+                    placeholder={isConnected ? 'Send a message' : 'Log in to send a message'}
+                />
                 <div ref={refEmojiBtn} id='chat-emoji-btn' onClick={() => { setShowEmojiPicker(!showEmojiPicker); }}>
                     😜
                 </div>
