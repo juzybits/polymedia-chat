@@ -3,6 +3,7 @@ import { Link, useParams, useOutletContext } from 'react-router-dom';
 import { ethos } from 'ethos-connect';
 import emojiData from '@emoji-mart/data';
 import EmojiPicker from './components/EmojiPicker';
+import { ethos } from 'ethos-connect';
 
 import { Nav } from './components/Nav';
 import { shorten, shortenAddress, getAddressColor, getAddressEmoji, timeAgo } from './lib/common';
@@ -74,6 +75,13 @@ export function ChatView(props: any) {
         focusChatInput();
         refChatInput.current?.setSelectionRange(chatInputCursor, chatInputCursor);
     }, [chatInputCursor]);
+
+    const isConnected = wallet && wallet.address && status=='connected';
+    useEffect(() => {
+        if (isConnected) {
+            focusChatInput();
+        }
+    }, [isConnected]);
 
     /* Event handlers */
 
@@ -228,14 +236,13 @@ export function ChatView(props: any) {
 
     /* HTML */
 
-    const isConnected = wallet && wallet.address && status=='connected';
     const description = chatObj ? chatObj.details.data.fields.description : '';
     return <div id='page' className='page-tool'>
     <div id='chat-wrapper'>
         <Nav menuPath={`/chat/${chatId}/menu`} />
         <div className='chat-top'>
-            <h1 className='chat-title'>{chatObj?.details.data.fields.name}</h1>
-            <span className='chat-top-divider'></span>
+           <h1 className='chat-title'>{chatObj?.details.data.fields.name}</h1>
+            {chatObj && <span className='chat-top-divider'></span> }
             <Link className='chat-description' to={`/chat/${chatId}/menu`}>
                 { description.length > 70 ? description.slice(0, 70)+' ...': description }
             </Link>
@@ -267,15 +274,21 @@ export function ChatView(props: any) {
         </div>
 
         <div ref={refChatBottom} className='chat-bottom'>
-            <form onSubmit={onSubmitAddMessage} className='chat-input-wrapper'>
-                <input ref={refChatInput} type='text' required maxLength={chatObj?.details.data.fields.max_msg_length}
+            <form onSubmit={onSubmitAddMessage} className='chat-input-wrapper'
+                  onClick={(isConnected ? null : ethos.showSignInModal)}>
+                <input ref={refChatInput} type='text' required
+                    maxLength={chatObj?.details.data.fields.max_msg_length}
                     className={`${waiting ? 'waiting' : (!isConnected ? 'disabled' : '')}`}
                     disabled={!isConnected || waiting}
                     spellCheck='false' autoCorrect='off' autoComplete='off'
-                    value={chatInput} onChange={e => setChatInput(e.target.value)}
                     placeholder={isConnected ? 'Send a message' : 'Log in to send a message'}
+                    value={chatInput}
+                    onChange={e => setChatInput(e.target.value)}
                 />
-                <div ref={refEmojiBtn} id='chat-emoji-btn' onClick={() => { setShowEmojiPicker(!showEmojiPicker); }}>
+                <div ref={refEmojiBtn} id='chat-emoji-btn'
+                    className={isConnected ? '' : 'disabled'}
+                    onClick={!isConnected ? null : () => { setShowEmojiPicker(!showEmojiPicker); }}
+                 >
                     😜
                 </div>
             </form>

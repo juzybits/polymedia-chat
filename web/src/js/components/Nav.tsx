@@ -16,9 +16,7 @@ export function Nav({ menuPath, menuTitle }: NavProps) {
     return <header id='nav' className='header'>
 
         <div id='nav-btn-menu' className='nav-btn'>
-            {menuPath &&
-                <span><Link to={menuPath}>{menuTitle||'MENU'}</Link></span>
-            }
+            { menuPath && <span><Link to={menuPath}>{menuTitle||'MENU'}</Link></span> }
         </div>
 
         <div id='nav-btn-title' className=''>

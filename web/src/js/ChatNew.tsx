@@ -33,7 +33,7 @@ export function ChatNew(props: any) {
     return <div id='page' className='page-tool'>
     <div className='new-wrapper'>
 
-        <Nav />
+        <Nav menuPath='/chat' menuTitle='BACK' />
 
         <div className='new-content'>
 

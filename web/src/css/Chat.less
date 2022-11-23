@@ -3,7 +3,7 @@
     flex-flow: column;
     height: 100%;
     .chat-top {
-        padding: 0.4em var(--padding-rail) 0.5em;
+        padding: 0.4em var(--padding-rail) 0.55em;
         border-bottom: var(--panel-border);
     }
     .chat-middle {
@@ -30,6 +30,11 @@
     .chat-input-wrapper {
         display: flex;
         flex-flow: row;
+        input {
+            &.disabled {
+                cursor: pointer;
+            }
+        }
     }
     #chat-emoji-btn {
         user-select: none;
@@ -44,6 +49,9 @@
         &:hover {
             cursor: pointer;
             font-size: 2em;
+        }
+        &.disabled {
+            opacity: 0.25;
         }
     }
     #message-list {
