@@ -2,9 +2,8 @@ import React, { useEffect, useRef, useState, SyntheticEvent } from 'react';
 import { Link, useParams, useOutletContext } from 'react-router-dom';
 import { ethos } from 'ethos-connect';
 import emojiData from '@emoji-mart/data';
-import EmojiPicker from './components/EmojiPicker';
-import { ethos } from 'ethos-connect';
 
+import EmojiPicker from './components/EmojiPicker';
 import { Nav } from './components/Nav';
 import { shorten, shortenAddress, getAddressColor, getAddressEmoji, timeAgo } from './lib/common';
 import { POLYMEDIA_PACKAGE, rpc, isExpectedType } from './lib/sui_client';
@@ -12,7 +11,6 @@ import '../css/Chat.less';
 
 export function ChatView(props: any) {
     const chatId = useParams().uid || '';
-    const GAS_BUDGET = 10000;
 
     const [error, setError] = useState('');
     const [chatInput, setChatInput] = useState('');
@@ -127,7 +125,7 @@ export function ChatView(props: any) {
                     Date.now(),
                     Array.from( (new TextEncoder()).encode(input) ),
                 ],
-                gasBudget: GAS_BUDGET,
+                gasBudget: 10000,
             }
         })
         .then((resp: any) => {
@@ -309,36 +307,3 @@ export function ChatView(props: any) {
 
     </div>; // end of #page
 }
-
-/* DEV_ONLY
-const onClickCreateChat = () => {
-    console.debug(`[onClickCreateChat] Calling item::create on package: ${POLYMEDIA_PACKAGE}`);
-    wallet?.signAndExecuteTransaction({
-        kind: 'moveCall',
-        data: {
-            packageObjectId: POLYMEDIA_PACKAGE,
-            module: 'chat',
-            function: 'create',
-            typeArguments: [],
-            arguments: [
-                100, // max message count
-                512, // max message length
-            ],
-            gasBudget: GAS_BUDGET,
-        }
-    })
-    .then((resp: any) => {
-        if (resp.effects.status.status == 'success') {
-            console.debug('[onClickCreateChat] Success:', resp);
-            const newObjId = resp.effects.created[0].reference.objectId;
-            console.log(`https://explorer.devnet.sui.io/objects/${newObjId}`);
-            console.log(newObjId);
-        } else {
-            setError(resp.effects.status.error);
-        }
-    })
-    .catch((error: any) => {
-        setError(error.message);
-    });
-};
-*/

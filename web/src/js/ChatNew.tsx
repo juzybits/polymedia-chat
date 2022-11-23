@@ -1,6 +1,10 @@
 import React, { useEffect, useState, SyntheticEvent } from 'react';
-import { Nav } from './components/Nav';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { rpc } from './lib/sui_client';
+import { ethos } from 'ethos-connect';
+
+import { POLYMEDIA_PACKAGE } from './lib/sui_client';
+import { Nav } from './components/Nav';
 import '../css/New.less';
 
 export function ChatNew(props: any) {
@@ -11,6 +15,9 @@ export function ChatNew(props: any) {
     const [waiting, setWaiting] = useState(false);
     const [error, setError] = useState('');
 
+    const [notify]: any = useOutletContext();
+    const { wallet } = ethos.useWallet();
+
     /* Effects */
 
     useEffect(() => {
@@ -19,11 +26,39 @@ export function ChatNew(props: any) {
 
     /* Event handlers */
 
+    const navigate = useNavigate();
     const onSubmitCreateChat = (e: SyntheticEvent) => {
         e.preventDefault();
-        setError('');
-        // TODO: validate form
-        // TODO: submit form
+        console.debug(`[onSubmitCreateChat] Calling item::create on package: ${POLYMEDIA_PACKAGE}`);
+        wallet?.signAndExecuteTransaction({
+            kind: 'moveCall',
+            data: {
+                packageObjectId: POLYMEDIA_PACKAGE,
+                module: 'chat',
+                function: 'create',
+                typeArguments: [],
+                arguments: [
+                    inputName,
+                    inputDescription,
+                    inputMaxMsgAmount,
+                    inputMaxMsgLength,
+                ],
+                gasBudget: 10000,
+            }
+        })
+        .then((resp: any) => {
+            if (resp.effects.status.status == 'success') {
+                console.debug('[onSubmitCreateChat] Success:', resp);
+                const newObjId = resp.effects.created[0].reference.objectId;
+                notify('SUCCESS!');
+                navigate('/chat/' + newObjId);
+            } else {
+                setError(resp.effects.status.error);
+            }
+        })
+        .catch((error: any) => {
+            setError(error.message);
+        });
     };
 
     /* Helpers */
@@ -38,26 +73,28 @@ export function ChatNew(props: any) {
         <div className='new-content'>
 
             <h1>NEW CHAT</h1>
-
-            <form onSubmit={onSubmitCreateChat}>
-                <div className='new-field'>
-                    <label>Name:</label>
+            <p>
+                Create your own chat room.
+            </p>
+            <form className='form' onSubmit={onSubmitCreateChat}>
+                <div className='form-field'>
+                    <label>Name</label>
                     <input value={inputName} type='text' required maxLength={60}
                         className={waiting ? 'waiting' : ''} disabled={waiting}
                         spellCheck='false' autoCorrect='off' autoComplete='off'
                         onChange={e => setInputName(e.target.value)}
                     />
                 </div>
-                <div className='new-field'>
-                    <label>Description:</label>
-                    <input value={inputDescription} type='text' required maxLength={500}
+                <div className='form-field'>
+                    <label>Description</label>
+                    <input value={inputDescription} type='text' maxLength={1000}
                         className={waiting ? 'waiting' : ''} disabled={waiting}
                         spellCheck='false' autoCorrect='off' autoComplete='off'
                         onChange={e => setInputDescription(e.target.value)}
                     />
                 </div>
-                <div className='new-field'>
-                    <label>Max amount of messages (10-200)</label>
+                <div className='form-field'>
+                    <label>History capacity (10-200 messages)</label>
                     <input value={inputMaxMsgAmount} type='text' required
                         spellCheck='false' autoCorrect='off' autoComplete='off'
                         inputMode='numeric' pattern="[0-9]*"
@@ -66,8 +103,8 @@ export function ChatNew(props: any) {
                         }
                     />
                 </div>
-                <div className='new-field'>
-                    <label>Max message length (10-1000):</label>
+                <div className='form-field'>
+                    <label>Max message length (10-1000 characters)</label>
                     <input value={inputMaxMsgLength} type='text' required
                         spellCheck='false' autoCorrect='off' autoComplete='off'
                         inputMode='numeric' pattern="[0-9]*"
@@ -76,10 +113,11 @@ export function ChatNew(props: any) {
                         }
                     />
                 </div>
-                <button type='submit' className='primary'>SUBMIT</button>
+                <button type='submit' className='primary'>CREATE</button>
             </form>
 
-        </div>
+            { error && <div className='error'>{error}</div> }
+        </div> {/* end of .new-content */}
 
     </div> {/* end of .new-wrapper */}
     </div>; // end of #page
