@@ -13,18 +13,27 @@
     .chat-bottom {
     }
     .chat-title {
-        display: inline-block;
-    }
-    .chat-top-divider {
-        border-left: var(--panel-divider);
-        margin: 0 0.8em;
-    }
-    .chat-description {
-        font-size: 0.8em;
-        color: var(--text-color);
-        &:hover {
-            cursor: pointer;
-            text-decoration: none;
+        display: flex;
+        align-items: center;
+        .chat-title {
+            flex-shrink: 0;
+            max-width: 100%;
+        }
+        .chat-description {
+            flex-grow: 0;
+            white-space: nowrap;
+            overflow-x: clip;
+            font-size: 0.8em;
+            color: var(--text-color);
+            padding-top: 0.5em;
+            &:hover {
+                cursor: pointer;
+                text-decoration: none;
+            }
+        }
+        .chat-title-divider {
+            border-left: var(--panel-divider);
+            margin: 0 0.8em;
         }
     }
     .chat-input-wrapper {

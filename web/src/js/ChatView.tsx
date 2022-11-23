@@ -239,11 +239,13 @@ export function ChatView(props: any) {
     <div id='chat-wrapper'>
         <Nav menuPath={`/chat/${chatId}/menu`} />
         <div className='chat-top'>
-           <h1 className='chat-title'>{chatObj?.details.data.fields.name}</h1>
-            {chatObj && <span className='chat-top-divider'></span> }
-            <Link className='chat-description' to={`/chat/${chatId}/menu`}>
-                { description.length > 70 ? description.slice(0, 70)+' ...': description }
-            </Link>
+            <div className='chat-title'>
+               <h1 className='chat-title'>{chatObj?.details.data.fields.name}</h1>
+                { chatObj && <span className='chat-title-divider'></span> }
+                <Link className='chat-description' to={`/chat/${chatId}/menu`}>
+                    { description.length > 70 ? description.slice(0, 70)+' ...': description }
+                </Link>
+            </div>
         </div>
 
         <div ref={refMessageList} id='message-list' className='chat-middle'>{messages.map((msg: any, idx) =>
