@@ -1696,9 +1696,9 @@ escape-string-regexp@^4.0.0:
   integrity sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==
 
 ethos-connect@latest:
-  version "0.0.33"
-  resolved "https://registry.yarnpkg.com/ethos-connect/-/ethos-connect-0.0.33.tgz#a1be693b0f08eace39ff75452abca0e7ef4c9013"
-  integrity sha512-2oB++VlGCtsTdnO1UUEZit7XmecdzRaoAzQgB5CNlRdf9vpwCk5kqvbphAA9oVeQ7enPl39AV00suV+vn8Q0jw==
+  version "0.0.36"
+  resolved "https://registry.yarnpkg.com/ethos-connect/-/ethos-connect-0.0.36.tgz#19491321d079e0629cb5d8c46d216334e515ce0d"
+  integrity sha512-CwVjBM4/LK8e8mkNEiF1DcyDmBKmrlvYf/UO+mg7XKC+88GaPWI1RtIne1TOW1nxsbDGiMFlW4+hldzKx49MfQ==
   dependencies:
     "@mysten/sui.js" "^0.15.0"
     "@mysten/wallet-adapter-all-wallets" "^0.3.0"
@@ -3319,9 +3319,9 @@ term-size@^2.2.1:
   integrity sha512-wK0Ri4fOGjv/XPy8SBHZChl8CM7uMc5VML7SqiQ0zG7+J5Vr+RMQDoHa2CNT6KHUnTGIXH34UDMkPzAUyapBZg==
 
 terser@^5.2.0:
-  version "5.15.1"
-  resolved "https://registry.yarnpkg.com/terser/-/terser-5.15.1.tgz#8561af6e0fd6d839669c73b92bdd5777d870ed6c"
-  integrity sha512-K1faMUvpm/FBxjBXud0LWVAGxmvoPbZbfTCYbSgaaYQaIXI3/TdI7a7ZGA73Zrou6Q8Zmz3oeUTsp/dj+ag2Xw==
+  version "5.16.0"
+  resolved "https://registry.yarnpkg.com/terser/-/terser-5.16.0.tgz#29362c6f5506e71545c73b069ccd199bb28f7f54"
+  integrity sha512-KjTV81QKStSfwbNiwlBXfcgMcOloyuRdb62/iLFPGBcVNF4EXjhdYBhYHmbJpiBrVxZhDvltE11j+LBQUxEEJg==
   dependencies:
     "@jridgewell/source-map" "^0.3.2"
     acorn "^8.5.0"

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, SyntheticEvent } from 'react';
+import React, { useEffect, useRef, useState, useCallback, SyntheticEvent } from 'react';
 import { Link, useParams, useOutletContext } from 'react-router-dom';
 import { ethos } from 'ethos-connect';
 import emojiData from '@emoji-mart/data';
@@ -74,12 +74,13 @@ export function ChatView(props: any) {
         refChatInput.current?.setSelectionRange(chatInputCursor, chatInputCursor);
     }, [chatInputCursor]);
 
+    // Manage chat input focus
     const isConnected = wallet && wallet.address && status=='connected';
     useEffect(() => {
-        if (isConnected) {
+        if (isConnected && !waiting) {
             focusChatInput();
         }
-    }, [isConnected]);
+    }, [isConnected, waiting]);
 
     /* Event handlers */
 
@@ -100,7 +101,7 @@ export function ChatView(props: any) {
         }
     };
 
-    const onSubmitAddMessage = (e: SyntheticEvent) => {
+    const onSubmitAddMessage = async (e: SyntheticEvent) => {
         e.preventDefault();
         setError('');
         const input = chatInput.trim();
@@ -110,6 +111,7 @@ export function ChatView(props: any) {
             setError('I\'m sure you can come up with something more creative ;)');
             return;
         }
+        await preapproveTxns();
         // Send transaction
         setWaiting(true);
         console.debug(`[onSubmitAddMessage] Calling chat::add_message on package: ${POLYMEDIA_PACKAGE}`);
@@ -133,11 +135,11 @@ export function ChatView(props: any) {
                 reloadChat();
                 setChatInput('');
             } else {
-                setError(resp.effects.status.error);
+                setError(`[reloadChat] Response error: ${resp.effects.status.error}`);
             }
         })
         .catch((error: any) => {
-            setError(error.message);
+            setError(`[reloadChat] Request error: ${error.message}`);
         })
         .finally(() => {
             setWaiting(false);
@@ -180,6 +182,27 @@ export function ChatView(props: any) {
     const focusChatInput = () => {
         refChatInput.current?.focus();
     }
+
+    const preapproveTxns = useCallback(async () => {
+        await wallet?.requestPreapproval({
+            packageObjectId: POLYMEDIA_PACKAGE,
+            module: 'chat',
+            function: 'add_message',
+            objectId: chatId,
+            description: 'Send messages in this chat without having to sign every transaction.',
+            maxTransactionCount: 25,
+            totalGasLimit: 250_000,
+            perTransactionGasLimit: 10_000,
+        })
+        .then((result: any) => {
+            const preapproval = result;
+            console.debug(`[preapproveTxns] Successfully preapproved transactions`);
+        })
+        .catch(err => {
+            setError(`[preapproveTxns] Error requesting preapproval: ${err.message}`)
+            const preapproval = null;
+        });
+    }, [wallet]);
 
     /* Magic text (make addreses clickable, etc) */
 
@@ -275,7 +298,7 @@ export function ChatView(props: any) {
 
         <div ref={refChatBottom} className='chat-bottom'>
             <form onSubmit={onSubmitAddMessage} className='chat-input-wrapper'
-                  onClick={(isConnected ? null : ethos.showSignInModal)}>
+                  onClick={(isConnected ? undefined : ethos.showSignInModal)}>
                 <input ref={refChatInput} type='text' required
                     maxLength={chatObj?.details.data.fields.max_msg_length}
                     className={`${waiting ? 'waiting' : (!isConnected ? 'disabled' : '')}`}
@@ -287,7 +310,7 @@ export function ChatView(props: any) {
                 />
                 <div ref={refEmojiBtn} id='chat-emoji-btn'
                     className={isConnected ? '' : 'disabled'}
-                    onClick={!isConnected ? null : () => { setShowEmojiPicker(!showEmojiPicker); }}
+                    onClick={!isConnected ? undefined : () => { setShowEmojiPicker(!showEmojiPicker); }}
                  >
                     😜
                 </div>
