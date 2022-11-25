@@ -22,6 +22,7 @@ export function ChatView(props: any) {
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [ignoreClickOutside, setIgnoreClickOutside] = useState(true);
     const [chatInputCursor, setChatInputCursor] = useState(0);
+    const [pauseScroll, setPauseScroll] = useState(false);
 
     const [notify]: any = useOutletContext();
     const { status, wallet } = ethos.useWallet();
@@ -39,7 +40,7 @@ export function ChatView(props: any) {
         focusChatInput();
         reloadChat();
         /// Periodically update the list of messages
-        const interval = setInterval(() => { reloadChat(); }, 86_400_000);
+        const interval = setInterval(reloadChat, 5000);
         return () => {
             clearInterval(interval);
         };
@@ -47,7 +48,7 @@ export function ChatView(props: any) {
 
     /// Scroll to the bottom of the message list when it gets updated.
     useEffect(() => {
-        if (refMessageList.current) {
+        if (!pauseScroll && refMessageList.current) {
             refMessageList.current.scrollTop = refMessageList.current.scrollHeight;
         }
     }, [messages]);
@@ -137,11 +138,11 @@ export function ChatView(props: any) {
                 reloadChat();
                 setChatInput('');
             } else {
-                setError(`[reloadChat] Response error: ${resp.effects.status.error}`);
+                setError(`[onSubmitAddMessage] Response error: ${resp.effects.status.error}`);
             }
         })
         .catch((error: any) => {
-            setError(`[reloadChat] Request error: ${error.message}`);
+            setError(`[onSubmitAddMessage] Request error: ${error.message}`);
         })
         .finally(() => {
             setWaiting(false);
@@ -157,9 +158,25 @@ export function ChatView(props: any) {
         focusChatInput();
     };
 
+    // Pause/resume chat autoscrolling if the user manually scrolled up
+    const onScrollMessageList = (e: SyntheticEvent) => {
+        if (!refMessageList.current)
+            return;
+        const scrollHeight = refMessageList.current.scrollHeight; // height of contents including content not visible due to overflow (3778px)
+        const clientHeight = refMessageList.current.clientHeight; // element inner height in pixels (700px)
+        const scrollTop = refMessageList.current.scrollTop; // distance from the element's top to its topmost visible content (initially 3078px)
+        const veryBottom = scrollHeight - clientHeight; // 3078px (max value for scrollTop, i.e. fully scrolled down)
+        const isScrolledUp = veryBottom - scrollTop > 100; // still reload if slightly scrolled up (to prevent accidental pausing)
+        if (isScrolledUp && !pauseScroll) {
+            setPauseScroll(true);
+        } else if (!isScrolledUp && pauseScroll) {
+            setPauseScroll(false);
+        }
+    };
+
     /* Helpers */
 
-    const reloadChat = async () => {
+    const reloadChat = () => {
         console.debug('[reloadChat] Fetching object:', chatId);
         rpc.getObject(chatId)
         .then((obj: any) => {
@@ -275,7 +292,8 @@ export function ChatView(props: any) {
             </div>
         </div>
 
-        <div ref={refMessageList} id='message-list' className='chat-middle'>{messages.map((msg: any, idx) =>
+        <div ref={refMessageList} id='message-list' className='chat-middle' onScroll={onScrollMessageList}>
+        {messages.map((msg: any, idx) =>
             <div key={idx} className='message'> {/* TODO: memoize */}
                 <div className='message-pfp-wrap'>
                     <span className='message-pfp'
