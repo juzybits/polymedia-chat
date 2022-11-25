@@ -6,6 +6,7 @@ import emojiData from '@emoji-mart/data';
 import EmojiPicker from './components/EmojiPicker';
 import { Nav } from './components/Nav';
 import { timeAgo } from './lib/common';
+import { isTrustedDomain } from './lib/domains';
 import { shortenAddress, getAddressColor, getAddressEmoji } from './lib/addresses';
 import { POLYMEDIA_PACKAGE, rpc, isExpectedType } from './lib/sui_client';
 import '../css/Chat.less';
@@ -216,7 +217,9 @@ export function ChatView(props: any) {
     };
 
     const MagicLink = (props: any) => {
-        return <a href={props.href} target='_blank'>{props.href}</a>;
+        return isTrustedDomain(props.href)
+            ? <a href={props.href} target='_blank'>{props.href}</a>
+            : props.href;
     };
 
     /// Parse plaintext and format any URLs and 0x addresses in it
