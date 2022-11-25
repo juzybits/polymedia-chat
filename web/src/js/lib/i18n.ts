@@ -1,3 +1,5 @@
+// Localization/internationalization
+
 import Polyglot from 'node-polyglot';
 
 const translations: Record<string, object> = {

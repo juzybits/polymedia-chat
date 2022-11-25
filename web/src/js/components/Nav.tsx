@@ -1,7 +1,7 @@
 import React, { useEffect, ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ethos, SignInButton } from 'ethos-connect';
-import { shortenAddress } from '../lib/common';
+import { shortenAddress } from '../lib/addresses';
 import '../../css/Nav.less';
 import imgLogo from '../../img/logo.png';
 

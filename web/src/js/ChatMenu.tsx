@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Nav } from './components/Nav';
 import { rpc } from './lib/sui_client';
-import { shorten } from './lib/common';
 import '../css/Menu.less';
 
 export function ChatMenu(props: any) {

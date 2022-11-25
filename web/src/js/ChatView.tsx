@@ -5,7 +5,8 @@ import emojiData from '@emoji-mart/data';
 
 import EmojiPicker from './components/EmojiPicker';
 import { Nav } from './components/Nav';
-import { shorten, shortenAddress, getAddressColor, getAddressEmoji, timeAgo } from './lib/common';
+import { timeAgo } from './lib/common';
+import { shortenAddress, getAddressColor, getAddressEmoji } from './lib/addresses';
 import { POLYMEDIA_PACKAGE, rpc, isExpectedType } from './lib/sui_client';
 import '../css/Chat.less';
 
