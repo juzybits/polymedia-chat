@@ -174,6 +174,28 @@ export function ChatView(props: any) {
         }
     };
 
+    const onChangeChatInput = (e: SyntheticEvent) => {
+        const text = e.target.value;
+        setChatInput(text);
+        /*
+        // Detect emoji shortcut ':ab' and open emoji picker
+        const cursor = refChatInput.current?.selectionStart || 0;
+        console.log('cursor', cursor);
+        if (cursor < 3) {
+            return;
+        }
+        const potentialEmojiShortcut = text.slice(0, cursor);
+        console.log('potentialEmojiShortcut', potentialEmojiShortcut);
+
+        const regexEmojiOpen = new RegExp(/:[a-z]{2,}$/);
+        const match = potentialEmojiShortcut.match(regexEmojiOpen);
+        console.log('match', match);
+        if (match) {
+            setShowEmojiPicker(true);
+        }
+        */
+    };
+
     /* Helpers */
 
     const reloadChat = () => {
@@ -328,7 +350,7 @@ export function ChatView(props: any) {
                     spellCheck='false' autoCorrect='off' autoComplete='off'
                     placeholder={isConnected ? 'Send a message' : 'Log in to send a message'}
                     value={chatInput}
-                    onChange={e => setChatInput(e.target.value)}
+                    onChange={onChangeChatInput}
                 />
                 <div ref={refEmojiBtn} id='chat-emoji-btn'
                     className={isConnected ? '' : 'disabled'}
