@@ -110,7 +110,7 @@ export function ChatView(props: any) {
         const input = chatInput.trim();
         // Message validation
         const forbiddenWords = ['hello', 'hallo', 'morning'];
-        if (input.length < 4 || forbiddenWords.includes(input.toLowerCase()) ) {
+        if (input.length < 3 || forbiddenWords.includes(input.toLowerCase()) ) {
             setError('I\'m sure you can come up with something more creative ;)');
             return;
         }
@@ -294,7 +294,7 @@ export function ChatView(props: any) {
 
         <div ref={refMessageList} id='message-list' className='chat-middle' onScroll={onScrollMessageList}>
         {messages.map((msg: any, idx) =>
-            <div key={idx} className='message'> {/* TODO: memoize */}
+            <div key={idx} className={`message ${isConnected && msg.text.includes(wallet.address) ? 'highlight' : ''}`}>
                 <div className='message-pfp-wrap'>
                     <span className='message-pfp'
                           style={{background: getAddressColor(msg.author, 8)}}

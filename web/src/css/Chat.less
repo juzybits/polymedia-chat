@@ -72,10 +72,12 @@
     .message {
         display: flex;
         flex-flow: row;
-        padding: 0.5em var(--padding-rail);
-        margin-bottom: 0.3em;
+        padding: 0.7em var(--padding-rail);
         &:hover {
             background-color: var(--bg-panel);
+        }
+        &.highlight {
+            background: #4a443e;
         }
         .message-pfp-wrap {
             user-select: none;
