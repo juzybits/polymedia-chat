@@ -175,7 +175,7 @@ export function ChatView(props: any) {
     };
 
     const onChangeChatInput = (e: SyntheticEvent) => {
-        const text = e.target.value;
+        const text = (e.target as HTMLInputElement).value;
         setChatInput(text);
         /*
         // Detect emoji shortcut ':ab' and open emoji picker
@@ -208,11 +208,20 @@ export function ChatView(props: any) {
                 setError(`[reloadChat] Wrong object type: ${obj.details.data.type}`);
             } else {
                 setError('');
-                setChatObj(obj);
-                const msgs = obj.details.data.fields.messages;
-                if (msgs) {
-                    setMessages( msgs.map((msg: any) => msg.fields) );
-                }
+                setChatObj((oldObj: any) => {
+                    const areEqual = oldObj?.details.previousTransaction == obj.details.previousTransaction;
+                    return areEqual ? oldObj : obj;
+                });
+                const newMsgs = obj.details.data.fields.messages;
+                newMsgs && setMessages((oldMsgs: any) => {
+                    const oldLast = !oldMsgs ? null : oldMsgs[oldMsgs.length-1];
+                    const newLast = newMsgs[newMsgs.length-1].fields;
+                    const areEqual = oldLast &&
+                        oldLast.timestamp == newLast.timestamp &&
+                        oldLast.text == newLast.text &&
+                        oldLast.author == newLast.author;
+                    return areEqual ? oldMsgs : newMsgs.map((msg: any) => msg.fields);
+                });
             }
         })
         .catch(err => {
