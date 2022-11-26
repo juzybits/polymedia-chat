@@ -39,7 +39,8 @@ export function Home(props: any) {
                 <div className='category'>
                     <h3 className='category-title'>More</h3>
                     <div className='category-description'>
-                        Coming soon...
+                        <span id='coming-soon'>Coming soon...</span>
+                        <span id='unexpected'>EXPECT<br/>THE<br/>UNEXPECTED</span>
                     </div>
                 </div>
             </div>

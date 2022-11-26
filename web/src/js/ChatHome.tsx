@@ -31,17 +31,15 @@ export function ChatHome(props: any) {
                 <div className='category'>
                     <h3 className='category-title'>Sui fans</h3>
                     <div className='category-description'>
-                        A place to talk about all things Sui💧
+                        A place to talk about all things Sui 🌊
                         <br/>
-                        <Link className='btn primary' to='/chat/0x735e7a87333f5809310355b4401307f2d708c5ea'>VIEW</Link>
+                        <Link className='btn primary' to='/chat/0x679d70cd33f3209500fb4a801ff003684ee4b3f2'>VIEW</Link>
                     </div>
                 </div>
                 <div className='category'>
-                    <h3 className='category-title'>Got Beef?</h3>
+                    <h3 className='category-title'>Your chat</h3>
                     <div className='category-description'>
-                        Find people to bet with on https://gotbeef.app
-                        <br/>
-                        <Link className='btn primary' to='/chat/0x679d70cd33f3209500fb4a801ff003684ee4b3f2'>VIEW</Link>
+                        Let us know if you'd like to feature your chat here :)
                     </div>
                 </div>
             </div>
