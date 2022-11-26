@@ -17,6 +17,7 @@ module polymedia::chat
         description: String, // description/rules/welcome message/etc
         max_msg_amount: u64, // maximum amount of messages this chat room can hold
         max_msg_length: u64, // maximum length (in characters) of any given chat message
+        last_index: u64, // indicates the position of the newest ChatMessage in `messages`
         messages: vector<ChatMessage>,
     }
 
@@ -24,8 +25,22 @@ module polymedia::chat
         timestamp: u64, // user time from their browser
         author: address,
         text: String,
-        // reply: u32, // distance of an older message to which this message is replying (0 = not a reply)
+        // reply: u64, // distance of an older message to which this message is replying (0 = not a reply)
     }
+
+    /* Accessors */
+
+    #[test_only]
+    public fun messages(room: &ChatRoom): &vector<ChatMessage> {
+        &room.messages
+    }
+
+    #[test_only]
+    public fun message_text(message: &ChatMessage): &String {
+        &message.text
+    }
+
+    /* Core logic */
 
     public entry fun create(
         name: vector<u8>,
@@ -42,6 +57,7 @@ module polymedia::chat
             description: string::utf8(description),
             max_msg_amount,
             max_msg_length,
+            last_index: max_msg_amount - 1,
             messages: vector::empty(),
         };
         transfer::share_object(chat);
@@ -51,14 +67,13 @@ module polymedia::chat
         chat: &mut ChatRoom,
         timestamp: u64,
         text: vector<u8>,
-        // reply: u32,
+        // reply: u64,
         ctx: &mut TxContext)
     {
         let text_len = vector::length(&text);
         assert!(text_len > 0 && text_len <= chat.max_msg_length, E_INVALID_TEXT_LENGTH);
-        if (vector::length(&chat.messages) == chat.max_msg_amount) {
-            vector::remove(&mut chat.messages, 0);
-        };
+
+        // Add the new message to the end of the vector
         let newMessage = ChatMessage {
             timestamp,
             author: tx_context::sender(ctx),
@@ -66,5 +81,11 @@ module polymedia::chat
             // reply,
         };
         vector::push_back(&mut chat.messages, newMessage);
+
+        // Wrap around by moving the new message to the current index (replacing the oldest message)
+        chat.last_index = (chat.last_index + 1) % chat.max_msg_amount;
+        if ( vector::length(&chat.messages) > chat.max_msg_amount ) {
+            vector::swap_remove(&mut chat.messages, chat.last_index);
+        };
     }
 }

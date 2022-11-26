@@ -40,7 +40,7 @@ export function ChatView(props: any) {
         focusChatInput();
         reloadChat();
         /// Periodically update the list of messages
-        const interval = setInterval(reloadChat, 5000);
+        const interval = setInterval(reloadChat, 6000);
         return () => {
             clearInterval(interval);
         };
@@ -199,7 +199,7 @@ export function ChatView(props: any) {
     /* Helpers */
 
     const reloadChat = () => {
-        console.debug('[reloadChat] Fetching object:', chatId);
+        // console.debug('[reloadChat] Fetching object:', chatId);
         rpc.getObject(chatId)
         .then((obj: any) => {
             if (obj.status != 'Exists') {
@@ -214,13 +214,17 @@ export function ChatView(props: any) {
                 });
                 const newMsgs = obj.details.data.fields.messages;
                 newMsgs && setMessages((oldMsgs: any) => {
+                    const idx = obj.details.data.fields.last_index;
+                    const newLast = newMsgs[idx].fields;
                     const oldLast = !oldMsgs ? null : oldMsgs[oldMsgs.length-1];
-                    const newLast = newMsgs[newMsgs.length-1].fields;
                     const areEqual = oldLast &&
                         oldLast.timestamp == newLast.timestamp &&
                         oldLast.text == newLast.text &&
                         oldLast.author == newLast.author;
-                    return areEqual ? oldMsgs : newMsgs.map((msg: any) => msg.fields);
+                    return areEqual
+                        ? oldMsgs // avoid repainting if there's no new messages
+                        : [ ...newMsgs.slice(idx+1), ...newMsgs.slice(0, idx+1) ] // order messages
+                          .map((msg: any) => msg.fields); // extract messsage fields
                 });
             }
         })

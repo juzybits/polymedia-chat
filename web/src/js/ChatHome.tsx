@@ -33,7 +33,7 @@ export function ChatHome(props: any) {
                     <div className='category-description'>
                         A place to talk about all things Sui💧
                         <br/>
-                        <Link className='btn primary' to='/chat/0x2a75b6b1f1555b3e8cc1aa955d7a0897bf60dc44'>VIEW</Link>
+                        <Link className='btn primary' to='/chat/0x735e7a87333f5809310355b4401307f2d708c5ea'>VIEW</Link>
                     </div>
                 </div>
                 <div className='category'>
@@ -41,7 +41,7 @@ export function ChatHome(props: any) {
                     <div className='category-description'>
                         Find people to bet with on https://gotbeef.app
                         <br/>
-                        <Link className='btn primary' to='/chat/0x564d45ee3fc2e4b0a98cd5087e2c6480e2057f17'>VIEW</Link>
+                        <Link className='btn primary' to='/chat/0x679d70cd33f3209500fb4a801ff003684ee4b3f2'>VIEW</Link>
                     </div>
                 </div>
             </div>
