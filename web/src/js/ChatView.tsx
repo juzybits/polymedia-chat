@@ -5,9 +5,9 @@ import emojiData from '@emoji-mart/data';
 
 import EmojiPicker from './components/EmojiPicker';
 import { Nav } from './components/Nav';
+import { parseMagicText, MagicAddress } from './components/MagicText';
 import { timeAgo } from './lib/common';
-import { isTrustedDomain } from './lib/domains';
-import { shortenAddress, getAddressColor, getAddressEmoji } from './lib/addresses';
+import { getAddressColor, getAddressEmoji } from './lib/addresses';
 import { POLYMEDIA_PACKAGE, rpc, isExpectedType } from './lib/sui_client';
 import '../css/Chat.less';
 
@@ -149,15 +149,6 @@ export function ChatView(props: any) {
         });
     };
 
-    const onClickCopyAddress = (e: SyntheticEvent, address: string) => {
-        e.preventDefault();
-        navigator.clipboard
-            .writeText(address)
-            .then( () => notify('COPIED!') )
-            .catch( err => notify('Error copying to clipboard') );
-        focusChatInput();
-    };
-
     // Pause/resume chat autoscrolling if the user manually scrolled up
     const onScrollMessageList = (e: SyntheticEvent) => {
         if (!refMessageList.current)
@@ -174,10 +165,10 @@ export function ChatView(props: any) {
         }
     };
 
+    /*
     const onChangeChatInput = (e: SyntheticEvent) => {
         const text = (e.target as HTMLInputElement).value;
         setChatInput(text);
-        /*
         // Detect emoji shortcut ':ab' and open emoji picker
         const cursor = refChatInput.current?.selectionStart || 0;
         console.log('cursor', cursor);
@@ -193,8 +184,8 @@ export function ChatView(props: any) {
         if (match) {
             setShowEmojiPicker(true);
         }
-        */
     };
+    */
 
     /* Helpers */
 
@@ -237,6 +228,14 @@ export function ChatView(props: any) {
         refChatInput.current?.focus();
     }
 
+    const copyAddress = (address: string) => {
+        navigator.clipboard
+            .writeText(address)
+            .then( () => notify('COPIED!') )
+            .catch( err => notify('Error copying to clipboard') );
+        focusChatInput();
+    };
+
     const preapproveTxns = useCallback(async () => {
         await wallet?.requestPreapproval({
             packageObjectId: POLYMEDIA_PACKAGE,
@@ -257,59 +256,6 @@ export function ChatView(props: any) {
             const preapproval = null;
         });
     }, [wallet]);
-
-    /* Magic text (make addreses clickable, etc) */
-
-    /// Shorten a 0x address, style it, and make it clickable
-    const MagicAddress = (props: any) => {
-        return <a onClick={(e) => onClickCopyAddress(e, props.address)}
-            style={{color: getAddressColor(props.address, 8, true)}} >
-            {shortenAddress(props.address)}
-        </a>;
-    };
-
-    const MagicLink = (props: any) => {
-        return isTrustedDomain(props.href)
-            ? <a href={props.href} target='_blank'>{props.href}</a>
-            : props.href;
-    };
-
-    /// Parse plaintext and format any URLs and 0x addresses in it
-    const MagicText = (props: any) =>
-    {
-        let key = 0;
-        const chunk = (contents: any) => {
-            return <React.Fragment key={key++}>{contents}</React.Fragment>;
-        };
-
-        const ReplaceAddresses = (props: any) => {
-            const addressRegex = new RegExp(/0x[a-fA-F0-9]{40}/g);
-            const addresses = props.plainText.match(addressRegex) || [];
-            const nonAddresses = props.plainText.split(addressRegex);
-
-            let result = [ chunk(nonAddresses.shift()) ];
-            for (let address of addresses) {
-                result.push( chunk(<MagicAddress address={address} />) );
-                result.push( chunk(nonAddresses.shift()) );
-            }
-            return <>{result}</>;
-        };
-
-        const ReplaceUrls = (props: any) => {
-            const urlRegex = new RegExp(/(?:https?|ipfs):\/\/[^\s]+\.[^\s]+/g);
-            const urls = props.plainText.match(urlRegex) || [];
-            const nonUrls = props.plainText.split(urlRegex);
-
-            let result = [ chunk(<ReplaceAddresses plainText={nonUrls.shift()} />) ];
-            for (let url of urls) {
-                result.push( chunk(<MagicLink href={url} text={url} />) );
-                result.push( chunk(<ReplaceAddresses plainText={nonUrls.shift()} />) );
-            }
-            return <>{result}</>;
-        };
-
-        return <ReplaceUrls plainText={props.plainText} />;
-    };
 
     /* HTML */
 
@@ -332,22 +278,25 @@ export function ChatView(props: any) {
             <div key={idx} className={`message ${isConnected && msg.text.includes(wallet.address) ? 'highlight' : ''}`}>
                 <div className='message-pfp-wrap'>
                     <span className='message-pfp'
-                          style={{background: getAddressColor(msg.author, 14)}}
-                          onClick={(e) => onClickCopyAddress(e, msg.author)}
+                          style={{background: getAddressColor(msg.author, 12)}}
+                          onClick={() => copyAddress(msg.author)}
                     >
                         {getAddressEmoji(msg.author)}
                     </span>
                 </div>
                 <span className='message-text-wrap'>
                     <span className='message-author'>
-                        <MagicAddress address={msg.author} />
+                        <MagicAddress address={msg.author} onClickAddress={copyAddress} />
                     </span>
                     <span className='message-timestamp'>
                         {timeAgo(msg.timestamp)}
                     </span>
-                    <div className='message-text'>
-                        <MagicText plainText={msg.text} />
-                    </div>
+                    {(() => {
+                        const magicText = parseMagicText(msg.text, copyAddress);
+                        return <div className='message-text'>
+                            {magicText.text}
+                        </div>;
+                    })()}
                 </span>
             </div>
         )}
@@ -363,7 +312,7 @@ export function ChatView(props: any) {
                     spellCheck='false' autoCorrect='off' autoComplete='off'
                     placeholder={isConnected ? 'Send a message' : 'Log in to send a message'}
                     value={chatInput}
-                    onChange={onChangeChatInput}
+                    onChange={e => setChatInput(e.target.value)}
                 />
                 <div ref={refEmojiBtn} id='chat-emoji-btn'
                     className={isConnected ? '' : 'disabled'}

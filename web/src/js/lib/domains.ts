@@ -409,6 +409,7 @@ const trustedDomains = new Map<string, boolean>([
     ['tradingview.com', true],
     ['tripadvisor.com', true],
     ['tumblr.com', true],
+    ['twimg.com', true],
     ['twitch.tv', true],
     ['twitter.com', true],
     ['ubuntu.com', true],

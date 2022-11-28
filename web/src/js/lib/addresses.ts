@@ -8,7 +8,7 @@ import emojiData from '@emoji-mart/data';
 
 /// Transform an address like '0x123456789abc' into '@89abc'
 export function shortenAddress(address: string): string {
-    return '@' + address.slice(2, 8);
+    return '@' + address.slice(2, 6) + '..' + address.slice(-4);
 }
 
 /// Return a CSS color from an address in a deterministic way
