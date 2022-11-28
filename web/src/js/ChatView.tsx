@@ -107,16 +107,8 @@ export function ChatView(props: any) {
     const onSubmitAddMessage = async (e: SyntheticEvent) => {
         e.preventDefault();
         setError('');
-        const chatInput = getChatInputValue();
-        // Message validation
-        const forbiddenWords = ['hello', 'hallo', 'morning'];
-        if (chatInput.length < 3 || forbiddenWords.includes(chatInput.toLowerCase()) ) {
-            setError('I\'m sure you can come up with something more creative ;)');
-            return;
-        }
-        await preapproveTxns();
-        // Send transaction
         setWaiting(true);
+        await preapproveTxns();
         console.debug(`[onSubmitAddMessage] Calling chat::add_message on package: ${POLYMEDIA_PACKAGE}`);
         wallet?.signAndExecuteTransaction({
             kind: 'moveCall',
@@ -128,7 +120,7 @@ export function ChatView(props: any) {
                 arguments: [
                     chatId,
                     Date.now(),
-                    Array.from( (new TextEncoder()).encode(chatInput) ),
+                    Array.from( (new TextEncoder()).encode( getChatInputValue() ) ),
                 ],
                 gasBudget: 10000,
             }

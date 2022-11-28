@@ -7,7 +7,7 @@
     }
 }
 .new-content {
-    padding: var(--padding-top) var(--padding-rail);
+    padding: var(--padding-page);
     .error {
         margin-top: 1em;
     }
@@ -16,5 +16,26 @@
     }
     p {
         margin-bottom: 1.5em;
+    }
+    .form {
+        padding: 0 0.5em;
+        input {
+            background: #555;
+            border-radius: 16px;
+            border: 2px solid var(--bg-content);
+            &:focus {
+                border: 2px solid #555;
+            }
+        }
+        .form-field {
+            label {
+                color: #ccc;
+                margin: 1em 0 0.2em 0.1em;
+                display: block;
+            }
+        }
+        button {
+            margin-top: 1.2em;
+        }
     }
 }
