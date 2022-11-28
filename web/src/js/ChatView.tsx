@@ -190,10 +190,15 @@ export function ChatView(props: any) {
                         oldLast.timestamp == newLast.timestamp &&
                         oldLast.text == newLast.text &&
                         oldLast.author == newLast.author;
-                    return areEqual
-                        ? oldMsgs // avoid repainting if there's no new messages
-                        : [ ...newMsgs.slice(idx+1), ...newMsgs.slice(0, idx+1) ] // order messages
-                          .map((msg: any) => msg.fields); // extract messsage fields
+                    if (areEqual) {
+                        // avoid repainting if there's no new messages
+                        return oldMsgs;
+                    } else {
+                        // @ts-ignore
+                        // twttr && twttr.widgets.load(refMessageList.current);
+                        return [ ...newMsgs.slice(idx+1), ...newMsgs.slice(0, idx+1) ] // order messages
+                            .map((msg: any) => msg.fields); // extract messsage fields
+                    }
                 });
             }
         })
@@ -305,8 +310,11 @@ export function ChatView(props: any) {
                     </div>
                     {magicText.images &&
                     <div className='message-images'>
-                        { magicText.images.map((url, idx) => <a href={url} target='_blank'>
-                            <img src={url} key={idx} /></a>) }
+                        { magicText.images.map((url, idx) => <a href={url} target='_blank' key={idx}><img src={url}/></a>) }
+                    </div>}
+                    {magicText.tweets &&
+                    <div className='message-tweets'>
+                        { magicText.tweets.map((url, idx) => <blockquote className='twitter-tweet' key={idx}><a href={url}></a></blockquote>) }
                     </div>}
                 </span>
             </div>;

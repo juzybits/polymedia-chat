@@ -7,6 +7,7 @@ import { isTrustedDomain } from '../lib/domains';
 const REGEX_ADDRESS = new RegExp(/0x[a-fA-F0-9]{40}/g);
 const REGEX_IMAGE = new RegExp(/\.(apng|avif|gif|jpeg|jpg|png|svg|webp)$/);
 const REGEX_URL = new RegExp(/(?:https?|ipfs):\/\/[^\s\/$.?#].[^\s]*[^\s.,|]+/ig);
+const REGEX_TWEET = new RegExp('https://twitter.com/[^/]+/status/.+');
 
 /// Shorten a 0x address, style it, and make it clickable
 export function MagicAddress(props: any) {
@@ -27,6 +28,7 @@ export function MagicLink(props: any) {
 export type MagicText = {
     text: React.ReactNode,
     images: null|Array<string>,
+    tweets: null|Array<string>,
 };
 
 /// Parse plaintext and format any URLs and 0x addresses in it
@@ -41,31 +43,34 @@ export function parseMagicText(plainText: string, onClickAddress: Function)
         const addresses = props.plainText.match(REGEX_ADDRESS) || [];
         const nonAddresses = props.plainText.split(REGEX_ADDRESS);
 
-        let result = [ chunk(nonAddresses.shift()) ];
+        let chunks = [ chunk(nonAddresses.shift()) ];
         for (let address of addresses) {
-            result.push( chunk(<MagicAddress address={address} onClickAddress={onClickAddress} />) );
-            result.push( chunk(nonAddresses.shift()) );
+            chunks.push( chunk(<MagicAddress address={address} onClickAddress={onClickAddress} />) );
+            chunks.push( chunk(nonAddresses.shift()) );
         }
-        return <>{result}</>;
+        return <>{chunks}</>;
     };
 
     const urls = plainText.match(REGEX_URL) || [];
     const imgUrls = [];
+    const tweetUrls = [];
     const nonUrls = plainText.split(REGEX_URL);
 
     let chunks = [ chunk(<ReplaceAddresses plainText={nonUrls.shift()} />) ];
     for (let url of urls) {
+        chunks.push( chunk(<MagicLink href={url} text={url} />) );
+        chunks.push( chunk(<ReplaceAddresses plainText={nonUrls.shift()} />) );
         if ( url.match(REGEX_IMAGE) ) {
             imgUrls.push(url);
-        } else {
-            chunks.push( chunk(<MagicLink href={url} text={url} />) );
+        // } else if ( url.match(REGEX_TWEET) ) {
+        //     tweetUrls.push(url);
         }
-        chunks.push( chunk(<ReplaceAddresses plainText={nonUrls.shift()} />) );
     }
 
     const magicText: MagicText = {
         text: <>{chunks}</>,
         images: imgUrls.length ? imgUrls : null,
+        tweets: tweetUrls.length ? tweetUrls : null,
     };
     return magicText;
 };
