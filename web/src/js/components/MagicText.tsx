@@ -62,8 +62,8 @@ export function parseMagicText(plainText: string, onClickAddress: Function)
         chunks.push( chunk(<ReplaceAddresses plainText={nonUrls.shift()} />) );
         if ( url.match(REGEX_IMAGE) ) {
             imgUrls.push(url);
-        // } else if ( url.match(REGEX_TWEET) ) {
-        //     tweetUrls.push(url);
+        } else if ( url.match(REGEX_TWEET) ) {
+            tweetUrls.push(url);
         }
     }
 

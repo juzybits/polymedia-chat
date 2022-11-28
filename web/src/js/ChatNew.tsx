@@ -98,9 +98,10 @@ export function ChatNew(props: any) {
                     <input value={inputMaxMsgAmount} type='text' required
                         spellCheck='false' autoCorrect='off' autoComplete='off'
                         inputMode='numeric' pattern="[0-9]*"
-                        onChange={e =>
-                            setInputMaxMsgAmount(v => (e.target.validity.valid ? Number(e.target.value) : v))
-                        }
+                        onChange={ e => setInputMaxMsgAmount( (v: any) =>
+                            !e.target.value ? ''
+                                : !e.target.validity.valid ? v
+                                    : Number(e.target.value) ) }
                     />
                 </div>
                 <div className='form-field'>
@@ -108,9 +109,10 @@ export function ChatNew(props: any) {
                     <input value={inputMaxMsgLength} type='text' required
                         spellCheck='false' autoCorrect='off' autoComplete='off'
                         inputMode='numeric' pattern="[0-9]*"
-                        onChange={e =>
-                            setInputMaxMsgLength(v => (e.target.validity.valid ? Number(e.target.value) : v))
-                        }
+                        onChange={ e => setInputMaxMsgLength( (v: any) =>
+                            !e.target.value ? ''
+                                : !e.target.validity.valid ? v
+                                    : Number(e.target.value) ) }
                     />
                 </div>
                 <button type='submit' className='primary'>CREATE</button>
