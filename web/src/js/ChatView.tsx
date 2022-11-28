@@ -263,7 +263,7 @@ export function ChatView(props: any) {
     /// Shorten a 0x address, style it, and make it clickable
     const MagicAddress = (props: any) => {
         return <a onClick={(e) => onClickCopyAddress(e, props.address)}
-            style={{color: getAddressColor(props.address, 2, true)}} >
+            style={{color: getAddressColor(props.address, 8, true)}} >
             {shortenAddress(props.address)}
         </a>;
     };
@@ -332,7 +332,7 @@ export function ChatView(props: any) {
             <div key={idx} className={`message ${isConnected && msg.text.includes(wallet.address) ? 'highlight' : ''}`}>
                 <div className='message-pfp-wrap'>
                     <span className='message-pfp'
-                          style={{background: getAddressColor(msg.author, 8)}}
+                          style={{background: getAddressColor(msg.author, 14)}}
                           onClick={(e) => onClickCopyAddress(e, msg.author)}
                     >
                         {getAddressEmoji(msg.author)}

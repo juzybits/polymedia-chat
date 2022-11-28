@@ -5,8 +5,14 @@ import { JsonRpcProvider, SuiTransactionResponse, GetObjectDataResponse } from '
 export const POLYMEDIA_PACKAGE = '0x05ca31973fd8f5aeca8f1f38c6ef331c62cfc298';
 export const rpc = new JsonRpcProvider('https://fullnode.devnet.sui.io:443');
 
-/* Types */
+export function isExpectedType(type: string, expectPackage: string, expectModule: string, expectType: string): boolean {
+    // Handle missing leading zeros ('0x00ab::x::Y' is returned as '0xab::x::Y' by the RPC)
+    const packageName = expectPackage.replace(/0x0+/, '0x0*');
+    const typeRegex = new RegExp(`^${packageName}::${expectModule}::${expectType}`);
+    return !!type.match(typeRegex);
+}
 
+/*
 /// Represents a `polymedia::item::Item` Sui object
 export type Item = {
     id: string, // The Sui object UID
@@ -18,13 +24,6 @@ export type Item = {
     url: string,
     data: string,
 };
-
-export function isExpectedType(type: string, expectPackage: string, expectModule: string, expectType: string): boolean {
-    // Handle missing leading zeros ('0x00ab::x::Y' is returned as '0xab::x::Y' by the RPC)
-    const packageName = expectPackage.replace(/0x0+/, '0x0*');
-    const typeRegex = new RegExp(`^${packageName}::${expectModule}::${expectType}`);
-    return !!type.match(typeRegex);
-}
 
 function parseItem(resp: GetObjectDataResponse): Item|null
 {
@@ -53,8 +52,6 @@ function parseItem(resp: GetObjectDataResponse): Item|null
     return item;
 }
 
-/* RPC functions */
-
 /// Fetch and parse `polymedia::item::Item` Sui objects
 export async function getItems(objectIds: string[]): Promise<Item[]>
 {
@@ -72,3 +69,4 @@ export async function getItems(objectIds: string[]): Promise<Item[]>
             return [];
         });
 }
+*/

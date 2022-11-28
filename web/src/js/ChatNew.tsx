@@ -10,7 +10,7 @@ import '../css/New.less';
 export function ChatNew(props: any) {
     const [inputName, setInputName] = useState('');
     const [inputDescription, setInputDescription] = useState('');
-    const [inputMaxMsgAmount, setInputMaxMsgAmount] = useState(100);
+    const [inputMaxMsgAmount, setInputMaxMsgAmount] = useState(200);
     const [inputMaxMsgLength, setInputMaxMsgLength] = useState(500);
     const [waiting, setWaiting] = useState(false);
     const [error, setError] = useState('');
@@ -94,7 +94,7 @@ export function ChatNew(props: any) {
                     />
                 </div>
                 <div className='form-field'>
-                    <label>History capacity (10-200 messages)</label>
+                    <label>History capacity (10-400 messages)</label>
                     <input value={inputMaxMsgAmount} type='text' required
                         spellCheck='false' autoCorrect='off' autoComplete='off'
                         inputMode='numeric' pattern="[0-9]*"

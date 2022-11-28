@@ -49,7 +49,7 @@ module polymedia::chat
         max_msg_length: u64,
         ctx: &mut TxContext)
     {
-        assert!(max_msg_amount >= 1 && max_msg_amount <= 200, E_INVALID_MAX_MSG_AMOUNT);
+        assert!(max_msg_amount >= 1 && max_msg_amount <= 400, E_INVALID_MAX_MSG_AMOUNT);
         assert!(max_msg_length >= 1 && max_msg_length <= 1000, E_INVALID_MAX_MSG_LENGTH);
         let chat = ChatRoom {
             id: object::new(ctx),
