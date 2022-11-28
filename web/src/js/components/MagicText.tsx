@@ -6,7 +6,7 @@ import { isTrustedDomain } from '../lib/domains';
 
 const REGEX_ADDRESS = new RegExp(/0x[a-fA-F0-9]{40}/g);
 const REGEX_IMAGE = new RegExp(/\.(apng|avif|gif|jpeg|jpg|png|svg|webp)$/);
-const REGEX_URL = new RegExp(/(?:https?|ipfs):\/\/[^\s]+\.[^\s]+/g);
+const REGEX_URL = new RegExp(/(?:https?|ipfs):\/\/[^\s\/$.?#].[^\s]*[^\s.,|]+/ig);
 
 /// Shorten a 0x address, style it, and make it clickable
 export function MagicAddress(props: any) {
@@ -26,7 +26,7 @@ export function MagicLink(props: any) {
 /// The result of parseMagicText()
 export type MagicText = {
     text: React.ReactNode,
-    images: Array<string>,
+    images: null|Array<string>,
 };
 
 /// Parse plaintext and format any URLs and 0x addresses in it
@@ -55,16 +55,17 @@ export function parseMagicText(plainText: string, onClickAddress: Function)
 
     let chunks = [ chunk(<ReplaceAddresses plainText={nonUrls.shift()} />) ];
     for (let url of urls) {
-        chunks.push( chunk(<MagicLink href={url} text={url} />) );
-        chunks.push( chunk(<ReplaceAddresses plainText={nonUrls.shift()} />) );
         if ( url.match(REGEX_IMAGE) ) {
             imgUrls.push(url);
+        } else {
+            chunks.push( chunk(<MagicLink href={url} text={url} />) );
         }
+        chunks.push( chunk(<ReplaceAddresses plainText={nonUrls.shift()} />) );
     }
 
     const magicText: MagicText = {
         text: <>{chunks}</>,
-        images: imgUrls,
+        images: imgUrls.length ? imgUrls : null,
     };
     return magicText;
 };

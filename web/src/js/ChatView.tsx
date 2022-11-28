@@ -282,8 +282,9 @@ export function ChatView(props: any) {
         </div>
 
         <div ref={refMessageList} id='message-list' className='chat-middle' onScroll={onScrollMessageList}>
-        {messages.map((msg: any, idx) =>
-            <div key={idx} className={`message ${isConnected && msg.text.includes(wallet.address) ? 'highlight' : ''}`}>
+        {messages.map((msg: any, idx) => {
+            const magicText = parseMagicText(msg.text, copyAddress);
+            return <div key={idx} className={`message ${isConnected && msg.text.includes(wallet.address) ? 'highlight' : ''}`}>
                 <div className='message-pfp-wrap'>
                     <span className='message-pfp'
                           style={{background: getAddressColor(msg.author, 12)}}
@@ -299,15 +300,17 @@ export function ChatView(props: any) {
                     <span className='message-timestamp'>
                         {timeAgo(msg.timestamp)}
                     </span>
-                    {(() => {
-                        const magicText = parseMagicText(msg.text, copyAddress);
-                        return <div className='message-text'>
-                            {magicText.text}
-                        </div>;
-                    })()}
+                    <div className='message-text'>
+                        {magicText.text}
+                    </div>
+                    {magicText.images &&
+                    <div className='message-images'>
+                        { magicText.images.map((url, idx) => <a href={url} target='_blank'>
+                            <img src={url} key={idx} /></a>) }
+                    </div>}
                 </span>
-            </div>
-        )}
+            </div>;
+        })}
         </div>
 
         <div ref={refChatBottom} className='chat-bottom'>
