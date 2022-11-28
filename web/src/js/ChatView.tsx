@@ -15,7 +15,6 @@ export function ChatView(props: any) {
     const chatId = useParams().uid || '';
 
     const [error, setError] = useState('');
-    const [chatInput, setChatInput] = useState('');
     const [chatObj, setChatObj]: any = useState(null);
     const [messages, setMessages] = useState([]);
     const [waiting, setWaiting] = useState(false);
@@ -90,7 +89,8 @@ export function ChatView(props: any) {
     const onSelectEmoji = (emoji: any) => {
         // Add the emoji to the chat input field
         const cut = refChatInput.current?.selectionStart || 0;
-        setChatInput( chatInput.slice(0,cut) + emoji.native + chatInput.slice(cut) );
+        const chatInput = getChatInputValue();
+        setChatInputValue( chatInput.slice(0,cut) + emoji.native + chatInput.slice(cut) );
         setChatInputCursor(cut+2);
         setShowEmojiPicker(false);
     };
@@ -107,10 +107,10 @@ export function ChatView(props: any) {
     const onSubmitAddMessage = async (e: SyntheticEvent) => {
         e.preventDefault();
         setError('');
-        const input = chatInput.trim();
+        const chatInput = getChatInputValue();
         // Message validation
         const forbiddenWords = ['hello', 'hallo', 'morning'];
-        if (input.length < 3 || forbiddenWords.includes(input.toLowerCase()) ) {
+        if (chatInput.length < 3 || forbiddenWords.includes(chatInput.toLowerCase()) ) {
             setError('I\'m sure you can come up with something more creative ;)');
             return;
         }
@@ -128,7 +128,7 @@ export function ChatView(props: any) {
                 arguments: [
                     chatId,
                     Date.now(),
-                    Array.from( (new TextEncoder()).encode(input) ),
+                    Array.from( (new TextEncoder()).encode(chatInput) ),
                 ],
                 gasBudget: 10000,
             }
@@ -136,7 +136,7 @@ export function ChatView(props: any) {
         .then((resp: any) => {
             if (resp.effects.status.status == 'success') {
                 reloadChat();
-                setChatInput('');
+                setChatInputValue('');
             } else {
                 setError(`[onSubmitAddMessage] Response error: ${resp.effects.status.error}`);
             }
@@ -164,28 +164,6 @@ export function ChatView(props: any) {
             setPauseScroll(false);
         }
     };
-
-    /*
-    const onChangeChatInput = (e: SyntheticEvent) => {
-        const text = (e.target as HTMLInputElement).value;
-        setChatInput(text);
-        // Detect emoji shortcut ':ab' and open emoji picker
-        const cursor = refChatInput.current?.selectionStart || 0;
-        console.log('cursor', cursor);
-        if (cursor < 3) {
-            return;
-        }
-        const potentialEmojiShortcut = text.slice(0, cursor);
-        console.log('potentialEmojiShortcut', potentialEmojiShortcut);
-
-        const regexEmojiOpen = new RegExp(/:[a-z]{2,}$/);
-        const match = potentialEmojiShortcut.match(regexEmojiOpen);
-        console.log('match', match);
-        if (match) {
-            setShowEmojiPicker(true);
-        }
-    };
-    */
 
     /* Helpers */
 
@@ -227,6 +205,36 @@ export function ChatView(props: any) {
     const focusChatInput = () => {
         refChatInput.current?.focus();
     }
+
+    /// Get/set the chat input through a reference, to prevent React from re-rendering
+    /// everything with each key press (including the list of messages)
+    const getChatInputValue = (): string => {
+        return !refChatInput.current ? '' : refChatInput.current.value.trim();
+    };
+    const setChatInputValue = (value: string): void => {
+        if (refChatInput.current) refChatInput.current.value = value;
+    };
+    /*
+    const onChangeChatInput = (e: SyntheticEvent) => {
+        const text = (e.target as HTMLInputElement).value;
+        setChatInputValue(text);
+        // Detect emoji shortcut ':ab' and open emoji picker
+        const cursor = refChatInput.current?.selectionStart || 0;
+        console.log('cursor', cursor);
+        if (cursor < 3) {
+            return;
+        }
+        const potentialEmojiShortcut = text.slice(0, cursor);
+        console.log('potentialEmojiShortcut', potentialEmojiShortcut);
+
+        const regexEmojiOpen = new RegExp(/:[a-z]{2,}$/);
+        const match = potentialEmojiShortcut.match(regexEmojiOpen);
+        console.log('match', match);
+        if (match) {
+            setShowEmojiPicker(true);
+        }
+    };
+    */
 
     const copyAddress = (address: string) => {
         navigator.clipboard
@@ -284,7 +292,7 @@ export function ChatView(props: any) {
                         {getAddressEmoji(msg.author)}
                     </span>
                 </div>
-                <span className='message-text-wrap'>
+                <span className='message-body'>
                     <span className='message-author'>
                         <MagicAddress address={msg.author} onClickAddress={copyAddress} />
                     </span>
@@ -311,8 +319,6 @@ export function ChatView(props: any) {
                     disabled={!isConnected || waiting}
                     spellCheck='false' autoCorrect='off' autoComplete='off'
                     placeholder={isConnected ? 'Send a message' : 'Log in to send a message'}
-                    value={chatInput}
-                    onChange={e => setChatInput(e.target.value)}
                 />
                 <div ref={refEmojiBtn} id='chat-emoji-btn'
                     className={isConnected ? '' : 'disabled'}
