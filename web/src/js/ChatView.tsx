@@ -206,7 +206,7 @@ export function ChatView(props: any) {
     /// Get/set the chat input through a reference, to prevent React from re-rendering
     /// everything with each key press (including the list of messages)
     const getChatInputValue = (): string => {
-        return !refChatInput.current ? '' : refChatInput.current.value.trim();
+        return !refChatInput.current ? '' : refChatInput.current.value;
     };
     const setChatInputValue = (value: string): void => {
         if (refChatInput.current) refChatInput.current.value = value;

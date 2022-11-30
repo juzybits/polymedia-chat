@@ -29,7 +29,7 @@ export function Home(props: any) {
 
             <div className='home-categories'>
                 <div className='category'>
-                    <h3 className='category-title'>Chat</h3>
+                    <h3 className='category-title'>💬&nbsp;&nbsp;Chat</h3>
                     <div className='category-description'>
                         Unstoppable chats
                         <br/>
@@ -39,8 +39,10 @@ export function Home(props: any) {
                 <div className='category'>
                     <h3 className='category-title'>More</h3>
                     <div className='category-description'>
-                        <span id='coming-soon'>Coming soon...</span>
-                        <span id='unexpected'>EXPECT<br/>THE<br/>UNEXPECTED</span>
+                        <div style={{height: '5em'}}>
+                            <span id='coming-soon'>Coming soon...</span>
+                            <span id='unexpected'>EXPECT<br/>THE<br/>UNEXPECTED</span>
+                        </div>
                     </div>
                 </div>
             </div>

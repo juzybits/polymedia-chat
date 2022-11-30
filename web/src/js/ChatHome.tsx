@@ -14,11 +14,11 @@ export function ChatHome(props: any) {
             <h1>
                 <Link to='/'>
                     <img src={imgLogo} alt='Polymedia logo' />
-                    POLYMEDIA/CHAT
+                    CHATS
                 </Link>
             </h1>
             <p>
-                Unstoppable chats.
+                Unstoppable conversations.
             </p>
         </div>
 
@@ -29,17 +29,17 @@ export function ChatHome(props: any) {
 
             <div className='home-categories'>
                 <div className='category'>
-                    <h3 className='category-title'>Sui fans</h3>
+                    <h3 className='category-title'>🌊&nbsp;&nbsp;Sui fans</h3>
                     <div className='category-description'>
-                        A place to talk about all things Sui 🌊
+                        A place to talk about all things Sui and connect with early adopters.
                         <br/>
-                        <Link className='btn primary' to='/chat/0x679d70cd33f3209500fb4a801ff003684ee4b3f2'>VIEW</Link>
+                        <Link className='btn primary' to='/chat/0x0b05ff9891763c022ed502c740f55cf39e600a64'>VIEW</Link>
                     </div>
                 </div>
                 <div className='category'>
-                    <h3 className='category-title'>Your chat</h3>
+                    <h3 className='category-title'>🫵&nbsp;&nbsp;Your chat</h3>
                     <div className='category-description'>
-                        Let us know if you'd like to feature your chat here :)
+                        Let us know if you'd like to feature your chat here.
                     </div>
                 </div>
             </div>
