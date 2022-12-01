@@ -33,7 +33,7 @@ export function ChatHome(props: any) {
                     <div className='category-description'>
                         A place to talk about all things Sui and connect with early adopters.
                         <br/>
-                        <Link className='btn primary' to='/chat/0x0b05ff9891763c022ed502c740f55cf39e600a64'>VIEW</Link>
+                        <Link className='btn primary' to='/chat/0x8d414425e8b94b2e4234bf3ecafa8bffa15c921c'>VIEW</Link>
                     </div>
                 </div>
                 <div className='category'>
