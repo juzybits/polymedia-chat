@@ -379,6 +379,7 @@ const trustedDomains = new Map<string, boolean>([
     ['steamcommunity.com', true],
     ['steampowered.com', true],
     ['stuff.co.nz', true],
+    ['sui.io', true],
     ['surveymonkey.com', true],
     ['t.co', true],
     ['t.me', true],

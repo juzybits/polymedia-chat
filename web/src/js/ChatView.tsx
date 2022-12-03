@@ -320,7 +320,7 @@ export function ChatView(props: any) {
                     maxLength={chatObj?.details.data.fields.max_msg_length}
                     className={`${waiting ? 'waiting' : (!isConnected ? 'disabled' : '')}`}
                     disabled={!isConnected || waiting}
-                    spellCheck='false' autoCorrect='off' autoComplete='off'
+                    autoCorrect='off' autoComplete='off'
                     placeholder={isConnected ? 'Send a message' : 'Log in to send a message'}
                 />
                 <div ref={refEmojiBtn} id='chat-emoji-btn'
