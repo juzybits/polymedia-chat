@@ -315,7 +315,7 @@ export function ChatView(props: any) {
 
         <div ref={refChatBottom} className='chat-bottom'>
             <form onSubmit={onSubmitAddMessage} className='chat-input-wrapper'
-                  onClick={(isConnected ? undefined : ethos.showSignInModal)}>
+                  onClick={isConnected ? undefined : ethos.showSignInModal}>
                 <input ref={refChatInput} type='text' required
                     maxLength={chatObj?.details.data.fields.max_msg_length}
                     className={`${waiting ? 'waiting' : (!isConnected ? 'disabled' : '')}`}

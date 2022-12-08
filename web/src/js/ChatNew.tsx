@@ -16,7 +16,7 @@ export function ChatNew(props: any) {
     const [error, setError] = useState('');
 
     const [notify]: any = useOutletContext();
-    const { wallet } = ethos.useWallet();
+    const { status, wallet } = ethos.useWallet();
 
     /* Effects */
 
@@ -29,6 +29,11 @@ export function ChatNew(props: any) {
     const navigate = useNavigate();
     const onSubmitCreateChat = (e: SyntheticEvent) => {
         e.preventDefault();
+        const isConnected = wallet && wallet.address && status=='connected';
+        if (!isConnected) {
+            ethos.showSignInModal();
+            return;
+        }
         console.debug(`[onSubmitCreateChat] Calling item::create on package: ${POLYMEDIA_PACKAGE}`);
         wallet?.signAndExecuteTransaction({
             kind: 'moveCall',
