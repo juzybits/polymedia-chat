@@ -8,14 +8,12 @@
         "@mysten/sui.js": "latest",
         "emoji-mart": "5",
         "ethos-connect": "latest",
-        "node-polyglot": "2",
         "react": "18",
         "react-dom": "18",
         "react-router-dom": "6"
     },
     "devDependencies": {
         "@parcel/transformer-less": "latest",
-        "@types/node-polyglot": "2",
         "@types/react": "latest",
         "@types/react-dom": "latest",
         "buffer": "^5.5.0",

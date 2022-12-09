@@ -12,7 +12,7 @@ sui client switch --env devnet
 
 ## Publish the package
 ```
-sui client publish --gas-budget 30000
+sui client publish --verify-dependencies --gas-budget 30000
 ```
 
 ## How to use from `sui console`
