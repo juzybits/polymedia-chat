@@ -174,7 +174,7 @@ export function ChatView(props: any) {
                     return areEqual ? oldObj : obj;
                 });
                 const newMsgs = obj.details.data.fields.messages;
-                newMsgs && setMessages((oldMsgs: any) => {
+                newMsgs.length && setMessages((oldMsgs: any) => {
                     const idx = obj.details.data.fields.last_index;
                     const newLast = newMsgs[idx].fields;
                     const oldLast = !oldMsgs ? null : oldMsgs[oldMsgs.length-1];
