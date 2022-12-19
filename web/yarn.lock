@@ -189,7 +189,7 @@
   resolved "https://registry.yarnpkg.com/@mysten/bcs/-/bcs-0.5.0.tgz#d2570971e3d9121b83091ced38db13e907ab4198"
   integrity sha512-FjGnXZfR4dY01Q1l3xjgaU+ruIlVomXZk8vzgsQXPFOv7O4pNiOOpJyMEMUnWcyUiktk4R9MxoJJrygOtdxaUw==
 
-"@mysten/sui.js@0.15.0", "@mysten/sui.js@^0.15.0":
+"@mysten/sui.js@0.15.0":
   version "0.15.0"
   resolved "https://registry.yarnpkg.com/@mysten/sui.js/-/sui.js-0.15.0.tgz#72fe242e8890c813a9cf9e53073fc45b53e8886b"
   integrity sha512-9JgrWVDDuxAI+ymhdnUvxcQ99ar0dbeBKk2zyjYjvuIvI7934fqcwDPuEl6QOuJjkVG+OTyhCae1gDi0LIq4og==
@@ -208,7 +208,7 @@
     rpc-websockets "^7.5.0"
     tweetnacl "^1.0.3"
 
-"@mysten/sui.js@0.20.0", "@mysten/sui.js@latest":
+"@mysten/sui.js@0.20.0", "@mysten/sui.js@^0.20.0", "@mysten/sui.js@latest":
   version "0.20.0"
   resolved "https://registry.yarnpkg.com/@mysten/sui.js/-/sui.js-0.20.0.tgz#f92b53352eb0673710442c8e5f864dd31b250752"
   integrity sha512-U25eSGKT08XPCRKHbrvDYlylOSAIQASMKKwnreC8vT3ukvQg1NwTX+SFZPvX+xsLZGS2b3yOQ2Uzhzho5/OIWA==
@@ -938,9 +938,9 @@
     "@types/node" "*"
 
 "@types/node@*":
-  version "18.11.16"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.11.16.tgz#966cae211e970199559cfbd295888fca189e49af"
-  integrity sha512-6T7P5bDkRhqRxrQtwj7vru+bWTpelgtcETAZEUSdq0YISKz8WKdoBukQLYQQ6DFHvU9JRsbFq0JH5C51X2ZdnA==
+  version "18.11.17"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.11.17.tgz#5c009e1d9c38f4a2a9d45c0b0c493fe6cdb4bcb5"
+  integrity sha512-HJSUJmni4BeDHhfzn6nF0sVmd1SMezP7/4F0Lq+aXzmp2xm9O7WXrUtHW/CHlYVtZUbByEvWidHqRtcJXGF2Ng==
 
 "@types/node@^12.0.12", "@types/node@^12.12.54":
   version "12.20.55"
@@ -1645,11 +1645,11 @@ escape-string-regexp@^4.0.0:
   integrity sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==
 
 ethos-connect@latest:
-  version "0.0.58"
-  resolved "https://registry.yarnpkg.com/ethos-connect/-/ethos-connect-0.0.58.tgz#5ba030886a1c2c30a13c23fd7c37b82210adc082"
-  integrity sha512-fHNUfqLGOA+dL3NRekXdH2nuBJVEvoD2gGHXugUyI9kszQRZTbqXL//qzzaO5zAqr1EwxvIeJhT/ykQdP5WlAg==
+  version "0.0.60"
+  resolved "https://registry.yarnpkg.com/ethos-connect/-/ethos-connect-0.0.60.tgz#7a712db25ec3ce75f89cf3c9df522c9bcf925cf5"
+  integrity sha512-DQ77j95q+yBTPWDGGe1KVc+gOKY9oCmYMg0qIxV6JrHNO0XbPP4uMDMWs1Jb9SZDAUsIx8kgKpfx3EfNcDn6ZQ==
   dependencies:
-    "@mysten/sui.js" "^0.15.0"
+    "@mysten/sui.js" "^0.20.0"
     "@mysten/wallet-adapter-all-wallets" "^0.3.0"
     "@mysten/wallet-adapter-base" "^0.3.1"
     "@mysten/wallet-adapter-react" "^6.0.0"
@@ -2391,9 +2391,9 @@ node-gyp-build@^4.3.0:
   integrity sha512-2iGbaQBV+ITgCz76ZEjmhUKAKVf7xfY1sRl4UiKQspfZMH2h06SyhNsnSVy50cwkFQDGLyif6m/6uFXHkOZ6rg==
 
 node-releases@^2.0.6:
-  version "2.0.7"
-  resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-2.0.7.tgz#593edbc7c22860ee4d32d3933cfebdfab0c0e0e5"
-  integrity sha512-EJ3rzxL9pTWPjk5arA0s0dgXpnyiAbJDE6wHT62g7VsgrgQgmmZ+Ru++M1BFofncWja+Pnn3rEr3fieRySAdKQ==
+  version "2.0.8"
+  resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-2.0.8.tgz#0f349cdc8fcfa39a92ac0be9bc48b7706292b9ae"
+  integrity sha512-dFSmB8fFHEH/s81Xi+Y/15DQY6VHW81nXRj86EMSL3lmuTmK1e+aT4wrFCkTbm+gSwkw4KpX+rT/pMM2c1mF+A==
 
 normalize-url@^4.1.0:
   version "4.5.1"

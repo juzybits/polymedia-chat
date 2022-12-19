@@ -39,7 +39,7 @@ export function ChatView(props: any) {
         focusChatInput();
         reloadChat();
         /// Periodically update the list of messages
-        const interval = setInterval(reloadChat, 6000);
+        const interval = setInterval(reloadChat, 5000);
         return () => {
             clearInterval(interval);
         };
@@ -176,7 +176,7 @@ export function ChatView(props: any) {
                 // });
                 const newMsgs = obj.details.data.fields.messages;
                 newMsgs.length && setMessages((oldMsgs: any) => {
-                    const idx = obj.details.data.fields.last_index;
+                    const idx = Number(obj.details.data.fields.last_index);
                     const newLast = newMsgs[idx].fields;
                     const oldLast = !oldMsgs ? null : oldMsgs[oldMsgs.length-1];
                     const areEqual = oldLast &&
