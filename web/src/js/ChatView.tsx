@@ -169,29 +169,14 @@ export function ChatView(props: any) {
                 setError(`[reloadChat] Wrong object type: ${obj.details.data.type}`);
             } else {
                 setError('');
-                setChatObj(obj); // will repaint all messages, updating the "time ago" labels
-                // setChatObj((oldObj: any) => {
-                //     const areEqual = oldObj?.details.previousTransaction == obj.details.previousTransaction;
-                //     return areEqual ? oldObj : obj;
-                // });
+                setChatObj(obj);
+                const idx = Number(obj.details.data.fields.last_index);
                 const newMsgs = obj.details.data.fields.messages;
-                newMsgs.length && setMessages((oldMsgs: any) => {
-                    const idx = Number(obj.details.data.fields.last_index);
-                    const newLast = newMsgs[idx].fields;
-                    const oldLast = !oldMsgs ? null : oldMsgs[oldMsgs.length-1];
-                    const areEqual = oldLast &&
-                        oldLast.timestamp == newLast.timestamp &&
-                        oldLast.text == newLast.text &&
-                        oldLast.author == newLast.author;
-                    if (areEqual) {
-                        return oldMsgs;
-                    } else {
-                        // @ts-ignore
-                        // twttr && twttr.widgets.load(refMessageList.current);
-                        return [ ...newMsgs.slice(idx+1), ...newMsgs.slice(0, idx+1) ] // order messages
-                            .map((msg: any) => msg.fields); // extract messsage fields
-                    }
-                });
+                const sortedMsgs = [ ...newMsgs.slice(idx+1), ...newMsgs.slice(0, idx+1) ] // order messages
+                    .map((msg: any) => msg.fields); // extract messsage fields
+                setMessages(sortedMsgs);
+                // @ts-ignore
+                // twttr && twttr.widgets.load(refMessageList.current);
             }
         })
         .catch(err => {
