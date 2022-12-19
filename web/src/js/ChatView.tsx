@@ -169,10 +169,11 @@ export function ChatView(props: any) {
                 setError(`[reloadChat] Wrong object type: ${obj.details.data.type}`);
             } else {
                 setError('');
-                setChatObj((oldObj: any) => {
-                    const areEqual = oldObj?.details.previousTransaction == obj.details.previousTransaction;
-                    return areEqual ? oldObj : obj;
-                });
+                setChatObj(obj); // will repaint all messages, updating the "time ago" labels
+                // setChatObj((oldObj: any) => {
+                //     const areEqual = oldObj?.details.previousTransaction == obj.details.previousTransaction;
+                //     return areEqual ? oldObj : obj;
+                // });
                 const newMsgs = obj.details.data.fields.messages;
                 newMsgs.length && setMessages((oldMsgs: any) => {
                     const idx = obj.details.data.fields.last_index;
@@ -183,7 +184,6 @@ export function ChatView(props: any) {
                         oldLast.text == newLast.text &&
                         oldLast.author == newLast.author;
                     if (areEqual) {
-                        // avoid repainting if there's no new messages
                         return oldMsgs;
                     } else {
                         // @ts-ignore
