@@ -21,11 +21,11 @@ export function ChatView(props: any) {
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [ignoreClickOutside, setIgnoreClickOutside] = useState(true);
     const [chatInputCursor, setChatInputCursor] = useState(0);
-    const [pauseScroll, setPauseScroll] = useState(false);
 
     const [notify]: any = useOutletContext();
     const { status, wallet } = ethos.useWallet();
 
+    const refPause = useRef(false); // to stop reloading the chat when the user scrolls up
     const refChatInput = useRef<HTMLInputElement>(null);
     const refMessageList = useRef<HTMLDivElement>(null);
     const refChatBottom = useRef<HTMLDivElement>(null);
@@ -47,7 +47,7 @@ export function ChatView(props: any) {
 
     /// Scroll to the bottom of the message list when it gets updated.
     useEffect(() => {
-        if (!pauseScroll && refMessageList.current) {
+        if (!refPause.current && refMessageList.current) {
             refMessageList.current.scrollTop = refMessageList.current.scrollHeight;
         }
     }, [messages]);
@@ -150,17 +150,19 @@ export function ChatView(props: any) {
         const scrollTop = refMessageList.current.scrollTop; // distance from the element's top to its topmost visible content (initially 3078px)
         const veryBottom = scrollHeight - clientHeight; // 3078px (max value for scrollTop, i.e. fully scrolled down)
         const isScrolledUp = veryBottom - scrollTop > 100; // still reload if slightly scrolled up (to prevent accidental pausing)
-        if (isScrolledUp && !pauseScroll) {
-            setPauseScroll(true);
-        } else if (!isScrolledUp && pauseScroll) {
-            setPauseScroll(false);
+        if (isScrolledUp && !refPause.current) {
+            refPause.current = true;
+        } else if (!isScrolledUp && refPause.current) {
+            refPause.current = false;
         }
     };
 
     /* Helpers */
 
     const reloadChat = () => {
-        // console.debug('[reloadChat] Fetching object:', chatId);
+        if (refPause.current) {
+            return;
+        }
         rpc.getObject(chatId)
         .then((obj: any) => {
             if (obj.status != 'Exists') {
