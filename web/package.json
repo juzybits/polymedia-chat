@@ -1,5 +1,5 @@
 {
-    "name": "polymedia-web",
+    "name": "polymedia-chat",
     "author": "juzybits <https://twitter.com/juzybits>",
     "private": true,
     "dependencies": {
@@ -24,7 +24,7 @@
     "scripts": {
         "serve": "rm -rf .parcel-cache/ dist/ && parcel src/index.html",
         "build": "rm -rf .parcel-cache/ dist/ && parcel build --no-source-maps src/index.html && cp src/static/* dist/",
-        "deploy-dev": "yarn build && wrangler pages publish dist/ --project-name polymedia --branch dev",
-        "deploy-prod": "yarn build && wrangler pages publish dist/ --project-name polymedia --branch main"
+        "deploy-dev": "yarn build && wrangler pages publish dist/ --project-name polymedia-chat --branch dev",
+        "deploy-prod": "yarn build && wrangler pages publish dist/ --project-name polymedia-chat --branch main"
     }
 }

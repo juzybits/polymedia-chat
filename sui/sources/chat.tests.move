@@ -1,10 +1,10 @@
 #[test_only]
-module polymedia::chat_tests
+module polymedia_chat::chat_tests
 {
     use std::string::{Self};
     use std::vector;
     use sui::test_scenario::{Self as ts};
-    use polymedia::chat::{Self, ChatRoom};
+    use polymedia_chat::chat::{Self, ChatRoom};
 
     /* Default values */
 

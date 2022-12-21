@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 export function NotFound(props: any) {
     useEffect(() => {
-        document.title = 'Polymedia - Not found';
+        document.title = 'Polymedia Chat - Not found';
     }, []);
 
     return <div id='page' className='page-tool'>

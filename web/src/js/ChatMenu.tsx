@@ -12,7 +12,7 @@ export function ChatMenu(props: any) {
     /* Effects */
 
     useEffect(() => {
-        document.title = `Polymedia - Chat - Menu - ${chatId}`;
+        document.title = `Polymedia Chat - Menu - ${chatId}`;
         loadObject();
     }, []);
 
@@ -39,7 +39,7 @@ export function ChatMenu(props: any) {
     return <div id='page' className='page-tool'>
     <div className='menu-wrapper'>
 
-        <Nav menuPath={`/chat/${chatId}`} menuTitle='BACK' />
+        <Nav menuPath={`/${chatId}`} menuTitle='BACK' />
 
         <div className='menu-content'>
 
@@ -85,7 +85,7 @@ export function ChatMenu(props: any) {
                 </div>
 
                 <div className='menu-section'>
-                    <Link className='btn primary' to='/chat'>GO TO CHATS</Link>
+                    <Link className='btn primary' to='/'>GO TO CHATS</Link>
                 </div>
 
                 </>

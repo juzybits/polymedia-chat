@@ -1,4 +1,4 @@
-# Polymedia Sui package
+# Polymedia Chat
 
 ## Development setup
 1. [Install Sui](https://docs.sui.io/build/install#install-sui-binaries)

@@ -8,11 +8,14 @@ import { Nav } from './components/Nav';
 import { parseMagicText, MagicAddress } from './components/MagicText';
 import { timeAgo } from './lib/common';
 import { getAddressColor, getAddressEmoji } from './lib/addresses';
-import { POLYMEDIA_PACKAGE, rpc, isExpectedType } from './lib/sui_client';
+import { POLYMEDIA_CHAT_PACKAGE, rpc, isExpectedType } from './lib/sui_client';
 import '../css/Chat.less';
 
 export function ChatView(props: any) {
-    const chatId = useParams().uid || '';
+    let chatId = useParams().uid || '';
+    if (chatId == '@sui-fans') {
+        chatId = '0x0a4e825bfc5fc84d649a1fa72de346ec537a11ee';
+    }
 
     const [error, setError] = useState('');
     const [chatObj, setChatObj]: any = useState(null);
@@ -35,7 +38,7 @@ export function ChatView(props: any) {
 
     /// Set things up on 1st render
     useEffect(() => {
-        document.title = `Polymedia - Chat - ${chatId}`;
+        document.title = `Polymedia Chat - ${chatId}`;
         focusChatInput();
         reloadChat();
         /// Periodically update the list of messages
@@ -109,11 +112,11 @@ export function ChatView(props: any) {
         setError('');
         setWaiting(true);
         await preapproveTxns();
-        console.debug(`[onSubmitAddMessage] Calling chat::add_message on package: ${POLYMEDIA_PACKAGE}`);
+        console.debug(`[onSubmitAddMessage] Calling chat::add_message on package: ${POLYMEDIA_CHAT_PACKAGE}`);
         wallet?.signAndExecuteTransaction({
             kind: 'moveCall',
             data: {
-                packageObjectId: POLYMEDIA_PACKAGE,
+                packageObjectId: POLYMEDIA_CHAT_PACKAGE,
                 module: 'chat',
                 function: 'add_message',
                 typeArguments: [],
@@ -167,7 +170,7 @@ export function ChatView(props: any) {
         .then((obj: any) => {
             if (obj.status != 'Exists') {
                 setError(`[reloadChat] Object does not exist. Status: ${obj.status}`);
-            } else if (!isExpectedType(obj.details.data.type, POLYMEDIA_PACKAGE, 'chat', 'ChatRoom')) {
+            } else if (!isExpectedType(obj.details.data.type, POLYMEDIA_CHAT_PACKAGE, 'chat', 'ChatRoom')) {
                 setError(`[reloadChat] Wrong object type: ${obj.details.data.type}`);
             } else {
                 setError('');
@@ -230,7 +233,7 @@ export function ChatView(props: any) {
 
     const preapproveTxns = useCallback(async () => {
         await wallet?.requestPreapproval({
-            packageObjectId: POLYMEDIA_PACKAGE,
+            packageObjectId: POLYMEDIA_CHAT_PACKAGE,
             module: 'chat',
             function: 'add_message',
             objectId: chatId,
@@ -254,12 +257,12 @@ export function ChatView(props: any) {
     const description = chatObj ? chatObj.details.data.fields.description : '';
     return <div id='page' className='page-tool'>
     <div id='chat-wrapper'>
-        <Nav menuPath={`/chat/${chatId}/menu`} />
+        <Nav menuPath={`/${chatId}/menu`} />
         <div className='chat-top'>
             <div className='chat-title'>
                <h1 className='chat-title'>{chatObj?.details.data.fields.name}</h1>
                 { chatObj && <span className='chat-title-divider'></span> }
-                <Link className='chat-description' to={`/chat/${chatId}/menu`}>
+                <Link className='chat-description' to={`/${chatId}/menu`}>
                     { description.length > 70 ? description.slice(0, 70)+' ...': description }
                 </Link>
             </div>

@@ -5,7 +5,7 @@ import imgLogo from '../img/logo.png';
 
 export function ChatHome(props: any) {
     useEffect(() => {
-        document.title = 'Polymedia - Chat';
+        document.title = 'Polymedia Chat';
     }, []);
 
     return <div id='page' className='page-home'>
@@ -14,12 +14,9 @@ export function ChatHome(props: any) {
             <h1>
                 <Link to='/'>
                     <img src={imgLogo} alt='Polymedia logo' />
-                    CHATS
+                    POLYMEDIA CHAT
                 </Link>
             </h1>
-            <p>
-                Unstoppable conversations.
-            </p>
         </div>
 
         <div className='home-section'>
@@ -33,7 +30,7 @@ export function ChatHome(props: any) {
                     <div className='category-description'>
                         A place to talk about all things Sui and connect with early adopters.
                         <br/>
-                        <Link className='btn primary' to='/chat/0x0a4e825bfc5fc84d649a1fa72de346ec537a11ee'>VIEW</Link>
+                        <Link className='btn primary' to='/@sui-fans'>VIEW</Link>
                     </div>
                 </div>
                 <div className='category'>
@@ -51,7 +48,21 @@ export function ChatHome(props: any) {
             </h2>
             Start your own chat room now. It's very simple!
             <br/>
-            <Link className='btn primary' to='/chat/new'>CREATE</Link>
+            <Link className='btn primary' to='/new'>CREATE</Link>
+        </div>
+
+        <br/>
+        <br/>
+        <div className='home-section'>
+            <h2>
+                Stay in the loop
+            </h2>
+            <div className='home-links'>
+                <a href='https://polymedia.app/'>Home</a> •&nbsp;
+                <a href='https://twitter.com/polymedia_app'>Twitter</a> •&nbsp;
+                <a href='https://discord.gg/3ZaE69Eq78'>Discord</a>
+                <br/>
+            </div>
         </div>
 
     </div>;

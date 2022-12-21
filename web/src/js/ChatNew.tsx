@@ -3,7 +3,7 @@ import { useNavigate, useOutletContext } from 'react-router-dom';
 import { rpc } from './lib/sui_client';
 import { ethos } from 'ethos-connect';
 
-import { POLYMEDIA_PACKAGE } from './lib/sui_client';
+import { POLYMEDIA_CHAT_PACKAGE } from './lib/sui_client';
 import { Nav } from './components/Nav';
 import '../css/New.less';
 
@@ -21,7 +21,7 @@ export function ChatNew(props: any) {
     /* Effects */
 
     useEffect(() => {
-        document.title = 'Polymedia - Chat - New';
+        document.title = 'Polymedia Chat - New';
     }, []);
 
     /* Event handlers */
@@ -34,11 +34,11 @@ export function ChatNew(props: any) {
             ethos.showSignInModal();
             return;
         }
-        console.debug(`[onSubmitCreateChat] Calling item::create on package: ${POLYMEDIA_PACKAGE}`);
+        console.debug(`[onSubmitCreateChat] Calling item::create on package: ${POLYMEDIA_CHAT_PACKAGE}`);
         wallet?.signAndExecuteTransaction({
             kind: 'moveCall',
             data: {
-                packageObjectId: POLYMEDIA_PACKAGE,
+                packageObjectId: POLYMEDIA_CHAT_PACKAGE,
                 module: 'chat',
                 function: 'create',
                 typeArguments: [],
@@ -56,7 +56,7 @@ export function ChatNew(props: any) {
                 console.debug('[onSubmitCreateChat] Success:', resp);
                 const newObjId = resp.effects.created[0].reference.objectId;
                 notify('SUCCESS!');
-                navigate('/chat/' + newObjId);
+                navigate('/' + newObjId);
             } else {
                 setError(resp.effects.status.error);
             }
@@ -73,7 +73,7 @@ export function ChatNew(props: any) {
     return <div id='page' className='page-tool'>
     <div className='new-wrapper'>
 
-        <Nav menuPath='/chat' menuTitle='BACK' />
+        <Nav menuPath='/' menuTitle='BACK' />
 
         <div className='new-content'>
 

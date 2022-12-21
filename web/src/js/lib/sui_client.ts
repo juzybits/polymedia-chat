@@ -1,8 +1,8 @@
-/// Helpers to parse/fetch/publish `polymedia::item::Item` objects on the Sui network
+/// Helpers to parse/fetch/publish `polymedia_chat::item::Item` objects on the Sui network
 
 import { JsonRpcProvider, SuiTransactionResponse, GetObjectDataResponse } from '@mysten/sui.js';
 
-export const POLYMEDIA_PACKAGE = '0x1f0d1352f6cfc6147e40f25ddc72ddc558e45e7d';
+export const POLYMEDIA_CHAT_PACKAGE = '0x1f0d1352f6cfc6147e40f25ddc72ddc558e45e7d';
 export const rpc = new JsonRpcProvider('https://fullnode.devnet.sui.io:443');
 
 export function isExpectedType(type: string, expectPackage: string, expectModule: string, expectType: string): boolean {
@@ -13,7 +13,7 @@ export function isExpectedType(type: string, expectPackage: string, expectModule
 }
 
 /*
-/// Represents a `polymedia::item::Item` Sui object
+/// Represents a `polymedia_chat::item::Item` Sui object
 export type Item = {
     id: string, // The Sui object UID
     account: string,
@@ -33,7 +33,7 @@ function parseItem(resp: GetObjectDataResponse): Item|null
     }
 
     const details = resp.details as any;
-    if (!isExpectedType(details.data.type, POLYMEDIA_PACKAGE, 'item', 'Item')) {
+    if (!isExpectedType(details.data.type, POLYMEDIA_CHAT_PACKAGE, 'item', 'Item')) {
         console.warn('[getBet] Wrong object type:', details.data.type);
         return null;
     }
@@ -52,7 +52,7 @@ function parseItem(resp: GetObjectDataResponse): Item|null
     return item;
 }
 
-/// Fetch and parse `polymedia::item::Item` Sui objects
+/// Fetch and parse `polymedia_chat::item::Item` Sui objects
 export async function getItems(objectIds: string[]): Promise<Item[]>
 {
     console.debug(`[getItem] Fetching ${objectIds.length} objects`);
