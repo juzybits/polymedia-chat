@@ -14,7 +14,7 @@ import '../css/Chat.less';
 export function ChatView(props: any) {
     let chatId = useParams().uid || '';
     if (chatId == '@sui-fans') {
-        chatId = '0x7d4bd2968c07ef9d4390ccca37d60c3e766a7b81';
+        chatId = '0x7ef5d3e37591453c70daefef090491b6e05af705';
     }
 
     const [error, setError] = useState('');
