@@ -28,7 +28,7 @@ export function MagicLink(props: any) {
 export type MagicText = {
     text: React.ReactNode,
     images: null|Array<string>,
-    tweets: null|Array<string>,
+    // tweets: null|Array<string>,
 };
 
 /// Parse plaintext and format any URLs and 0x addresses in it
@@ -53,7 +53,7 @@ export function parseMagicText(plainText: string, onClickAddress: Function)
 
     const urls = plainText.match(REGEX_URL) || [];
     const imgUrls = [];
-    const tweetUrls = [];
+    // const tweetUrls = [];
     const nonUrls = plainText.split(REGEX_URL);
 
     let chunks = [ chunk(<ReplaceAddresses plainText={nonUrls.shift()} />) ];
@@ -62,15 +62,15 @@ export function parseMagicText(plainText: string, onClickAddress: Function)
         chunks.push( chunk(<ReplaceAddresses plainText={nonUrls.shift()} />) );
         if ( url.match(REGEX_IMAGE) ) {
             imgUrls.push(url);
-        } else if ( url.match(REGEX_TWEET) ) {
-            tweetUrls.push(url);
+        // } else if ( url.match(REGEX_TWEET) ) {
+        //     tweetUrls.push(url);
         }
     }
 
     const magicText: MagicText = {
         text: <>{chunks}</>,
         images: imgUrls.length ? imgUrls : null,
-        tweets: tweetUrls.length ? tweetUrls : null,
+        // tweets: tweetUrls.length ? tweetUrls : null,
     };
     return magicText;
 };
