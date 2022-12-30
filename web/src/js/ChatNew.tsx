@@ -10,7 +10,7 @@ import '../css/New.less';
 export function ChatNew(props: any) {
     const [inputName, setInputName] = useState('');
     const [inputDescription, setInputDescription] = useState('');
-    const [inputMaxMsgAmount, setInputMaxMsgAmount] = useState(200);
+    const [inputMaxMsgAmount, setInputMaxMsgAmount] = useState(150);
     const [inputMaxMsgLength, setInputMaxMsgLength] = useState(500);
     const [waiting, setWaiting] = useState(false);
     const [error, setError] = useState('');
@@ -29,7 +29,7 @@ export function ChatNew(props: any) {
     const navigate = useNavigate();
     const onSubmitCreateChat = (e: SyntheticEvent) => {
         e.preventDefault();
-        const isConnected = wallet && wallet.address && status=='connected';
+        const isConnected = status=='connected' && wallet && wallet.address;
         if (!isConnected) {
             ethos.showSignInModal();
             return;
@@ -52,13 +52,14 @@ export function ChatNew(props: any) {
             }
         })
         .then((resp: any) => {
-            if (resp.effects.status.status == 'success') {
+            const effects = resp.effects || resp.EffectsCert?.effects?.effects; // Sui/Ethos || Suiet
+            if (effects.status.status == 'success') {
                 console.debug('[onSubmitCreateChat] Success:', resp);
-                const newObjId = resp.effects.created[0].reference.objectId;
+                const newObjId = effects.created[0].reference.objectId;
                 notify('SUCCESS!');
                 navigate('/' + newObjId);
             } else {
-                setError(resp.effects.status.error);
+                setError(effects.status.error);
             }
         })
         .catch((error: any) => {

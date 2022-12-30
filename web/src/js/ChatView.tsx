@@ -80,7 +80,7 @@ export function ChatView(props: any) {
     }, [chatInputCursor]);
 
     // Manage chat input focus
-    const isConnected = wallet && wallet.address && status=='connected';
+    const isConnected = status=='connected' && wallet && wallet.address;
     useEffect(() => {
         if (isConnected && !waiting) {
             focusChatInput();
@@ -129,11 +129,12 @@ export function ChatView(props: any) {
             }
         })
         .then((resp: any) => {
-            if (resp.effects.status.status == 'success') {
+            const effects = resp.effects || resp.EffectsCert?.effects?.effects; // Sui/Ethos || Suiet
+            if (effects.status.status == 'success') {
                 reloadChat();
                 setChatInputValue('');
             } else {
-                setError(`[onSubmitAddMessage] Response error: ${resp.effects.status.error}`);
+                setError(`[onSubmitAddMessage] Response error: ${effects.status.error}`);
             }
         })
         .catch((error: any) => {
