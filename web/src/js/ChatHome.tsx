@@ -17,6 +17,9 @@ export function ChatHome(props: any) {
                     POLYMEDIA CHAT
                 </Link>
             </h1>
+            <p>
+                Fully on-chain chat rooms on the Sui network.
+            </p>
         </div>
 
         <div className='home-section'>
@@ -58,9 +61,9 @@ export function ChatHome(props: any) {
                 Stay in the loop
             </h2>
             <div className='home-links'>
-                <a href='https://polymedia.app/'>Home</a> •&nbsp;
-                <a href='https://twitter.com/polymedia_app'>Twitter</a> •&nbsp;
-                <a href='https://discord.gg/3ZaE69Eq78'>Discord</a>
+                <a href='https://polymedia.app/'>Polymedia</a> •&nbsp;
+                <a href='https://discord.gg/3ZaE69Eq78'>Discord</a> •&nbsp;
+                <a href='https://twitter.com/polymedia_app'>Twitter</a>
                 <br/>
             </div>
         </div>
