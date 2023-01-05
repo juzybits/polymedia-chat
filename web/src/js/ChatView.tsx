@@ -14,7 +14,7 @@ import '../css/Chat.less';
 export function ChatView(props: any) {
     let chatId = useParams().uid || '';
     if (chatId == '@sui-fans') {
-        chatId = '0x66f84cd8bd95a74d2fe1763198936fe85c0a1fe8';
+        chatId = '0x502f8a9659f9d64af0f25938d5cf0c3a0248f2f3';
     }
 
     const [error, setError] = useState('');
@@ -122,7 +122,7 @@ export function ChatView(props: any) {
                 typeArguments: [],
                 arguments: [
                     chatId,
-                    Date.now(),
+                    String(Date.now()),
                     Array.from( (new TextEncoder()).encode( getChatInputValue() ) ),
                 ],
                 gasBudget: 10000,

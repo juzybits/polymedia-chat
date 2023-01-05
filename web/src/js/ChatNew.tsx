@@ -45,8 +45,8 @@ export function ChatNew(props: any) {
                 arguments: [
                     inputName,
                     inputDescription,
-                    inputMaxMsgAmount,
-                    inputMaxMsgLength,
+                    String(inputMaxMsgAmount),
+                    String(inputMaxMsgLength),
                 ],
                 gasBudget: 10000,
             }

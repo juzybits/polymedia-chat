@@ -2,7 +2,7 @@
 
 import { JsonRpcProvider, SuiTransactionResponse, GetObjectDataResponse } from '@mysten/sui.js';
 
-export const POLYMEDIA_CHAT_PACKAGE = '0x02251a16739c05c0908f2e44a35e562445dad9b0';
+export const POLYMEDIA_CHAT_PACKAGE = '0x000ea07a8f60fd22be460f40bc57ad606e418eb7';
 export const rpc = new JsonRpcProvider('https://fullnode.devnet.sui.io:443');
 
 export function isExpectedType(type: string, expectPackage: string, expectModule: string, expectType: string): boolean {
