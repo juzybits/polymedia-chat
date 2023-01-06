@@ -18,7 +18,7 @@ export function ChatHome(props: any) {
                 </Link>
             </h1>
             <p>
-                Fully on-chain chat rooms on the Sui network.
+                Unstoppable chat rooms on the Sui network.
             </p>
         </div>
 
