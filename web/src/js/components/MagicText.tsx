@@ -58,13 +58,15 @@ export function parseMagicText(plainText: string, onClickAddress: Function)
 
     let chunks = [ chunk(<ReplaceAddresses plainText={nonUrls.shift()} />) ];
     for (let url of urls) {
-        // chunks.push( chunk(<MagicLink href={url} text={url} />) );
-        chunks.push( chunk(<ReplaceAddresses plainText={nonUrls.shift()} />) );
         if ( url.match(REGEX_IMAGE) ) {
             imgUrls.push(url);
+        } else {
+            chunks.push( chunk(<MagicLink href={url} text={url} />) );
+        }
+        chunks.push( chunk(<ReplaceAddresses plainText={nonUrls.shift()} />) );
         // } else if ( url.match(REGEX_TWEET) ) {
         //     tweetUrls.push(url);
-        }
+        // }
     }
 
     const magicText: MagicText = {
