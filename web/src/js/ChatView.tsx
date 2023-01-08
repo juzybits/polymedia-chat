@@ -239,8 +239,8 @@ export function ChatView(props: any) {
             function: 'add_message',
             objectId: chatId,
             description: 'Send messages in this chat without having to sign every transaction.',
-            maxTransactionCount: 25,
-            totalGasLimit: 250_000,
+            maxTransactionCount: 100,
+            totalGasLimit: 100_000,
             perTransactionGasLimit: 10_000,
         })
         .then((result: any) => {
