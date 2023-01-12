@@ -3,7 +3,7 @@
 ## Development setup
 1. [Install Sui](https://docs.sui.io/build/install#install-sui-binaries)
 ```
-cargo install --locked --git https://github.com/MystenLabs/sui.git --branch devnet sui sui-node
+cargo install --locked --git https://github.com/MystenLabs/sui.git --branch devnet sui
 ```
 2. Connect to devnet:
 ```
