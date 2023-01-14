@@ -1,9 +1,9 @@
 /// Helpers to parse/fetch/publish `polymedia_chat::item::Item` objects on the Sui network
 
-import { JsonRpcProvider, SuiTransactionResponse, GetObjectDataResponse } from '@mysten/sui.js';
+import { JsonRpcProvider, SuiTransactionResponse, GetObjectDataResponse, Network } from '@mysten/sui.js';
 
 export const POLYMEDIA_CHAT_PACKAGE = '0x6d84d47b22b1f1f35c59501ba8e782dac7d57afa';
-export const rpc = new JsonRpcProvider('https://fullnode.devnet.sui.io:443');
+export const rpc = new JsonRpcProvider(Network.DEVNET);
 
 export function isExpectedType(type: string, expectPackage: string, expectModule: string, expectType: string): boolean {
     // Handle missing leading zeros ('0x00ab::x::Y' is returned as '0xab::x::Y' by the RPC)

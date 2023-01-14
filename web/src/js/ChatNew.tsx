@@ -34,6 +34,7 @@ export function ChatNew(props: any) {
             ethos.showSignInModal();
             return;
         }
+        setWaiting(true);
         console.debug(`[onSubmitCreateChat] Calling item::create on package: ${POLYMEDIA_CHAT_PACKAGE}`);
         wallet?.signAndExecuteTransaction({
             kind: 'moveCall',
@@ -64,6 +65,9 @@ export function ChatNew(props: any) {
         })
         .catch((error: any) => {
             setError(error.message);
+        })
+        .finally(() => {
+            setWaiting(false);
         });
     };
 
@@ -102,6 +106,7 @@ export function ChatNew(props: any) {
                 <div className='form-field'>
                     <label>History capacity (10-400 messages)</label>
                     <input value={inputMaxMsgAmount} type='text' required
+                        className={waiting ? 'waiting' : ''} disabled={waiting}
                         spellCheck='false' autoCorrect='off' autoComplete='off'
                         inputMode='numeric' pattern="[0-9]*"
                         onChange={ e => setInputMaxMsgAmount( (v: any) =>
@@ -113,6 +118,7 @@ export function ChatNew(props: any) {
                 <div className='form-field'>
                     <label>Max message length (10-1000 characters)</label>
                     <input value={inputMaxMsgLength} type='text' required
+                        className={waiting ? 'waiting' : ''} disabled={waiting}
                         spellCheck='false' autoCorrect='off' autoComplete='off'
                         inputMode='numeric' pattern="[0-9]*"
                         onChange={ e => setInputMaxMsgLength( (v: any) =>
@@ -121,7 +127,8 @@ export function ChatNew(props: any) {
                                     : Number(e.target.value) ) }
                     />
                 </div>
-                <button type='submit' className='primary'>CREATE</button>
+                <button type='submit'className={waiting ? 'primary waiting' : 'primary'} disabled={waiting}
+                    >CREATE</button>
             </form>
 
             { error && <div className='error'>{error}</div> }
