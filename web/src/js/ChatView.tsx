@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback, SyntheticEvent } from 'react';
 import { Link, useParams, useOutletContext } from 'react-router-dom';
+import { GetObjectDataResponse, SuiObject, SuiMoveObject } from '@mysten/sui.js';
 import { ethos } from 'ethos-connect';
 import emojiData from '@emoji-mart/data';
 
@@ -18,7 +19,7 @@ export function ChatView(props: any) {
     }
 
     const [error, setError] = useState('');
-    const [chatObj, setChatObj] = useState<any>(null);
+    const [chatObj, setChatObj] = useState<SuiMoveObject|null>(null);
     const [messages, setMessages] = useState<object[]>([]);
     const [waiting, setWaiting] = useState(false);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -168,16 +169,19 @@ export function ChatView(props: any) {
             return;
         }
         rpc.getObject(chatId)
-        .then((obj: any) => {
-            if (obj.status != 'Exists') {
-                setError(`[reloadChat] Object does not exist. Status: ${obj.status}`);
-            } else if (!isExpectedType(obj.details.data.type, POLYMEDIA_CHAT_PACKAGE, 'chat', 'ChatRoom')) {
-                setError(`[reloadChat] Wrong object type: ${obj.details.data.type}`);
+        .then((resp: GetObjectDataResponse) => {
+            if (resp.status != 'Exists') {
+                setError(`[reloadChat] Object does not exist. Status: ${resp.status}`);
+                return;
+            }
+            const objData = (resp.details as SuiObject).data as SuiMoveObject;
+            if (!isExpectedType(objData.type, POLYMEDIA_CHAT_PACKAGE, 'chat', 'ChatRoom')) {
+                setError(`[reloadChat] Wrong object type: ${objData.type}`);
             } else {
                 setError('');
-                setChatObj(obj);
-                const idx = Number(obj.details.data.fields.last_index);
-                const newMsgs = obj.details.data.fields.messages;
+                setChatObj(objData);
+                const idx = Number(objData.fields.last_index);
+                const newMsgs = objData.fields.messages;
                 const sortedMsgs = [ ...newMsgs.slice(idx+1), ...newMsgs.slice(0, idx+1) ] // order messages
                     .map((msg: any) => msg.fields); // extract messsage fields
                 setMessages(sortedMsgs);
@@ -255,13 +259,13 @@ export function ChatView(props: any) {
 
     /* HTML */
 
-    const description = chatObj ? chatObj.details.data.fields.description : '';
+    const description = chatObj ? chatObj.fields.description : '';
     return <div id='page' className='page-tool'>
     <div id='chat-wrapper'>
         <Nav menuPath={`/${chatId}/menu`} />
         <div className='chat-top'>
             <div className='chat-title'>
-               <h1 className='chat-title'>{chatObj?.details.data.fields.name}</h1>
+               <h1 className='chat-title'>{chatObj?.fields.name}</h1>
                 { chatObj && <span className='chat-title-divider'></span> }
                 <Link className='chat-description' to={`/${chatId}/menu`}>
                     { description.length > 70 ? description.slice(0, 70)+' ...': description }
@@ -308,7 +312,7 @@ export function ChatView(props: any) {
             <form onSubmit={onSubmitAddMessage} className='chat-input-wrapper'
                   onClick={isConnected ? undefined : ethos.showSignInModal}>
                 <input ref={refChatInput} type='text' required
-                    maxLength={chatObj?.details.data.fields.max_msg_length}
+                    maxLength={chatObj?.fields.max_msg_length}
                     className={`${waiting ? 'waiting' : (!isConnected ? 'disabled' : '')}`}
                     disabled={!isConnected || waiting}
                     autoCorrect='off' autoComplete='off'
