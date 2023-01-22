@@ -2,7 +2,7 @@
 
 import { JsonRpcProvider, Network } from '@mysten/sui.js';
 
-export const POLYMEDIA_CHAT_PACKAGE = '0x07598d2367a50a0b7e0c0413946432049f754489';
+export const POLYMEDIA_CHAT_PACKAGE = '0x1bc99efdba18918dba20bfa74d2329c46fc17c9a';
 export const rpc = new JsonRpcProvider(Network.DEVNET);
 
 export function isExpectedType(type: string, expectPackage: string, expectModule: string, expectType: string): boolean {
