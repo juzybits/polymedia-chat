@@ -18,8 +18,8 @@ export function ChatView(props: any) {
     }
 
     const [error, setError] = useState('');
-    const [chatObj, setChatObj]: any = useState(null);
-    const [messages, setMessages] = useState([]);
+    const [chatObj, setChatObj] = useState<any>(null);
+    const [messages, setMessages] = useState<object[]>([]);
     const [waiting, setWaiting] = useState(false);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [ignoreClickOutside, setIgnoreClickOutside] = useState(true);
@@ -295,10 +295,10 @@ export function ChatView(props: any) {
                     <div className='message-images'>
                         { magicText.images.map((url, idx) => <a href={url} target='_blank' key={idx}><img src={url}/></a>) }
                     </div>}
-                    {magicText.tweets &&
+                    {/*{magicText.tweets &&
                     <div className='message-tweets'>
                         { magicText.tweets.map((url, idx) => <blockquote className='twitter-tweet' key={idx}><a href={url}></a></blockquote>) }
-                    </div>}
+                    </div>}*/}
                 </span>
             </div>;
         })}
