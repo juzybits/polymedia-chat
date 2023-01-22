@@ -1,9 +1,9 @@
-import React, { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { EthosConnectProvider } from 'ethos-connect';
 import imgLogo from '../img/logo.png';
 
-export function App(props: any)
+export function App()
 {
     const [notification, setNotification] = useState('');
     const notify = (text: string) => {

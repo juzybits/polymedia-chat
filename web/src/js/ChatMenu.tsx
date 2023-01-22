@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Nav } from './components/Nav';
 import { rpc } from './lib/sui_client';
 import '../css/Menu.less';
 
-export function ChatMenu(props: any) {
+export function ChatMenu() {
     const chatId = useParams().uid || '';
     const [chatObj, setChatObj]: any = useState(null);
     const [error, setError] = useState('');

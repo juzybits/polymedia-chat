@@ -1,13 +1,12 @@
-import React, { useEffect, useState, SyntheticEvent } from 'react';
+import { useEffect, useState, SyntheticEvent } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
-import { rpc } from './lib/sui_client';
 import { ethos } from 'ethos-connect';
 
 import { POLYMEDIA_CHAT_PACKAGE } from './lib/sui_client';
 import { Nav } from './components/Nav';
 import '../css/New.less';
 
-export function ChatNew(props: any) {
+export function ChatNew() {
     const [inputName, setInputName] = useState('');
     const [inputDescription, setInputDescription] = useState('');
     const [inputMaxMsgAmount, setInputMaxMsgAmount] = useState(150);

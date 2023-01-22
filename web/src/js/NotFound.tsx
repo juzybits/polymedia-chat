@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 
-export function NotFound(props: any) {
+export function NotFound() {
     useEffect(() => {
         document.title = 'Polymedia Chat - Not found';
     }, []);

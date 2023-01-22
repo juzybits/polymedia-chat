@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import '../css/Home.less';
 import imgLogo from '../img/logo.png';
 
-export function ChatHome(props: any) {
+export function ChatHome() {
     useEffect(() => {
         document.title = 'Polymedia Chat';
     }, []);

@@ -1,9 +1,8 @@
 /// Navigation bar
 
-import React, { useEffect, ReactNode } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { ethos, SignInButton } from 'ethos-connect';
-import { shortenAddress } from '../lib/addresses';
+import { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
+import { ethos } from 'ethos-connect';
 import '../../css/Nav.less';
 import imgLogo from '../../img/logo.png';
 

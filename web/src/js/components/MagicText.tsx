@@ -7,7 +7,7 @@ import { isTrustedDomain } from '../lib/domains';
 const REGEX_ADDRESS = new RegExp(/0x[a-fA-F0-9]{40}/g);
 const REGEX_IMAGE = new RegExp(/[.=](apng|avif|gif|jpeg|jpg|png|svg|webp)[^a-zA-Z]?/);
 const REGEX_URL = new RegExp(/(?:https?|ipfs):\/\/[^\s\/$.?#].[^\s]*[^\s.,|]+/ig);
-const REGEX_TWEET = new RegExp('https://twitter.com/[^/]+/status/.+');
+// const REGEX_TWEET = new RegExp('https://twitter.com/[^/]+/status/.+');
 
 /// Shorten a 0x address, style it, and make it clickable
 export function MagicAddress(props: any) {

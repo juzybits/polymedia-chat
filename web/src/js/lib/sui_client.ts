@@ -1,6 +1,6 @@
 /// Helpers to parse/fetch/publish `polymedia_chat::item::Item` objects on the Sui network
 
-import { JsonRpcProvider, SuiTransactionResponse, GetObjectDataResponse, Network } from '@mysten/sui.js';
+import { JsonRpcProvider, Network } from '@mysten/sui.js';
 
 export const POLYMEDIA_CHAT_PACKAGE = '0x07598d2367a50a0b7e0c0413946432049f754489';
 export const rpc = new JsonRpcProvider(Network.DEVNET);

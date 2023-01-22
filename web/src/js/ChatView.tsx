@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback, SyntheticEvent } from 'react';
+import { useEffect, useRef, useState, useCallback, SyntheticEvent } from 'react';
 import { Link, useParams, useOutletContext } from 'react-router-dom';
 import { GetObjectDataResponse, SuiObject, SuiMoveObject } from '@mysten/sui.js';
 import { ethos } from 'ethos-connect';
@@ -12,7 +12,7 @@ import { getAddressColor, getAddressEmoji } from './lib/addresses';
 import { POLYMEDIA_CHAT_PACKAGE, rpc, isExpectedType } from './lib/sui_client';
 import '../css/Chat.less';
 
-export function ChatView(props: any) {
+export function ChatView() {
     let chatId = useParams().uid || '';
     if (chatId == '@sui-fans') {
         chatId = '0xeb922caa39da86ff2d230635d950dd1fd22084f6';
@@ -147,7 +147,7 @@ export function ChatView(props: any) {
     };
 
     // Pause/resume chat autoscrolling if the user manually scrolled up
-    const onScrollMessageList = (e: SyntheticEvent) => {
+    const onScrollMessageList = () => {
         if (!refMessageList.current)
             return;
         const scrollHeight = refMessageList.current.scrollHeight; // height of contents including content not visible due to overflow (3778px)
@@ -232,7 +232,7 @@ export function ChatView(props: any) {
         navigator.clipboard
             .writeText(address)
             .then( () => notify('COPIED!') )
-            .catch( err => notify('Error copying to clipboard') );
+            .catch( _err => notify('Error copying to clipboard') );
         focusChatInput();
     };
 
@@ -247,13 +247,11 @@ export function ChatView(props: any) {
             totalGasLimit: 100_000,
             perTransactionGasLimit: 10_000,
         })
-        .then((result: any) => {
-            const preapproval = result;
+        .then(_result => {
             console.debug(`[preapproveTxns] Successfully preapproved transactions`);
         })
         .catch(err => {
             setError(`[preapproveTxns] Error requesting preapproval: ${err.message}`)
-            const preapproval = null;
         });
     }, [wallet]);
 
