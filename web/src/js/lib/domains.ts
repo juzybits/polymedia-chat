@@ -302,6 +302,7 @@ const trustedDomains = new Map<string, boolean>([
     ['ovh.co.uk', true],
     ['ovh.com', true],
     ['ox.ac.uk', true],
+    ['pages.dev', true],
     ['parallels.com', true],
     ['patreon.com', true],
     ['paypal.com', true],
