@@ -57,7 +57,7 @@ export function ChatMenu() {
                     <div className='menu-field'>
                         <span className='menu-field-label'>Object ID:</span>
                         <span className='menu-field-value'>
-                            <a href={'https://explorer.devnet.sui.io/objects/'+chatObj?.details.data.fields.id.id} target='_blank'>
+                            <a href={'https://explorer.sui.io/object/'+chatObj?.details.data.fields.id.id+'?network=devnet'} target='_blank'>
                                 {chatObj?.details.data.fields.id.id}
                             </a>
                         </span>
