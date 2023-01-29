@@ -13,6 +13,11 @@ export function App()
 
     // Return either 'devnet' or 'testnet'
     const getNetwork = (): string => {
+        // TODO: remove this in a few days
+        const loc = window.location;
+        if (loc.hostname == 'testnet.polymedia-chat.pages.dev') {
+            loc.replace('https://chat.polymedia.app' + loc.pathname + '?network=testnet');
+        }
         // Read 'network' URL parameter
         const params = new URLSearchParams(window.location.search);
         // Delete query string
