@@ -2,11 +2,12 @@ import { useEffect, useState, SyntheticEvent } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { ethos } from 'ethos-connect';
 
-import { POLYMEDIA_CHAT_PACKAGE } from './lib/sui_client';
+import { getPackageAndRpc } from './lib/sui_client';
 import { Nav } from './components/Nav';
 import '../css/New.less';
 
 export function ChatNew() {
+
     const [inputName, setInputName] = useState('');
     const [inputDescription, setInputDescription] = useState('');
     const [inputMaxMsgAmount, setInputMaxMsgAmount] = useState(150);
@@ -14,7 +15,8 @@ export function ChatNew() {
     const [waiting, setWaiting] = useState(false);
     const [error, setError] = useState('');
 
-    const [notify]: any = useOutletContext();
+    const [notify, network]: any = useOutletContext();
+    const [packageId, _rpc] = getPackageAndRpc(network);
     const { status, wallet } = ethos.useWallet();
 
     /* Effects */
@@ -34,11 +36,11 @@ export function ChatNew() {
             return;
         }
         setWaiting(true);
-        console.debug(`[onSubmitCreateChat] Calling item::create on package: ${POLYMEDIA_CHAT_PACKAGE}`);
+        console.debug(`[onSubmitCreateChat] Calling item::create on package: ${packageId}`);
         wallet?.signAndExecuteTransaction({
             kind: 'moveCall',
             data: {
-                packageObjectId: POLYMEDIA_CHAT_PACKAGE,
+                packageObjectId: packageId,
                 module: 'chat',
                 function: 'create',
                 typeArguments: [],

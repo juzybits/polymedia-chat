@@ -2,8 +2,22 @@
 
 import { JsonRpcProvider, Network } from '@mysten/sui.js';
 
-export const POLYMEDIA_CHAT_PACKAGE = '0x5ced333fe2f010089c9ac4e4ffbd1c3620266891';
-export const rpc = new JsonRpcProvider(Network.DEVNET);
+const POLYMEDIA_PACKAGE_DEVNET = '0x5ced333fe2f010089c9ac4e4ffbd1c3620266891';
+const POLYMEDIA_PACKAGE_TESTNET = '0xe67c773b9c68a6a863bba425e3d85c9e530f4df5';
+const RPC_DEVNET = new JsonRpcProvider(Network.DEVNET);
+const RPC_TESTNET = new JsonRpcProvider('https://fullnode.testnet.sui.io:443');
+
+// NOTE: duplicated in polymedia-gotbeef/web/src/js/lib/sui_tools.ts
+export function getPackageAndRpc(network: string): [string, JsonRpcProvider] {
+    switch (network) {
+        case 'devnet':
+            return [POLYMEDIA_PACKAGE_DEVNET, RPC_DEVNET];
+        case 'testnet':
+            return [POLYMEDIA_PACKAGE_TESTNET, RPC_TESTNET];
+        default:
+            throw new Error('Invalid network: ' + network);
+    }
+}
 
 export function isExpectedType(type: string, expectPackage: string, expectModule: string, expectType: string): boolean {
     // Handle missing leading zeros ('0x00ab::x::Y' is returned as '0xab::x::Y' by the RPC)

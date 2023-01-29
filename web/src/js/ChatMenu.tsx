@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useOutletContext } from 'react-router-dom';
 import { Nav } from './components/Nav';
-import { rpc } from './lib/sui_client';
+import { getPackageAndRpc } from './lib/sui_client';
 import '../css/Menu.less';
 
 export function ChatMenu() {
     const chatId = useParams().uid || '';
     const [chatObj, setChatObj]: any = useState(null);
     const [error, setError] = useState('');
+
+    const [_notify, network] = useOutletContext<string>();
+    const [_packageId, rpc] = getPackageAndRpc(network);
 
     /* Effects */
 
@@ -50,37 +53,38 @@ export function ChatMenu() {
                 <div className='error'>
                     { error && <>ERROR:<br/>{error}</> }
                 </div>
-            :
-                <>
-
+            : (
+                !chatObj
+                ? <div><br/>Loading...</div>
+                : <>
                 <div className='menu-section'>
                     <div className='menu-field'>
                         <span className='menu-field-label'>Object ID:</span>
                         <span className='menu-field-value'>
-                            <a href={'https://explorer.sui.io/object/'+chatObj?.details.data.fields.id.id+'?network=devnet'} target='_blank'>
-                                {chatObj?.details.data.fields.id.id}
+                            <a href={'https://explorer.sui.io/object/'+chatObj.details.data.fields.id.id+'?network='+network} target='_blank'>
+                                {chatObj.details.data.fields.id.id}
                             </a>
                         </span>
                     </div>
                     <div className='menu-field'>
                         <span className='menu-field-label'>Name:</span>
-                        <span className='menu-field-value'>{chatObj?.details.data.fields.name}</span>
+                        <span className='menu-field-value'>{chatObj.details.data.fields.name}</span>
                     </div>
                     <div className='menu-field'>
                         <span className='menu-field-label'>Description:</span>
-                        <span className='menu-field-value'>{chatObj?.details.data.fields.description}</span>
+                        <span className='menu-field-value'>{chatObj.details.data.fields.description}</span>
                     </div>
                     <div className='menu-field'>
                         <span className='menu-field-label'>Max messages:</span>
-                        <span className='menu-field-value'>{chatObj?.details.data.fields.max_msg_amount}</span>
+                        <span className='menu-field-value'>{chatObj.details.data.fields.max_msg_amount}</span>
                     </div>
                     <div className='menu-field'>
                         <span className='menu-field-label'>Max message length:</span>
-                        <span className='menu-field-value'>{chatObj?.details.data.fields.max_msg_length}</span>
+                        <span className='menu-field-value'>{chatObj.details.data.fields.max_msg_length}</span>
                     </div>
                     {/*<div className='menu-field'>
                         <span className='menu-field-label'>Version:</span>
-                        <span className='menu-field-value'>{chatObj?.details.reference.version}</span>
+                        <span className='menu-field-value'>{chatObj.details.reference.version}</span>
                     </div>*/}
                 </div>
 
@@ -89,6 +93,7 @@ export function ChatMenu() {
                 </div>
 
                 </>
+            )
             }
         </div>
 

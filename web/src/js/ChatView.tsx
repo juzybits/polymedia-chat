@@ -9,13 +9,19 @@ import { Nav } from './components/Nav';
 import { parseMagicText, MagicAddress } from './components/MagicText';
 import { timeAgo } from './lib/common';
 import { getAddressColor, getAddressEmoji } from './lib/addresses';
-import { POLYMEDIA_CHAT_PACKAGE, rpc, isExpectedType } from './lib/sui_client';
+import { isExpectedType, getPackageAndRpc } from './lib/sui_client';
 import '../css/Chat.less';
 
 export function ChatView() {
+    const [notify, network]: any = useOutletContext();
+    const [packageId, rpc] = getPackageAndRpc(network);
+    const { status, wallet } = ethos.useWallet();
+
     let chatId = useParams().uid || '';
     if (chatId == '@sui-fans') {
-        chatId = '0x98dbc3d510aef4da2b13ef9dad773f74b3b20534';
+        chatId = network == 'devnet'
+            ? '0x98dbc3d510aef4da2b13ef9dad773f74b3b20534'
+            : '0x1d813602114ed649de94649a9458e2c1f396c652'; // testnet
     }
 
     const [error, setError] = useState('');
@@ -25,9 +31,6 @@ export function ChatView() {
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [ignoreClickOutside, setIgnoreClickOutside] = useState(true);
     const [chatInputCursor, setChatInputCursor] = useState(0);
-
-    const [notify]: any = useOutletContext();
-    const { status, wallet } = ethos.useWallet();
 
     const refPause = useRef(false); // to stop reloading the chat when the user scrolls up
     const refChatInput = useRef<HTMLInputElement>(null);
@@ -113,11 +116,11 @@ export function ChatView() {
         setError('');
         setWaiting(true);
         await preapproveTxns();
-        console.debug(`[onSubmitAddMessage] Calling chat::add_message on package: ${POLYMEDIA_CHAT_PACKAGE}`);
+        console.debug(`[onSubmitAddMessage] Calling chat::add_message on package: ${packageId}`);
         wallet?.signAndExecuteTransaction({
             kind: 'moveCall',
             data: {
-                packageObjectId: POLYMEDIA_CHAT_PACKAGE,
+                packageObjectId: packageId,
                 module: 'chat',
                 function: 'add_message',
                 typeArguments: [],
@@ -175,7 +178,7 @@ export function ChatView() {
                 return;
             }
             const objData = (resp.details as SuiObject).data as SuiMoveObject;
-            if (!isExpectedType(objData.type, POLYMEDIA_CHAT_PACKAGE, 'chat', 'ChatRoom')) {
+            if (!isExpectedType(objData.type, packageId, 'chat', 'ChatRoom')) {
                 setError(`[reloadChat] Wrong object type: ${objData.type}`);
             } else {
                 setError('');
@@ -238,7 +241,7 @@ export function ChatView() {
 
     const preapproveTxns = useCallback(async () => {
         await wallet?.requestPreapproval({
-            packageObjectId: POLYMEDIA_CHAT_PACKAGE,
+            packageObjectId: packageId,
             module: 'chat',
             function: 'add_message',
             objectId: chatId,
@@ -263,7 +266,7 @@ export function ChatView() {
         <Nav menuPath={`/${chatId}/menu`} />
         <div className='chat-top'>
             <div className='chat-title'>
-               <h1 className='chat-title'>{chatObj?.fields.name}</h1>
+               <h1 className='chat-title'>{chatObj ? chatObj.fields.name : 'Loading...'}</h1>
                 { chatObj && <span className='chat-title-divider'></span> }
                 <Link className='chat-description' to={`/${chatId}/menu`}>
                     { description.length > 70 ? description.slice(0, 70)+' ...': description }
