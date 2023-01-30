@@ -32,7 +32,9 @@ export function ChatView() {
     const [ignoreClickOutside, setIgnoreClickOutside] = useState(true);
     const [chatInputCursor, setChatInputCursor] = useState(0);
 
-    const refPause = useRef(false); // to stop reloading the chat when the user scrolls up
+    const refIsReloadInProgress = useRef(false); // to stop reloading when reloadChat() is in progress
+    const refIsScrolledUp = useRef(false); // to stop reloading the chat when the user scrolls up
+
     const refChatInput = useRef<HTMLInputElement>(null);
     const refMessageList = useRef<HTMLDivElement>(null);
     const refChatBottom = useRef<HTMLDivElement>(null);
@@ -54,7 +56,7 @@ export function ChatView() {
 
     /// Scroll to the bottom of the message list when it gets updated.
     useEffect(() => {
-        if (!refPause.current && refMessageList.current) {
+        if (!refIsScrolledUp.current && refMessageList.current) {
             refMessageList.current.scrollTop = refMessageList.current.scrollHeight;
         }
     }, [messages]);
@@ -158,19 +160,20 @@ export function ChatView() {
         const scrollTop = refMessageList.current.scrollTop; // distance from the element's top to its topmost visible content (initially 3078px)
         const veryBottom = scrollHeight - clientHeight; // 3078px (max value for scrollTop, i.e. fully scrolled down)
         const isScrolledUp = veryBottom - scrollTop > 100; // still reload if slightly scrolled up (to prevent accidental pausing)
-        if (isScrolledUp && !refPause.current) {
-            refPause.current = true;
-        } else if (!isScrolledUp && refPause.current) {
-            refPause.current = false;
+        if (isScrolledUp && !refIsScrolledUp.current) {
+            refIsScrolledUp.current = true;
+        } else if (!isScrolledUp && refIsScrolledUp.current) {
+            refIsScrolledUp.current = false;
         }
     };
 
     /* Helpers */
 
     const reloadChat = () => {
-        if (refPause.current) {
+        if (refIsScrolledUp.current || refIsReloadInProgress.current) {
             return;
         }
+        refIsReloadInProgress.current = true;
         rpc.getObject(chatId)
         .then((resp: GetObjectDataResponse) => {
             if (resp.status != 'Exists') {
@@ -194,6 +197,9 @@ export function ChatView() {
         })
         .catch(err => {
             setError(`[reloadChat] RPC error: ${err.message}`)
+        })
+        .finally(() => {
+            refIsReloadInProgress.current = false;
         });
     };
 
