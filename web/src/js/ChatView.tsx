@@ -326,8 +326,8 @@ export function ChatView() {
                     placeholder={isConnected ? 'Send a message' : 'Log in to send a message'}
                 />
                 <div ref={refEmojiBtn} id='chat-emoji-btn'
-                    className={isConnected ? '' : 'disabled'}
-                    onClick={!isConnected ? undefined : () => { setShowEmojiPicker(!showEmojiPicker); }}
+                    className={!isConnected||waiting ? 'disabled' : ''}
+                    onClick={!isConnected||waiting ? undefined : () => { setShowEmojiPicker(!showEmojiPicker); }}
                  >
                     😜
                 </div>
