@@ -2,7 +2,7 @@
 
 import { JsonRpcProvider, Network } from '@mysten/sui.js';
 
-const POLYMEDIA_PACKAGE_DEVNET = '0x5ced333fe2f010089c9ac4e4ffbd1c3620266891';
+const POLYMEDIA_PACKAGE_DEVNET = '0x12f26a0b966e5322aba0e3a4ea73fc1fd3e9cee6';
 const POLYMEDIA_PACKAGE_TESTNET = '0xe67c773b9c68a6a863bba425e3d85c9e530f4df5';
 const RPC_DEVNET = new JsonRpcProvider(Network.DEVNET);
 const RPC_TESTNET = new JsonRpcProvider('https://fullnode.testnet.sui.io:443');

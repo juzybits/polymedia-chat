@@ -20,7 +20,7 @@ export function ChatView() {
     let chatId = useParams().uid || '';
     if (chatId == '@sui-fans') {
         chatId = network == 'devnet'
-            ? '0x98dbc3d510aef4da2b13ef9dad773f74b3b20534'
+            ? '0xa04dbbe87619020888fd46d727dbff341ad2a909'  // devnet
             : '0x1d813602114ed649de94649a9458e2c1f396c652'; // testnet
     }
 
