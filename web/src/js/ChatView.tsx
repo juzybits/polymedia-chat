@@ -20,7 +20,7 @@ export function ChatView() {
     let chatId = useParams().uid || '';
     if (chatId == '@sui-fans') {
         chatId = network == 'devnet'
-            ? '0xa04dbbe87619020888fd46d727dbff341ad2a909'  // devnet
+            ? '0xc7bf28ca9d571ab7651e69f24c19f88306bf8bcb'  // devnet
             : '0x1d813602114ed649de94649a9458e2c1f396c652'; // testnet
     }
 
@@ -253,8 +253,8 @@ export function ChatView() {
             objectId: chatId,
             description: 'Send messages in this chat without having to sign every transaction.',
             maxTransactionCount: 100,
-            totalGasLimit: 100_000,
-            perTransactionGasLimit: 10_000,
+            totalGasLimit: network=='devnet' ? 100_000 : 10_000_000,
+            perTransactionGasLimit: network=='devnet' ? 5_000 : 500_000,
         })
         .then(_result => {
             console.debug(`[preapproveTxns] Successfully preapproved transactions`);
