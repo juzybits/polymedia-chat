@@ -12,6 +12,10 @@ import { getAddressColor, getAddressEmoji } from './lib/addresses';
 import { isExpectedType, getPackageAndRpc } from './lib/sui_client';
 import '../css/Chat.less';
 
+const bannedAddresses = [
+    '0x9ca35382d0d1f0134794292a5ef6437c303c148d',
+];
+
 export function ChatView() {
     const [notify, network]: any = useOutletContext();
     const [packageId, rpc] = getPackageAndRpc(network);
@@ -169,6 +173,15 @@ export function ChatView() {
 
     /* Helpers */
 
+    const refUserAddr = useRef(localStorage.getItem('polymedia.userAddr') || '');
+    useEffect(() => {
+        const userAddr = (wallet && wallet.address) || '';
+        if (userAddr) {
+            refUserAddr.current = userAddr;
+            localStorage.setItem('polymedia.userAddr', userAddr)
+        }
+    }, [wallet]);
+
     const reloadChat = () => {
         if (refIsScrolledUp.current || refIsReloadInProgress.current) {
             return;
@@ -188,8 +201,14 @@ export function ChatView() {
                 setChatObj(objData);
                 const idx = Number(objData.fields.last_index);
                 const newMsgs = objData.fields.messages;
-                const sortedMsgs = [ ...newMsgs.slice(idx+1), ...newMsgs.slice(0, idx+1) ] // order messages
-                    .map((msg: any) => msg.fields); // extract messsage fields
+                const userIsBanned = refUserAddr.current && bannedAddresses.includes(refUserAddr.current);
+                const sortedMsgs =
+                    // 1. Order messages
+                    [ ...newMsgs.slice(idx+1), ...newMsgs.slice(0, idx+1) ]
+                    // 2. Filter out messages from banned addresses (unless the user is banned)
+                    .filter((msg: any) =>  userIsBanned || !bannedAddresses.includes(msg.fields.author) )
+                    // 3. Extract the message fields
+                    .map((msg: any) => msg.fields);
                 setMessages(sortedMsgs);
                 // @ts-ignore
                 // twttr && twttr.widgets.load(refMessageList.current);
