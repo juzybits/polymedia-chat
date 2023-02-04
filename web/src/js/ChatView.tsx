@@ -22,6 +22,7 @@ export function ChatView() {
     const { status, wallet } = ethos.useWallet();
 
     let chatId = useParams().uid || '';
+    const chatAlias = chatId;
     if (chatId == '@sui-fans') {
         chatId = suiFansChatId;
     }
@@ -41,8 +42,6 @@ export function ChatView() {
     const refMessageList = useRef<HTMLDivElement>(null);
     const refChatBottom = useRef<HTMLDivElement>(null);
     const refEmojiBtn = useRef<HTMLDivElement>(null);
-
-    /* Effects */
 
     /// Set things up on 1st render
     useEffect(() => {
@@ -94,8 +93,6 @@ export function ChatView() {
             focusChatInput();
         }
     }, [isConnected, waiting]);
-
-    /* Event handlers */
 
     const onSelectEmoji = (emoji: any) => {
         // Add the emoji to the chat input field
@@ -168,8 +165,6 @@ export function ChatView() {
             refIsScrolledUp.current = false;
         }
     };
-
-    /* Helpers */
 
     const refUserAddr = useRef(localStorage.getItem('polymedia.userAddr') || '');
     useEffect(() => {
@@ -286,12 +281,12 @@ export function ChatView() {
     const description = chatObj ? chatObj.fields.description : '';
     return <div id='page' className='page-tool'>
     <div id='chat-wrapper'>
-        <Nav menuPath={`/${chatId}/menu`} />
+        <Nav menuPath={`/${chatAlias}/menu`} />
         <div className='chat-top'>
             <div className='chat-title'>
                <h1 className='chat-title'>{chatObj ? chatObj.fields.name : 'Loading...'}</h1>
                 { chatObj && <span className='chat-title-divider'></span> }
-                <Link className='chat-description' to={`/${chatId}/menu`}>
+                <Link className='chat-description' to={`/${chatAlias}/menu`}>
                     { description.length > 70 ? description.slice(0, 70)+' ...': description }
                 </Link>
             </div>

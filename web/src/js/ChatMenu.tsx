@@ -5,12 +5,17 @@ import { getConfig } from './lib/sui_client';
 import '../css/Menu.less';
 
 export function ChatMenu() {
-    const chatId = useParams().uid || '';
     const [chatObj, setChatObj]: any = useState(null);
     const [error, setError] = useState('');
 
     const [_notify, network] = useOutletContext<string>();
-    const [rpc, _packageId, _suiFansChatId] = getConfig(network);
+    const [rpc, _packageId, suiFansChatId] = getConfig(network);
+
+    let chatId = useParams().uid || '';
+    const chatAlias = chatId;
+    if (chatId == '@sui-fans') {
+        chatId = suiFansChatId;
+    }
 
     /* Effects */
 
@@ -42,7 +47,7 @@ export function ChatMenu() {
     return <div id='page' className='page-tool'>
     <div className='menu-wrapper'>
 
-        <Nav menuPath={`/${chatId}`} menuTitle='BACK' />
+        <Nav menuPath={`/${chatAlias}`} menuTitle='BACK' />
 
         <div className='menu-content'>
 
@@ -89,7 +94,7 @@ export function ChatMenu() {
                 </div>
 
                 <div className='menu-section menu-buttons'>
-                    <Link className='btn primary' to={`/${chatId}`}>BACK</Link>
+                    <Link className='btn primary' to={`/${chatAlias}`}>BACK</Link>
                     <Link className='btn primary' to='/'>HOME</Link>
                 </div>
 
