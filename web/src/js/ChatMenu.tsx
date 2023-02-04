@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useOutletContext } from 'react-router-dom';
 import { Nav } from './components/Nav';
-import { getPackageAndRpc } from './lib/sui_client';
+import { getConfig } from './lib/sui_client';
 import '../css/Menu.less';
 
 export function ChatMenu() {
@@ -10,7 +10,7 @@ export function ChatMenu() {
     const [error, setError] = useState('');
 
     const [_notify, network] = useOutletContext<string>();
-    const [_packageId, rpc] = getPackageAndRpc(network);
+    const [rpc, _packageId, _suiFansChatId] = getConfig(network);
 
     /* Effects */
 

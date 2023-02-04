@@ -9,7 +9,7 @@ import { Nav } from './components/Nav';
 import { parseMagicText, MagicAddress } from './components/MagicText';
 import { timeAgo } from './lib/common';
 import { getAddressColor, getAddressEmoji } from './lib/addresses';
-import { isExpectedType, getPackageAndRpc } from './lib/sui_client';
+import { isExpectedType, getConfig } from './lib/sui_client';
 import '../css/Chat.less';
 
 const bannedAddresses = [
@@ -18,14 +18,12 @@ const bannedAddresses = [
 
 export function ChatView() {
     const [notify, network]: any = useOutletContext();
-    const [packageId, rpc] = getPackageAndRpc(network);
+    const [rpc, packageId, suiFansChatId] = getConfig(network);
     const { status, wallet } = ethos.useWallet();
 
     let chatId = useParams().uid || '';
     if (chatId == '@sui-fans') {
-        chatId = network == 'devnet'
-            ? '0xc7bf28ca9d571ab7651e69f24c19f88306bf8bcb'  // devnet
-            : '0x1d813602114ed649de94649a9458e2c1f396c652'; // testnet
+        chatId = suiFansChatId;
     }
 
     const [error, setError] = useState('');

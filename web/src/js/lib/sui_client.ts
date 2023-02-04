@@ -2,18 +2,20 @@
 
 import { JsonRpcProvider, Network } from '@mysten/sui.js';
 
-const POLYMEDIA_PACKAGE_DEVNET = '0x12f26a0b966e5322aba0e3a4ea73fc1fd3e9cee6';
-const POLYMEDIA_PACKAGE_TESTNET = '0xe67c773b9c68a6a863bba425e3d85c9e530f4df5';
 const RPC_DEVNET = new JsonRpcProvider(Network.DEVNET);
-const RPC_TESTNET = new JsonRpcProvider('https://fullnode.testnet.sui.io:443');
+const POLYMEDIA_PACKAGE_DEVNET = '0x12f26a0b966e5322aba0e3a4ea73fc1fd3e9cee6';
+const SUI_FANS_CHAT_ID_DEVNET = '0xc7bf28ca9d571ab7651e69f24c19f88306bf8bcb';
 
-// NOTE: duplicated in polymedia-gotbeef/web/src/js/lib/sui_tools.ts
-export function getPackageAndRpc(network: string): [string, JsonRpcProvider] {
+const RPC_TESTNET = new JsonRpcProvider('https://fullnode.testnet.sui.io:443');
+const POLYMEDIA_PACKAGE_TESTNET = '0xe67c773b9c68a6a863bba425e3d85c9e530f4df5';
+const SUI_FANS_CHAT_ID_TESTNET = '0x1d813602114ed649de94649a9458e2c1f396c652';
+
+export function getConfig(network: string): [JsonRpcProvider, string, string] {
     switch (network) {
         case 'devnet':
-            return [POLYMEDIA_PACKAGE_DEVNET, RPC_DEVNET];
+            return [RPC_DEVNET, POLYMEDIA_PACKAGE_DEVNET, SUI_FANS_CHAT_ID_DEVNET ];
         case 'testnet':
-            return [POLYMEDIA_PACKAGE_TESTNET, RPC_TESTNET];
+            return [RPC_TESTNET, POLYMEDIA_PACKAGE_TESTNET, SUI_FANS_CHAT_ID_TESTNET ];
         default:
             throw new Error('Invalid network: ' + network);
     }

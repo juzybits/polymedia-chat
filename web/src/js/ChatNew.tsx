@@ -2,7 +2,7 @@ import { useEffect, useState, SyntheticEvent } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { ethos } from 'ethos-connect';
 
-import { getPackageAndRpc } from './lib/sui_client';
+import { getConfig } from './lib/sui_client';
 import { Nav } from './components/Nav';
 import '../css/New.less';
 
@@ -16,7 +16,7 @@ export function ChatNew() {
     const [error, setError] = useState('');
 
     const [notify, network]: any = useOutletContext();
-    const [packageId, _rpc] = getPackageAndRpc(network);
+    const [_rpc, packageId, _suiFansChatId] = getConfig(network);
     const { status, wallet } = ethos.useWallet();
 
     /* Effects */
