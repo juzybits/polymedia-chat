@@ -88,8 +88,9 @@ export function ChatMenu() {
                     </div>*/}
                 </div>
 
-                <div className='menu-section'>
-                    <Link className='btn primary' to='/'>GO TO CHATS</Link>
+                <div className='menu-section menu-buttons'>
+                    <Link className='btn primary' to={`/${chatId}`}>BACK</Link>
+                    <Link className='btn primary' to='/'>HOME</Link>
                 </div>
 
                 </>
