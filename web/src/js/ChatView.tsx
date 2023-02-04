@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, SyntheticEvent } from 'react';
 import { Link, useParams, useOutletContext } from 'react-router-dom';
-import { GetObjectDataResponse, SuiObject, SuiMoveObject } from '@mysten/sui.js';
+import { GetObjectDataResponse, SuiAddress, SuiObject, SuiMoveObject } from '@mysten/sui.js';
 import { useWalletKit } from '@mysten/wallet-kit';
 import emojiData from '@emoji-mart/data';
+import { PolymediaProfile, ProfileManager } from '@polymedia/profile-sdk';
 
 import EmojiPicker from './components/EmojiPicker';
 import { Nav } from './components/Nav';
@@ -41,6 +42,9 @@ export function ChatView() {
     const refMessageList = useRef<HTMLDivElement>(null);
     const refChatBottom = useRef<HTMLDivElement>(null);
     const refEmojiBtn = useRef<HTMLDivElement>(null);
+
+    const [profileManager] = useState( new ProfileManager(network) );
+    const [profiles, setProfiles] = useState( new Map<SuiAddress, PolymediaProfile|null>() );
 
     /// Set things up on 1st render
     useEffect(() => {
@@ -168,6 +172,19 @@ export function ChatView() {
         }
     }, [currentAccount]);
 
+    const fetchProfiles = (authorAddresses: Set<string>) => {
+        if (refUserAddr.current && !profiles.has(refUserAddr.current)) {
+            authorAddresses.add(refUserAddr.current);
+        }
+        profileManager.getProfiles({lookupAddresses: authorAddresses})
+        .then(profiles => {
+            setProfiles(profiles);
+        })
+        .catch((error: any) => {
+            setError(`[fetchProfiles] Request error: ${error.message}`);
+        })
+    };
+
     const reloadChat = () => {
         if (refIsScrolledUp.current || refIsReloadInProgress.current) {
             return;
@@ -185,17 +202,24 @@ export function ChatView() {
             } else {
                 setError('');
                 setChatObj(objData);
-                const idx = Number(objData.fields.last_index);
-                const newMsgs = objData.fields.messages;
                 const userIsBanned = refUserAddr.current && bannedAddresses.includes(refUserAddr.current);
-                const sortedMsgs =
-                    // 1. Order messages
-                    [ ...newMsgs.slice(idx+1), ...newMsgs.slice(0, idx+1) ]
-                    // 2. Filter out messages from banned addresses (unless the user is banned)
-                    .filter((msg: any) =>  userIsBanned || !bannedAddresses.includes(msg.fields.author) )
-                    // 3. Extract the message fields
-                    .map((msg: any) => msg.fields);
-                setMessages(sortedMsgs);
+                const newMsgs = objData.fields.messages;
+                const formattedMessages = [];
+                const authorAddresses = new Set<string>();
+                // Order messages
+                const idx = Number(objData.fields.last_index);
+                const sortedMessages = [ ...newMsgs.slice(idx+1), ...newMsgs.slice(0, idx+1) ];
+                for (const msg of sortedMessages) {
+                    // Skip messages from banned addresses (unless the user is banned)
+                    if (!userIsBanned && bannedAddresses.includes(msg.fields.author))
+                        continue;
+                    // Extract the message fields
+                    formattedMessages.push(msg.fields);
+                    // Collect user addresses
+                    authorAddresses.add(msg.fields.author);
+                }
+                setMessages(formattedMessages);
+                fetchProfiles(authorAddresses);
                 // @ts-ignore
                 // twttr && twttr.widgets.load(refMessageList.current);
             }
@@ -289,19 +313,26 @@ export function ChatView() {
 
         <div ref={refMessageList} id='message-list' className='chat-middle' onScroll={onScrollMessageList}>
         {messages.map((msg: any, idx) => {
+            const profile = profiles.get(msg.author);
+            let pfpClasses = 'message-pfp';
+            const pfpStyles: any = {};
+            if (profile && profile.url) {
+                pfpStyles.backgroundImage = 'url('+encodeURI(profile.url)+')';
+                pfpStyles.backgroundSize = 'cover';
+                pfpClasses += ' polymedia-profile';
+            } else {
+                pfpStyles.backgroundColor = getAddressColor(msg.author, 12);
+            }
             const magicText = parseMagicText(msg.text, copyAddress);
             return <div key={idx} className={`message ${isConnected && msg.text.includes(currentAccount) ? 'highlight' : ''}`}>
                 <div className='message-pfp-wrap'>
-                    <span className='message-pfp'
-                          style={{background: getAddressColor(msg.author, 12)}}
-                          onClick={() => copyAddress(msg.author)}
-                    >
-                        {getAddressEmoji(msg.author)}
+                    <span className={pfpClasses} style={pfpStyles} onClick={() => copyAddress(msg.author)}>
+                        {!profile && getAddressEmoji(msg.author)}
                     </span>
                 </div>
                 <span className='message-body'>
                     <span className='message-author'>
-                        <MagicAddress address={msg.author} onClickAddress={copyAddress} />
+                        <MagicAddress address={msg.author} onClickAddress={copyAddress} profileName={profile && profile.name} />
                     </span>
                     <span className='message-timestamp'>
                         {timeAgo(msg.timestamp)}

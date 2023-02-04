@@ -11,10 +11,14 @@ const REGEX_URL = new RegExp(/(?:https?|ipfs):\/\/[^\s\/$.?#].[^\s]*[^\s.,|]+/ig
 
 /// Shorten a 0x address, style it, and make it clickable
 export function MagicAddress(props: any) {
+    const shortAddr = shortenAddress(props.address);
+    const text = props.profileName
+        ? <>{props.profileName} | {shortAddr}</>
+        : <>{shortAddr}</>;
     return <span onClick={() => props.onClickAddress(props.address)}
         className='magic-address'
-        style={{color: getAddressColor(props.address, 6, true)}} >
-        {shortenAddress(props.address)}
+        style={{ color: getAddressColor(props.address, 6, true) }} >
+        {text}
     </span>;
 };
 
