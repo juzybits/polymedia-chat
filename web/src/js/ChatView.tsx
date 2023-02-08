@@ -134,7 +134,8 @@ export function ChatView() {
             }
         })
         .then((resp: any) => {
-            const effects = resp.effects || resp.EffectsCert?.effects?.effects; // Sui/Ethos || Suiet
+            // @ts-ignore
+            const effects = resp.effects.effects || resp.effects; // Suiet || Sui|Ethos
             if (effects.status.status == 'success') {
                 reloadChat();
                 setChatInputValue('');

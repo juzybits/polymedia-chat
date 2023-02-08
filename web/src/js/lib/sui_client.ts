@@ -3,8 +3,8 @@
 import { JsonRpcProvider, Network } from '@mysten/sui.js';
 
 const RPC_DEVNET = new JsonRpcProvider(Network.DEVNET);
-const POLYMEDIA_PACKAGE_DEVNET = '0x12f26a0b966e5322aba0e3a4ea73fc1fd3e9cee6';
-const SUI_FANS_CHAT_ID_DEVNET = '0xc7bf28ca9d571ab7651e69f24c19f88306bf8bcb';
+const POLYMEDIA_PACKAGE_DEVNET = '0x9ed1f65e520d0af8c5837b57a33ff4d70ae2653d';
+const SUI_FANS_CHAT_ID_DEVNET = '0xda7096fc386427f262fc9b6a5f3139f2e7db83db';
 
 const RPC_TESTNET = new JsonRpcProvider('https://fullnode.testnet.sui.io:443');
 const POLYMEDIA_PACKAGE_TESTNET = '0xe67c773b9c68a6a863bba425e3d85c9e530f4df5';
