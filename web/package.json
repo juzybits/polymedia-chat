@@ -6,8 +6,8 @@
         "@emoji-mart/data": "1",
         "@emoji-mart/react": "1",
         "@mysten/sui.js": "latest",
+        "@mysten/wallet-kit": "latest",
         "emoji-mart": "5",
-        "ethos-connect": "latest",
         "react": "18",
         "react-dom": "18",
         "react-router-dom": "6"

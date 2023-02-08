@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { EthosConnectProvider } from 'ethos-connect';
-import imgLogo from '../img/logo.png';
+import { WalletKitProvider } from '@mysten/wallet-kit';
 
 export function App()
 {
+    const [connectModalOpen, setConnectModalOpen] = useState(false);
     const [notification, setNotification] = useState('');
     const notify = (text: string) => {
         setNotification(text);
@@ -43,16 +43,11 @@ export function App()
 
     // NOTE: getNetwork and toggleNetwork are duplicated in polymedia-gotbeef/web/src/js/App.tsx
 
-    return <EthosConnectProvider
-        ethosConfiguration={{hideEmailSignIn: true}}
-        dappName='Polymedia Chat'
-        dappIcon={<img src={imgLogo} alt='Polymedia logo' />}
-        connectMessage='Polymedia Chat'
-        >
+    return <WalletKitProvider>
         {notification && <div className='notification'>{notification}</div>}
         <div id='network-widget'>
             <a className='switch-btn' onClick={toggleNetwork}>{network}</a>
         </div>
-        <Outlet context={[notify, network]} />
-    </EthosConnectProvider>;
+        <Outlet context={[notify, network, connectModalOpen, setConnectModalOpen]} />
+    </WalletKitProvider>;
 }

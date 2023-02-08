@@ -1,6 +1,6 @@
 import { useEffect, useState, SyntheticEvent } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
-import { ethos } from 'ethos-connect';
+import { useWalletKit } from '@mysten/wallet-kit';
 
 import { getConfig } from './lib/sui_client';
 import { Nav } from './components/Nav';
@@ -15,9 +15,9 @@ export function ChatNew() {
     const [waiting, setWaiting] = useState(false);
     const [error, setError] = useState('');
 
-    const [notify, network]: any = useOutletContext();
+    const [notify, network, _connectModalOpen, setConnectModalOpen]: any = useOutletContext();
     const [_rpc, packageId, _suiFansChatId] = getConfig(network);
-    const { status, wallet } = ethos.useWallet();
+    const { isConnected, signAndExecuteTransaction } = useWalletKit();
 
     /* Effects */
 
@@ -30,14 +30,13 @@ export function ChatNew() {
     const navigate = useNavigate();
     const onSubmitCreateChat = (e: SyntheticEvent) => {
         e.preventDefault();
-        const isConnected = status=='connected' && wallet && wallet.address;
         if (!isConnected) {
-            ethos.showSignInModal();
+            setConnectModalOpen(true);
             return;
         }
         setWaiting(true);
         console.debug(`[onSubmitCreateChat] Calling item::create on package: ${packageId}`);
-        wallet?.signAndExecuteTransaction({
+        signAndExecuteTransaction({
             kind: 'moveCall',
             data: {
                 packageObjectId: packageId,

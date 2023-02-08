@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState, useCallback, SyntheticEvent } from 'react';
+import { useEffect, useRef, useState, SyntheticEvent } from 'react';
 import { Link, useParams, useOutletContext } from 'react-router-dom';
 import { GetObjectDataResponse, SuiObject, SuiMoveObject } from '@mysten/sui.js';
-import { ethos } from 'ethos-connect';
+import { useWalletKit } from '@mysten/wallet-kit';
 import emojiData from '@emoji-mart/data';
 
 import EmojiPicker from './components/EmojiPicker';
@@ -17,9 +17,8 @@ const bannedAddresses = [
 ];
 
 export function ChatView() {
-    const [notify, network]: any = useOutletContext();
+    const [notify, network, _connectModalOpen, setConnectModalOpen]: any = useOutletContext();
     const [rpc, packageId, suiFansChatId] = getConfig(network);
-    const { status, wallet } = ethos.useWallet();
 
     let chatId = useParams().uid || '';
     const chatAlias = chatId;
@@ -86,8 +85,9 @@ export function ChatView() {
         refChatInput.current?.setSelectionRange(chatInputCursor, chatInputCursor);
     }, [chatInputCursor]);
 
+    const { isConnected, currentAccount, signAndExecuteTransaction } = useWalletKit();
+
     // Manage chat input focus
-    const isConnected = status=='connected' && wallet && wallet.address;
     useEffect(() => {
         if (isConnected && !waiting) {
             focusChatInput();
@@ -116,9 +116,9 @@ export function ChatView() {
         e.preventDefault();
         setError('');
         setWaiting(true);
-        await preapproveTxns();
+        // await preapproveTxns();
         console.debug(`[onSubmitAddMessage] Calling chat::add_message on package: ${packageId}`);
-        wallet?.signAndExecuteTransaction({
+        signAndExecuteTransaction({
             kind: 'moveCall',
             data: {
                 packageObjectId: packageId,
@@ -166,14 +166,13 @@ export function ChatView() {
         }
     };
 
-    const refUserAddr = useRef(localStorage.getItem('polymedia.userAddr') || '');
+    const refUserAddr = useRef(localStorage.getItem('polymedia.userAddr') || ''); // TODO: store an array
     useEffect(() => {
-        const userAddr = (wallet && wallet.address) || '';
-        if (userAddr) {
-            refUserAddr.current = userAddr;
-            localStorage.setItem('polymedia.userAddr', userAddr)
+        if (currentAccount) {
+            refUserAddr.current = currentAccount;
+            localStorage.setItem('polymedia.userAddr', currentAccount)
         }
-    }, [wallet]);
+    }, [currentAccount]);
 
     const reloadChat = () => {
         if (refIsScrolledUp.current || refIsReloadInProgress.current) {
@@ -257,6 +256,7 @@ export function ChatView() {
         focusChatInput();
     };
 
+    /*
     const preapproveTxns = useCallback(async () => {
         await wallet?.requestPreapproval({
             packageObjectId: packageId,
@@ -275,6 +275,7 @@ export function ChatView() {
             setError(`[preapproveTxns] Error requesting preapproval: ${err.message}`)
         });
     }, [wallet]);
+    */
 
     /* HTML */
 
@@ -295,7 +296,7 @@ export function ChatView() {
         <div ref={refMessageList} id='message-list' className='chat-middle' onScroll={onScrollMessageList}>
         {messages.map((msg: any, idx) => {
             const magicText = parseMagicText(msg.text, copyAddress);
-            return <div key={idx} className={`message ${isConnected && msg.text.includes(wallet.address) ? 'highlight' : ''}`}>
+            return <div key={idx} className={`message ${isConnected && msg.text.includes(currentAccount) ? 'highlight' : ''}`}>
                 <div className='message-pfp-wrap'>
                     <span className='message-pfp'
                           style={{background: getAddressColor(msg.author, 12)}}
@@ -329,7 +330,7 @@ export function ChatView() {
 
         <div ref={refChatBottom} className='chat-bottom'>
             <form onSubmit={onSubmitAddMessage} className='chat-input-wrapper'
-                  onClick={isConnected ? undefined : ethos.showSignInModal}>
+                  onClick={isConnected ? undefined : () => setConnectModalOpen(true)}>
                 <input ref={refChatInput} type='text' required
                     maxLength={chatObj?.fields.max_msg_length}
                     className={`${waiting ? 'waiting' : (!isConnected ? 'disabled' : '')}`}
