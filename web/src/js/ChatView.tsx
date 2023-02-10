@@ -87,13 +87,6 @@ export function ChatView() {
 
     const { isConnected, currentAccount, signAndExecuteTransaction } = useWalletKit();
 
-    // Manage chat input focus
-    useEffect(() => {
-        if (isConnected && !waiting) {
-            focusChatInput();
-        }
-    }, [isConnected, waiting]);
-
     const onSelectEmoji = (emoji: any) => {
         // Add the emoji to the chat input field
         const cut = refChatInput.current?.selectionStart || 0;
@@ -283,7 +276,7 @@ export function ChatView() {
     const description = chatObj ? chatObj.fields.description : '';
     return <div id='page' className='page-tool'>
     <div id='chat-wrapper'>
-        <Nav menuPath={`/${chatAlias}/menu`} />
+        <Nav menuPath={`/${chatAlias}/menu`} onConnectModalClose={focusChatInput} />
         <div className='chat-top'>
             <div className='chat-title'>
                <h1 className='chat-title'>{chatObj ? chatObj.fields.name : 'Loading...'}</h1>
