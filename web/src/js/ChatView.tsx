@@ -23,6 +23,7 @@ export const ChatView: React.FC = () =>
     const [notify, network, _connectModalOpen, setConnectModalOpen]: any = useOutletContext();
     const [rpc, packageId, suiFansChatId] = getConfig(network);
     const { isConnected, currentAccount, signAndExecuteTransaction } = useWalletKit();
+    const refHasCurrentAccount = useRef(false);
     /* Polymedia Profile */
     const profileManager = new ProfileManager(network);
     const [profiles, setProfiles] = useState( new Map<SuiAddress, PolymediaProfile|null>() );
@@ -40,6 +41,7 @@ export const ChatView: React.FC = () =>
     const refIsReloadInProgress = useRef(false); // to stop reloading when reloadChat() is in progress
     const refIsScrolledUp = useRef(false); // to stop reloading the chat when the user scrolls up
     const refUserAddr = useRef(localStorage.getItem('polymedia.userAddr') || ''); // Current user. TODO: store an array
+    const refUserClosedTeaser = useRef(false);
     /* References to HTML elements */
     const refChatBottom = useRef<HTMLDivElement>(null);
     const refChatInput = useRef<HTMLInputElement>(null);
@@ -69,6 +71,7 @@ export const ChatView: React.FC = () =>
 
     // Handle wallet connect/disconnect
     useEffect(() => {
+        refHasCurrentAccount.current = Boolean(currentAccount);
         if (!currentAccount) {
             return;
         }
@@ -141,9 +144,22 @@ export const ChatView: React.FC = () =>
                     // Collect user addresses
                     authorAddresses.add(msg.fields.author);
                 }
+
+                // Teaser for Polymedia Profile
+                if (refHasCurrentAccount.current && !refUserClosedTeaser.current) {
+                    const isMissingProfile = refUserAddr.current && refProfiles.current.get(refUserAddr.current) === null;
+                    isMissingProfile && formattedMessages.push({
+                        author: '0x0000000000000000000000000000000000000000',
+                        text: `Wake up ${refUserAddr.current}`,
+                        timestamp: String(Date.now()),
+                    });
+                }
+
+                // Update state
                 setMessages(formattedMessages);
                 fetchProfiles(authorAddresses);
-                // @ts-ignore
+
+                // Tweets
                 // twttr && twttr.widgets.load(refMessageList.current);
             }
         })
@@ -295,7 +311,25 @@ export const ChatView: React.FC = () =>
 
         <div ref={refMessageList} id='message-list' className='chat-middle' onScroll={onScrollMessageList}>
         {messages.map((msg: any, idx) => {
-            const profile = profiles.get(msg.author);
+            const isPolymediaTeaser = msg.author == '0x0000000000000000000000000000000000000000';
+            const profile = isPolymediaTeaser
+                ? ({
+                    name: 'The Professor',
+                    url: 'https://i.imgur.com/au3wKTL.jpg',
+                    owner: msg.author,
+                } as PolymediaProfile)
+                : profiles.get(msg.author);
+            let teaserButtons = <></>;
+            if (isPolymediaTeaser) {
+                teaserButtons = <div className='teaser-buttons'>
+                    <button className='primary open-eyes' onClick={() => {
+                        window.open('https://mountsogol.com', '_blank')
+                    }}>Open eyes 👀</button>
+                    <button className='primary' onClick={() => {
+                        refUserClosedTeaser.current=true; setMessages(messages.slice(0, -1));
+                    }}>Stay asleep 😴</button>
+                </div>;
+            }
             let pfpClasses = 'message-pfp';
             const pfpStyles: any = {};
             if (profile && profile.url) {
@@ -326,6 +360,7 @@ export const ChatView: React.FC = () =>
                     <div className='message-images'>
                         { magicText.images.map((url, idx) => <a href={url} target='_blank' key={idx}><img src={url}/></a>) }
                     </div>}
+                    {teaserButtons}
                     {/*{magicText.tweets &&
                     <div className='message-tweets'>
                         { magicText.tweets.map((url, idx) => <blockquote className='twitter-tweet' key={idx}><a href={url}></a></blockquote>) }

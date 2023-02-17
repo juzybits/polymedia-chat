@@ -258,6 +258,7 @@ const trustedDomains = new Map<string, boolean>([
     ['microsoft.com', true],
     ['mirror.co.uk', true],
     ['mit.edu', true],
+    ['mountsogol.com', true],
     ['mozilla.com', true],
     ['mozilla.org', true],
     ['msn.com', true],
