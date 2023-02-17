@@ -3,12 +3,12 @@
 import { JsonRpcProvider, Network } from '@mysten/sui.js';
 
 const RPC_DEVNET = new JsonRpcProvider(Network.DEVNET);
-const POLYMEDIA_PACKAGE_DEVNET = '0x2769696b3b20b45bb0dc7ebc56a0c6ab5f4d35b0';
-const SUI_FANS_CHAT_ID_DEVNET = '0xd6cbaee68ea190648139130f94a4bf542f668648';
+const POLYMEDIA_PACKAGE_DEVNET = '0x71a719711237085a34cca88ade73c4f8722f8ba5';
+const SUI_FANS_CHAT_ID_DEVNET = '0x43a66250e2798edeadbfe25196d40f8b545649d9';
 
 const RPC_TESTNET = new JsonRpcProvider('https://fullnode.testnet.sui.io:443');
-const POLYMEDIA_PACKAGE_TESTNET = '0xe67c773b9c68a6a863bba425e3d85c9e530f4df5';
-const SUI_FANS_CHAT_ID_TESTNET = '0x1d813602114ed649de94649a9458e2c1f396c652';
+const POLYMEDIA_PACKAGE_TESTNET = '0x123';
+const SUI_FANS_CHAT_ID_TESTNET = '0x456';
 
 export function getConfig(network: string): [JsonRpcProvider, string, string] {
     switch (network) {
