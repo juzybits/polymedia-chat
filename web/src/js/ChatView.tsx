@@ -13,40 +13,47 @@ import { getAddressColor, getAddressEmoji } from './lib/addresses';
 import { isExpectedType, getConfig } from './lib/sui_client';
 import '../css/Chat.less';
 
-const bannedAddresses = [
-    '0x9ca35382d0d1f0134794292a5ef6437c303c148d',
+// Messages from these addresses will be hidden from everyone except from their authors
+const bannedAddresses: string[] = [
 ];
 
-export function ChatView() {
+export const ChatView: React.FC = () =>
+{
+    /* Global state */
     const [notify, network, _connectModalOpen, setConnectModalOpen]: any = useOutletContext();
     const [rpc, packageId, suiFansChatId] = getConfig(network);
+    const { isConnected, currentAccount, signAndExecuteTransaction } = useWalletKit();
+    /* Polymedia Profile */
+    const profileManager = new ProfileManager(network);
+    const [profiles, setProfiles] = useState( new Map<SuiAddress, PolymediaProfile|null>() );
+    const refProfiles = useRef(profiles);
+    /* Chat messages */
+    const [chatObj, setChatObj] = useState<SuiMoveObject|null>(null);
+    const [messages, setMessages] = useState<object[]>([]);
+    const [error, setError] = useState('');
+    /* Emoji picker */
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [ignoreClickOutside, setIgnoreClickOutside] = useState(true);
+    const [chatInputCursor, setChatInputCursor] = useState(0);
+    /* More app state. Some need to be references because of setInterval() */
+    const [isSendingMsg, setIsSendingMsg] = useState(false); // waiting for a message txn to complete
+    const refIsReloadInProgress = useRef(false); // to stop reloading when reloadChat() is in progress
+    const refIsScrolledUp = useRef(false); // to stop reloading the chat when the user scrolls up
+    const refUserAddr = useRef(localStorage.getItem('polymedia.userAddr') || ''); // Current user. TODO: store an array
+    /* References to HTML elements */
+    const refChatBottom = useRef<HTMLDivElement>(null);
+    const refChatInput = useRef<HTMLInputElement>(null);
+    const refEmojiBtn = useRef<HTMLDivElement>(null);
+    const refMessageList = useRef<HTMLDivElement>(null);
 
+    // Handle '/@sui-fans' alias
     let chatId = useParams().uid || '';
     const chatAlias = chatId;
     if (chatId == '@sui-fans') {
         chatId = suiFansChatId;
     }
 
-    const [error, setError] = useState('');
-    const [chatObj, setChatObj] = useState<SuiMoveObject|null>(null);
-    const [messages, setMessages] = useState<object[]>([]);
-    const [waiting, setWaiting] = useState(false);
-    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-    const [ignoreClickOutside, setIgnoreClickOutside] = useState(true);
-    const [chatInputCursor, setChatInputCursor] = useState(0);
-
-    const refIsReloadInProgress = useRef(false); // to stop reloading when reloadChat() is in progress
-    const refIsScrolledUp = useRef(false); // to stop reloading the chat when the user scrolls up
-
-    const refChatInput = useRef<HTMLInputElement>(null);
-    const refMessageList = useRef<HTMLDivElement>(null);
-    const refChatBottom = useRef<HTMLDivElement>(null);
-    const refEmojiBtn = useRef<HTMLDivElement>(null);
-
-    const [profileManager] = useState( new ProfileManager(network) );
-    const [profiles, setProfiles] = useState( new Map<SuiAddress, PolymediaProfile|null>() );
-
-    /// Set things up on 1st render
+    /// Handle 1st render
     useEffect(() => {
         document.title = `Polymedia Chat - ${chatId}`;
         focusChatInput();
@@ -58,132 +65,48 @@ export function ChatView() {
         };
     }, []);
 
-    /// Scroll to the bottom of the message list when it gets updated.
-    useEffect(() => {
-        if (!refIsScrolledUp.current && refMessageList.current) {
-            refMessageList.current.scrollTop = refMessageList.current.scrollHeight;
-        }
-    }, [messages]);
+    /* Addresses and Polymedia Profile */
 
-    /// React to opening/closing emoji picker
+    // Handle wallet connect/disconnect
     useEffect(() => {
-        if (!showEmojiPicker) {
-            setIgnoreClickOutside(true);
-            focusChatInput();
+        if (!currentAccount) {
             return;
         }
-        setIgnoreClickOutside(false);
-        // Position the emoji picker next to the emoji button
-        const pickers = document.getElementsByTagName('em-emoji-picker') as HTMLCollectionOf<HTMLElement>;
-        const emojiPicker = pickers.length ? pickers[0] : null;
-        if (!emojiPicker || !refChatBottom.current) {
-            return;
-        }
-        emojiPicker.style.right = `${refChatBottom.current.offsetLeft}px`;
-        emojiPicker.style.bottom = `${refChatBottom.current.offsetHeight}px`;
-    }, [showEmojiPicker]);
-
-    // After inserting an emoji, focus back on the text input and restore the original cursor position.
-    useEffect(() => {
-        focusChatInput();
-        refChatInput.current?.setSelectionRange(chatInputCursor, chatInputCursor);
-    }, [chatInputCursor]);
-
-    const { isConnected, currentAccount, signAndExecuteTransaction } = useWalletKit();
-
-    const onSelectEmoji = (emoji: any) => {
-        // Add the emoji to the chat input field
-        const cut = refChatInput.current?.selectionStart || 0;
-        const chatInput = getChatInputValue();
-        setChatInputValue( chatInput.slice(0,cut) + emoji.native + chatInput.slice(cut) );
-        setChatInputCursor(cut+2);
-        setShowEmojiPicker(false);
-    };
-
-    const onclickOutsideEmojiPicker = () => {
-        // hack to ignore the 1st click (in the button that opens the picker)
-        if (ignoreClickOutside) {
-            setIgnoreClickOutside(false);
-        } else {
-            setShowEmojiPicker(false);
-        }
-    };
-
-    const onSubmitAddMessage = async (e: SyntheticEvent) => {
-        e.preventDefault();
-        setError('');
-        setWaiting(true);
-        // await preapproveTxns();
-        console.debug(`[onSubmitAddMessage] Calling chat::add_message on package: ${packageId}`);
-        signAndExecuteTransaction({
-            kind: 'moveCall',
-            data: {
-                packageObjectId: packageId,
-                module: 'chat',
-                function: 'add_message',
-                typeArguments: [],
-                arguments: [
-                    chatId,
-                    String(Date.now()),
-                    Array.from( (new TextEncoder()).encode( getChatInputValue() ) ),
-                ],
-                gasBudget: 10000,
-            }
-        })
-        .then((resp: any) => {
-            // @ts-ignore
-            const effects = resp.effects.effects || resp.effects; // Suiet || Sui|Ethos
-            if (effects.status.status == 'success') {
-                reloadChat();
-                setChatInputValue('');
-            } else {
-                setError(`[onSubmitAddMessage] Response error: ${effects.status.error}`);
-            }
-        })
-        .catch((error: any) => {
-            setError(`[onSubmitAddMessage] Request error: ${error.message}`);
-        })
-        .finally(() => {
-            setWaiting(false);
-        });
-    };
-
-    // Pause/resume chat autoscrolling if the user manually scrolled up
-    const onScrollMessageList = () => {
-        if (!refMessageList.current)
-            return;
-        const scrollHeight = refMessageList.current.scrollHeight; // height of contents including content not visible due to overflow (3778px)
-        const clientHeight = refMessageList.current.clientHeight; // element inner height in pixels (700px)
-        const scrollTop = refMessageList.current.scrollTop; // distance from the element's top to its topmost visible content (initially 3078px)
-        const veryBottom = scrollHeight - clientHeight; // 3078px (max value for scrollTop, i.e. fully scrolled down)
-        const isScrolledUp = veryBottom - scrollTop > 100; // still reload if slightly scrolled up (to prevent accidental pausing)
-        if (isScrolledUp && !refIsScrolledUp.current) {
-            refIsScrolledUp.current = true;
-        } else if (!isScrolledUp && refIsScrolledUp.current) {
-            refIsScrolledUp.current = false;
-        }
-    };
-
-    const refUserAddr = useRef(localStorage.getItem('polymedia.userAddr') || ''); // TODO: store an array
-    useEffect(() => {
-        if (currentAccount) {
-            refUserAddr.current = currentAccount;
-            localStorage.setItem('polymedia.userAddr', currentAccount)
+        // Update the current address everywhere
+        refUserAddr.current = currentAccount;
+        localStorage.setItem('polymedia.userAddr', currentAccount)
+        // Preload the current address profile so it's ready when/if the user talks
+        if (!profiles.has(currentAccount)) {
+            const newProfiles = new Set(profiles.keys());
+            newProfiles.add(currentAccount);
+            fetchProfiles(newProfiles);
         }
     }, [currentAccount]);
 
     const fetchProfiles = (authorAddresses: Set<string>) => {
-        if (refUserAddr.current && !profiles.has(refUserAddr.current)) {
+        // Always include the current user address
+        if (refUserAddr.current) {
             authorAddresses.add(refUserAddr.current);
         }
         profileManager.getProfiles({lookupAddresses: authorAddresses})
-        .then(profiles => {
-            setProfiles(profiles);
+        .then(newProfiles => {
+            setProfiles(newProfiles);
+            refProfiles.current = newProfiles;
         })
         .catch((error: any) => {
             setError(`[fetchProfiles] Request error: ${error.message}`);
         })
     };
+
+    /* Messages */
+
+    /// Handle new messages
+    useEffect(() => {
+        // scroll to the bottom of the message list (if the user has not manually scrolled up)
+        if (!refIsScrolledUp.current && refMessageList.current) {
+            refMessageList.current.scrollTop = refMessageList.current.scrollHeight;
+        }
+    }, [messages]);
 
     const reloadChat = () => {
         if (refIsScrolledUp.current || refIsReloadInProgress.current) {
@@ -232,9 +155,106 @@ export function ChatView() {
         });
     };
 
-    const focusChatInput = () => {
-        refChatInput.current?.focus();
-    }
+    const onSubmitAddMessage = async (e: SyntheticEvent) => {
+        e.preventDefault();
+        setError('');
+        setIsSendingMsg(true);
+        // await preapproveTxns();
+        console.debug(`[onSubmitAddMessage] Calling chat::add_message on package: ${packageId}`);
+        signAndExecuteTransaction({
+            kind: 'moveCall',
+            data: {
+                packageObjectId: packageId,
+                module: 'chat',
+                function: 'add_message',
+                typeArguments: [],
+                arguments: [
+                    chatId,
+                    String(Date.now()),
+                    Array.from( (new TextEncoder()).encode( getChatInputValue() ) ),
+                ],
+                gasBudget: 10000,
+            }
+        })
+        .then((resp: any) => {
+            // @ts-ignore
+            const effects = resp.effects.effects || resp.effects; // Suiet || Sui|Ethos
+            if (effects.status.status == 'success') {
+                reloadChat();
+                setChatInputValue('');
+            } else {
+                setError(`[onSubmitAddMessage] Response error: ${effects.status.error}`);
+            }
+        })
+        .catch((error: any) => {
+            setError(`[onSubmitAddMessage] Request error: ${error.message}`);
+        })
+        .finally(() => {
+            setIsSendingMsg(false);
+        });
+    };
+
+    /* Emojis */
+
+    /// Handle emoji picker open/close
+    useEffect(() => {
+        if (!showEmojiPicker) {
+            setIgnoreClickOutside(true);
+            focusChatInput();
+            return;
+        }
+        setIgnoreClickOutside(false);
+        // Position the emoji picker next to the emoji button
+        const pickers = document.getElementsByTagName('em-emoji-picker') as HTMLCollectionOf<HTMLElement>;
+        const emojiPicker = pickers.length ? pickers[0] : null;
+        if (!emojiPicker || !refChatBottom.current) {
+            return;
+        }
+        emojiPicker.style.right = `${refChatBottom.current.offsetLeft}px`;
+        emojiPicker.style.bottom = `${refChatBottom.current.offsetHeight}px`;
+    }, [showEmojiPicker]);
+
+    /// After inserting an emoji, focus back on the text input and restore the original cursor position.
+    useEffect(() => {
+        focusChatInput();
+        refChatInput.current?.setSelectionRange(chatInputCursor, chatInputCursor);
+    }, [chatInputCursor]);
+
+    /// Add the emoji to the chat input field and close the picker
+    const onSelectEmoji = (emoji: any) => {
+        const cut = refChatInput.current?.selectionStart || 0;
+        const chatInput = getChatInputValue();
+        setChatInputValue( chatInput.slice(0,cut) + emoji.native + chatInput.slice(cut) );
+        setChatInputCursor(cut+2);
+        setShowEmojiPicker(false);
+    };
+
+    const onclickOutsideEmojiPicker = () => {
+        if (ignoreClickOutside) {
+            // hack to ignore the 1st click (in the button that opens the picker)
+            setIgnoreClickOutside(false);
+        } else {
+            setShowEmojiPicker(false);
+        }
+    };
+
+    /* Convenience functions */
+
+    // Pause/resume chat autoscrolling if the user manually scrolled up
+    const onScrollMessageList = () => {
+        if (!refMessageList.current)
+            return;
+        const scrollHeight = refMessageList.current.scrollHeight; // height of contents including content not visible due to overflow (3778px)
+        const clientHeight = refMessageList.current.clientHeight; // element inner height in pixels (700px)
+        const scrollTop = refMessageList.current.scrollTop; // distance from the element's top to its topmost visible content (initially 3078px)
+        const veryBottom = scrollHeight - clientHeight; // 3078px (max value for scrollTop, i.e. fully scrolled down)
+        const isScrolledUp = veryBottom - scrollTop > 100; // still reload if slightly scrolled up (to prevent accidental pausing)
+        if (isScrolledUp && !refIsScrolledUp.current) {
+            refIsScrolledUp.current = true;
+        } else if (!isScrolledUp && refIsScrolledUp.current) {
+            refIsScrolledUp.current = false;
+        }
+    };
 
     /// Get/set the chat input through a reference, to prevent React from re-rendering
     /// everything with each key press (including the list of messages)
@@ -244,27 +264,10 @@ export function ChatView() {
     const setChatInputValue = (value: string): void => {
         if (refChatInput.current) refChatInput.current.value = value;
     };
-    /*
-    const onChangeChatInput = (e: SyntheticEvent) => {
-        const text = (e.target as HTMLInputElement).value;
-        setChatInputValue(text);
-        // Detect emoji shortcut ':ab' and open emoji picker
-        const cursor = refChatInput.current?.selectionStart || 0;
-        console.log('cursor', cursor);
-        if (cursor < 3) {
-            return;
-        }
-        const potentialEmojiShortcut = text.slice(0, cursor);
-        console.log('potentialEmojiShortcut', potentialEmojiShortcut);
 
-        const regexEmojiOpen = new RegExp(/:[a-z]{2,}$/);
-        const match = potentialEmojiShortcut.match(regexEmojiOpen);
-        console.log('match', match);
-        if (match) {
-            setShowEmojiPicker(true);
-        }
-    };
-    */
+    const focusChatInput = () => {
+        refChatInput.current?.focus();
+    }
 
     const copyAddress = (address: string) => {
         navigator.clipboard
@@ -273,27 +276,6 @@ export function ChatView() {
             .catch( _err => notify('Error copying to clipboard') );
         focusChatInput();
     };
-
-    /*
-    const preapproveTxns = useCallback(async () => {
-        await wallet?.requestPreapproval({
-            packageObjectId: packageId,
-            module: 'chat',
-            function: 'add_message',
-            objectId: chatId,
-            description: 'Send messages in this chat without having to sign every transaction.',
-            maxTransactionCount: 100,
-            totalGasLimit: network=='devnet' ? 100_000 : 10_000_000,
-            perTransactionGasLimit: network=='devnet' ? 5_000 : 500_000,
-        })
-        .then(_result => {
-            console.debug(`[preapproveTxns] Successfully preapproved transactions`);
-        })
-        .catch(err => {
-            setError(`[preapproveTxns] Error requesting preapproval: ${err.message}`)
-        });
-    }, [wallet]);
-    */
 
     /* HTML */
 
@@ -358,14 +340,14 @@ export function ChatView() {
                   onClick={isConnected ? undefined : () => setConnectModalOpen(true)}>
                 <input ref={refChatInput} type='text' required
                     maxLength={chatObj?.fields.max_msg_length}
-                    className={`${waiting ? 'waiting' : (!isConnected ? 'disabled' : '')}`}
-                    disabled={!isConnected || waiting}
+                    className={`${isSendingMsg ? 'isSendingMsg' : (!isConnected ? 'disabled' : '')}`}
+                    disabled={!isConnected || isSendingMsg}
                     autoCorrect='off' autoComplete='off'
                     placeholder={isConnected ? 'Send a message' : 'Log in to send a message'}
                 />
                 <div ref={refEmojiBtn} id='chat-emoji-btn'
-                    className={!isConnected||waiting ? 'disabled' : ''}
-                    onClick={!isConnected||waiting ? undefined : () => { setShowEmojiPicker(!showEmojiPicker); }}
+                    className={!isConnected||isSendingMsg ? 'disabled' : ''}
+                    onClick={!isConnected||isSendingMsg ? undefined : () => { setShowEmojiPicker(!showEmojiPicker); }}
                  >
                     😜
                 </div>
@@ -387,3 +369,48 @@ export function ChatView() {
 
     </div>; // end of #page
 }
+
+/* Old code */
+
+/*
+const onChangeChatInput = (e: SyntheticEvent) => {
+    const text = (e.target as HTMLInputElement).value;
+    setChatInputValue(text);
+    // Detect emoji shortcut ':ab' and open emoji picker
+    const cursor = refChatInput.current?.selectionStart || 0;
+    console.log('cursor', cursor);
+    if (cursor < 3) {
+        return;
+    }
+    const potentialEmojiShortcut = text.slice(0, cursor);
+    console.log('potentialEmojiShortcut', potentialEmojiShortcut);
+
+    const regexEmojiOpen = new RegExp(/:[a-z]{2,}$/);
+    const match = potentialEmojiShortcut.match(regexEmojiOpen);
+    console.log('match', match);
+    if (match) {
+        setShowEmojiPicker(true);
+    }
+};
+*/
+
+/*
+const preapproveTxns = useCallback(async () => {
+    await wallet?.requestPreapproval({
+        packageObjectId: packageId,
+        module: 'chat',
+        function: 'add_message',
+        objectId: chatId,
+        description: 'Send messages in this chat without having to sign every transaction.',
+        maxTransactionCount: 100,
+        totalGasLimit: network=='devnet' ? 100_000 : 10_000_000,
+        perTransactionGasLimit: network=='devnet' ? 5_000 : 500_000,
+    })
+    .then(_result => {
+        console.debug(`[preapproveTxns] Successfully preapproved transactions`);
+    })
+    .catch(err => {
+        setError(`[preapproveTxns] Error requesting preapproval: ${err.message}`)
+    });
+}, [wallet]);
+*/
