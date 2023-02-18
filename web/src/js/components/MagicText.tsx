@@ -1,6 +1,9 @@
 /// Transform plain text into rich text HTML (with links, images, clickable addresses, etc)
 
 import React from 'react';
+import { SuiAddress } from '@mysten/sui.js';
+import { PolymediaProfile } from '@polymedia/profile-sdk';
+
 import { shortenAddress, getAddressColor } from '../lib/addresses';
 import { isTrustedDomain } from '../lib/domains';
 
@@ -13,7 +16,7 @@ const REGEX_URL = new RegExp(/(?:https?|ipfs):\/\/[^\s\/$.?#].[^\s]*[^\s.,|]+/ig
 export function MagicAddress(props: any) {
     const shortAddr = shortenAddress(props.address);
     const text = props.profileName
-        ? <>{props.profileName} | {shortAddr}</>
+        ? <>{props.profileName} ({shortAddr})</>
         : <>{shortAddr}</>;
     return <span onClick={() => props.onClickAddress(props.address)}
         className='magic-address'
@@ -36,7 +39,7 @@ export type MagicText = {
 };
 
 /// Parse plaintext and format any URLs and 0x addresses in it
-export function parseMagicText(plainText: string, onClickAddress: Function)
+export function parseMagicText(profiles: Map<SuiAddress, PolymediaProfile|null>, plainText: string, onClickAddress: Function)
 {
     let key = 0;
     const chunk = (contents: any) => {
@@ -49,7 +52,8 @@ export function parseMagicText(plainText: string, onClickAddress: Function)
 
         let chunks = [ chunk(nonAddresses.shift()) ];
         for (let address of addresses) {
-            chunks.push( chunk(<MagicAddress address={address} onClickAddress={onClickAddress} />) );
+            const profile = profiles.get(address);
+            chunks.push( chunk(<MagicAddress address={address} onClickAddress={onClickAddress} profileName={profile && profile.name} />) );
             chunks.push( chunk(nonAddresses.shift()) );
         }
         return <>{chunks}</>;

@@ -334,12 +334,11 @@ export const ChatView: React.FC = () =>
             const pfpStyles: any = {};
             if (profile && profile.url) {
                 pfpStyles.backgroundImage = 'url('+encodeURI(profile.url)+')';
-                pfpStyles.backgroundSize = 'cover';
                 pfpClasses += ' polymedia-profile';
             } else {
                 pfpStyles.backgroundColor = getAddressColor(msg.author, 12);
             }
-            const magicText = parseMagicText(msg.text, copyAddress);
+            const magicText = parseMagicText(profiles, msg.text, copyAddress);
             return <div key={idx} className={`message ${isConnected && msg.text.includes(currentAccount) ? 'highlight' : ''}`}>
                 <div className='message-pfp-wrap'>
                     <span className={pfpClasses} style={pfpStyles} onClick={() => copyAddress(msg.author)}>
