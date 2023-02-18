@@ -330,9 +330,10 @@ export const ChatView: React.FC = () =>
                     }}>Stay asleep 😴</button>
                 </div>;
             }
+            const hasPfpImage = profile && profile.url;
             let pfpClasses = 'message-pfp';
             const pfpStyles: any = {};
-            if (profile && profile.url) {
+            if (hasPfpImage) {
                 pfpStyles.backgroundImage = 'url('+encodeURI(profile.url)+')';
                 pfpClasses += ' polymedia-profile';
             } else {
@@ -342,7 +343,7 @@ export const ChatView: React.FC = () =>
             return <div key={idx} className={`message ${isConnected && msg.text.includes(currentAccount) ? 'highlight' : ''}`}>
                 <div className='message-pfp-wrap'>
                     <span className={pfpClasses} style={pfpStyles} onClick={() => copyAddress(msg.author)}>
-                        {!profile && getAddressEmoji(msg.author)}
+                        {!hasPfpImage && getAddressEmoji(msg.author)}
                     </span>
                 </div>
                 <span className='message-body'>
