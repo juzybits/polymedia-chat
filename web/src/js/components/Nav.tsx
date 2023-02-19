@@ -1,6 +1,6 @@
 /// Navigation bar
 
-import { useEffect, ReactNode } from 'react';
+import { ReactNode } from 'react';
 import { useOutletContext, Link } from 'react-router-dom';
 import { useWalletKit, ConnectModal } from '@mysten/wallet-kit';
 
@@ -18,19 +18,11 @@ export function Nav({ menuPath, menuTitle, onConnectModalClose }: NavProps)
     const { currentAccount, disconnect } = useWalletKit();
     const [_notify, _network, connectModalOpen, setConnectModalOpen]: any = useOutletContext();
 
-    useEffect(() => {
-        if (!connectModalOpen && currentAccount && onConnectModalClose) {
-            onConnectModalClose();
-        }
-    }, [connectModalOpen]);
-
     return <>
-        {!currentAccount &&
         <ConnectModal
             open={connectModalOpen}
-            onClose={() => setConnectModalOpen(false)}
+            onClose={() => { setConnectModalOpen(false); onConnectModalClose && onConnectModalClose(); }}
         />
-        }
         <header id='nav' className='header'>
 
             <div id='nav-btn-menu' className='nav-btn'>

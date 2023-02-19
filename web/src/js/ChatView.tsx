@@ -25,7 +25,7 @@ export const ChatView: React.FC = () =>
     const { isConnected, currentAccount, signAndExecuteTransaction } = useWalletKit();
     const refHasCurrentAccount = useRef(false);
     /* Polymedia Profile */
-    const profileManager = new ProfileManager(network);
+    const profileManager = new ProfileManager({network});
     const [profiles, setProfiles] = useState( new Map<SuiAddress, PolymediaProfile|null>() );
     const refProfiles = useRef(profiles);
     /* Chat messages */

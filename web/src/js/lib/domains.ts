@@ -392,6 +392,7 @@ const trustedDomains = new Map<string, boolean>([
     ['telegra.ph', true],
     ['telegram.me', true],
     ['telegraph.co.uk', true],
+    ['tenor.com', true],
     ['terra.com.br', true],
     ['theatlantic.com', true],
     ['theconversation.com', true],
