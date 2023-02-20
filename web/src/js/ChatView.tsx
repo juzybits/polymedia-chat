@@ -15,6 +15,7 @@ import '../css/Chat.less';
 
 // Messages from these addresses will be hidden from everyone except from their authors
 const bannedAddresses: string[] = [
+    '0x4f7b3694ca43093a669e46209e9a15ce0bcccab8'
 ];
 
 export const ChatView: React.FC = () =>
