@@ -324,7 +324,7 @@ export const ChatView: React.FC = () =>
             if (isPolymediaTeaser) {
                 teaserButtons = <div className='teaser-buttons'>
                     <button className='primary open-eyes' onClick={() => {
-                        window.open('https://mountsogol.com', '_blank')
+                        window.open('https://mountsogol.com?network='+network, '_blank')
                     }}>Open eyes 👀</button>
                     <button className='primary' onClick={() => {
                         refUserClosedTeaser.current=true; setMessages(messages.slice(0, -1));
