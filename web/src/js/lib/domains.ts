@@ -161,6 +161,7 @@ const trustedDomains = new Map<string, boolean>([
     ['ggpht.com', true],
     ['giphy.com', true],
     ['github.com', true],
+    ['github.io', true],
     ['gizmodo.com', true],
     ['globo.com', true],
     ['gmail.com', true],
