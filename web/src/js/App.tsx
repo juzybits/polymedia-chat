@@ -11,6 +11,8 @@ export function App()
         setTimeout(() => { setNotification('') }, 1200);
     };
     const network = 'devnet';
+    // Delete query string
+    window.history.replaceState({}, document.title, window.location.pathname);
     /*
     // NOTE: getNetwork() and toggleNetwork() are duplicated in other Polymedia projects
 
