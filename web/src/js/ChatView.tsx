@@ -12,10 +12,15 @@ import { timeAgo } from './lib/common';
 import { getAddressColor, getAddressEmoji } from './lib/addresses';
 import { isExpectedType, getConfig } from './lib/sui_client';
 import '../css/Chat.less';
+import verifiedBadge from '../img/verified_badge.svg';
 
 // Messages from these addresses will be hidden from everyone except from their authors
 const bannedAddresses: string[] = [
     '0x4f7b3694ca43093a669e46209e9a15ce0bcccab8'
+];
+
+const verifiedAddresses: string[] = [
+    '0x37e19fe9f6dde6161e2e042505586231c1e055c4'
 ];
 
 export const ChatView: React.FC = () =>
@@ -356,6 +361,7 @@ export const ChatView: React.FC = () =>
                 pfpStyles.backgroundColor = getAddressColor(msg.author, 12);
             }
             const magicText = parseMagicText(profiles, msg.text, copyAddress);
+            const isVerified = verifiedAddresses.includes(msg.author);
             return <div key={idx} className={`message ${currentAccount && msg.text.includes(currentAccount) ? 'highlight' : ''}`}>
                 <div className='message-pfp-wrap'>
                     <span className={pfpClasses} style={pfpStyles} onClick={() => copyAddress(msg.author)}>
@@ -365,6 +371,7 @@ export const ChatView: React.FC = () =>
                 <span className='message-body'>
                     <span className='message-author'>
                         <MagicAddress address={msg.author} onClickAddress={copyAddress} profileName={profile && profile.name} />
+                        {isVerified && <img className='verified-badge' src={verifiedBadge} />}
                     </span>
                     <span className='message-timestamp'>
                         {timeAgo(msg.timestamp)}
