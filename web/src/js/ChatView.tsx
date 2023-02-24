@@ -21,9 +21,9 @@ const bannedAddresses: string[] = [
 export const ChatView: React.FC = () =>
 {
     /* Global state */
-    const [notify, network, _connectModalOpen, setConnectModalOpen]: any = useOutletContext();
+    const [notify, network, connectModalOpen, setConnectModalOpen]: any = useOutletContext();
     const [rpc, packageId, suiFansChatId] = getConfig(network);
-    const { isConnected, currentAccount, signAndExecuteTransaction } = useWalletKit();
+    const { currentAccount, signAndExecuteTransaction } = useWalletKit();
     const refHasCurrentAccount = useRef(false);
     /* Polymedia Profile */
     const profileManager = new ProfileManager({network});
@@ -85,7 +85,15 @@ export const ChatView: React.FC = () =>
             newProfiles.add(currentAccount);
             fetchProfiles(newProfiles);
         }
+        focusChatInput();
     }, [currentAccount]);
+
+    /// Re-focus on the text input after connecting, once the modal is closed
+    useEffect(() => {
+        if (!connectModalOpen && currentAccount) {
+            focusChatInput();
+        }
+    }, [connectModalOpen]);
 
     const fetchProfiles = (authorAddresses: Set<string>) => {
         // Always include the current user address
@@ -103,6 +111,13 @@ export const ChatView: React.FC = () =>
     };
 
     /* Messages */
+
+    /// Re-focus on the text input after sending a message
+    useEffect(() => {
+        if (!isSendingMsg && currentAccount) {
+            focusChatInput();
+        }
+    }, [isSendingMsg]);
 
     /// Handle new messages
     useEffect(() => {
@@ -299,7 +314,7 @@ export const ChatView: React.FC = () =>
     const description = chatObj ? chatObj.fields.description : '';
     return <div id='page' className='page-tool'>
     <div id='chat-wrapper'>
-        <Nav menuPath={`/${chatAlias}/menu`} onConnectModalClose={focusChatInput} />
+        <Nav menuPath={`/${chatAlias}/menu`} />
         <div className='chat-top'>
             <div className='chat-title'>
                <h1 className='chat-title'>{chatObj ? chatObj.fields.name : 'Loading...'}</h1>
@@ -341,7 +356,7 @@ export const ChatView: React.FC = () =>
                 pfpStyles.backgroundColor = getAddressColor(msg.author, 12);
             }
             const magicText = parseMagicText(profiles, msg.text, copyAddress);
-            return <div key={idx} className={`message ${isConnected && msg.text.includes(currentAccount) ? 'highlight' : ''}`}>
+            return <div key={idx} className={`message ${currentAccount && msg.text.includes(currentAccount) ? 'highlight' : ''}`}>
                 <div className='message-pfp-wrap'>
                     <span className={pfpClasses} style={pfpStyles} onClick={() => copyAddress(msg.author)}>
                         {!hasPfpImage && getAddressEmoji(msg.author)}
@@ -373,17 +388,17 @@ export const ChatView: React.FC = () =>
 
         <div ref={refChatBottom} className='chat-bottom'>
             <form onSubmit={onSubmitAddMessage} className='chat-input-wrapper'
-                  onClick={isConnected ? undefined : () => setConnectModalOpen(true)}>
+                  onClick={currentAccount ? undefined : () => setConnectModalOpen(true)}>
                 <input ref={refChatInput} type='text' required
                     maxLength={chatObj?.fields.max_msg_length}
-                    className={`${isSendingMsg ? 'isSendingMsg' : (!isConnected ? 'disabled' : '')}`}
-                    disabled={!isConnected || isSendingMsg}
+                    className={`${isSendingMsg ? 'waiting' : (!currentAccount ? 'disabled' : '')}`}
+                    disabled={!currentAccount || isSendingMsg}
                     autoCorrect='off' autoComplete='off'
-                    placeholder={isConnected ? 'Send a message' : 'Log in to send a message'}
+                    placeholder={currentAccount ? 'Send a message' : 'Log in to send a message'}
                 />
                 <div ref={refEmojiBtn} id='chat-emoji-btn'
-                    className={!isConnected||isSendingMsg ? 'disabled' : ''}
-                    onClick={!isConnected||isSendingMsg ? undefined : () => { setShowEmojiPicker(!showEmojiPicker); }}
+                    className={!currentAccount||isSendingMsg ? 'disabled' : ''}
+                    onClick={!currentAccount||isSendingMsg ? undefined : () => { setShowEmojiPicker(!showEmojiPicker); }}
                  >
                     😜
                 </div>

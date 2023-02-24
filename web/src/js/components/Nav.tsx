@@ -10,10 +10,9 @@ import imgLogo from '../../img/logo.png';
 type NavProps = {
     menuPath?: string,
     menuTitle?: string | ReactNode,
-    onConnectModalClose?: () => void,
 }
 
-export function Nav({ menuPath, menuTitle, onConnectModalClose }: NavProps)
+export function Nav({ menuPath, menuTitle }: NavProps)
 {
     const { currentAccount, disconnect } = useWalletKit();
     const [_notify, _network, connectModalOpen, setConnectModalOpen]: any = useOutletContext();
@@ -21,7 +20,7 @@ export function Nav({ menuPath, menuTitle, onConnectModalClose }: NavProps)
     return <>
         <ConnectModal
             open={connectModalOpen}
-            onClose={() => { setConnectModalOpen(false); onConnectModalClose && onConnectModalClose(); }}
+            onClose={() => { setConnectModalOpen(false); }}
         />
         <header id='nav' className='header'>
 
