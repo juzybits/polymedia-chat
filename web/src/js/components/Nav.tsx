@@ -28,11 +28,12 @@ export function Nav({ menuPath, menuTitle }: NavProps)
                 { menuPath && <span><Link to={menuPath}>{menuTitle||'MENU'}</Link></span> }
             </div>
 
-            <div id='nav-btn-title' className=''>
+            <div id='nav-title'>
             <span>
                 <Link to='/'>
                     <img id='home-logo' src={imgLogo} alt='Polymedia logo' />
-                    POLYMEDIA
+                    <span id='nav-title-polymedia'>POLYMEDIA</span>
+                    <span id='nav-title-chat'>&nbsp;CHAT</span>
                 </Link>
             </span>
             </div>

@@ -21,9 +21,17 @@
         font-size: 1.1em;
         text-align: right;
     }
-    #nav-btn-title {
+    #nav-title {
         font-size: 1.3em;
-        img {
+        #nav-title-chat {
+            @media(max-width: 540px) {
+                display: none;
+            }
+        }
+        #nav-title-polymedia {
+            @media(max-width: 440px) {
+                display: none;
+            }
         }
     }
     #nav-btn-connect {
