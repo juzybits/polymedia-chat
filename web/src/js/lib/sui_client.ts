@@ -1,12 +1,12 @@
 /// Helpers to parse/fetch/publish `polymedia_chat::item::Item` objects on the Sui network
 
-import { JsonRpcProvider, Network } from '@mysten/sui.js';
+import { JsonRpcProvider, devnetConnection } from '@mysten/sui.js';
 
-const RPC_DEVNET = new JsonRpcProvider(Network.DEVNET);
+const RPC_DEVNET = new JsonRpcProvider(devnetConnection);
 const POLYMEDIA_PACKAGE_DEVNET = '0x5574a7935223dbb3eb7c07a76a243ae980bd1cf5';
-const SUI_FANS_CHAT_ID_DEVNET = '0x0e6c7c90fd74711cff4a4a4ba9525c0debe980c6';
+const SUI_FANS_CHAT_ID_DEVNET = '0x9b9c69c33688cd9c4ca33bf91bd5b69849d82de9';
 
-const RPC_TESTNET = new JsonRpcProvider('https://fullnode.testnet.sui.io:443');
+const RPC_TESTNET = new JsonRpcProvider(devnetConnection);
 const POLYMEDIA_PACKAGE_TESTNET = '0x123';
 const SUI_FANS_CHAT_ID_TESTNET = '0x456';
 

@@ -8,6 +8,8 @@ import { shortenAddress, getAddressColor } from '../lib/addresses';
 import { isTrustedDomain } from '../lib/domains';
 
 const REGEX_ADDRESS = new RegExp(/0x[a-fA-F0-9]{40}/g);
+// TODO: support image URLs like https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9G...
+// TODO: support image URLs like data:image/jpeg;base64,/9j/...
 const REGEX_IMAGE = new RegExp(/[.=/](apng|avif|gif|jpeg|jpg|png|svg|webp)[^a-zA-Z]?/);
 const REGEX_URL = new RegExp(/(?:https?|ipfs):\/\/[^\s\/$.?#].[^\s]*[^\s.,|]+/ig);
 // const REGEX_TWEET = new RegExp('https://twitter.com/[^/]+/status/.+');
