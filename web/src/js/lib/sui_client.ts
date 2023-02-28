@@ -1,14 +1,22 @@
 /// Helpers to parse/fetch/publish `polymedia_chat::item::Item` objects on the Sui network
 
-import { JsonRpcProvider, devnetConnection } from '@mysten/sui.js';
+import { Connection, JsonRpcProvider } from '@mysten/sui.js';
 
-const RPC_DEVNET = new JsonRpcProvider(devnetConnection);
 const POLYMEDIA_PACKAGE_DEVNET = '0x5574a7935223dbb3eb7c07a76a243ae980bd1cf5';
 const SUI_FANS_CHAT_ID_DEVNET = '0x9b9c69c33688cd9c4ca33bf91bd5b69849d82de9';
 
-const RPC_TESTNET = new JsonRpcProvider(devnetConnection);
 const POLYMEDIA_PACKAGE_TESTNET = '0x123';
 const SUI_FANS_CHAT_ID_TESTNET = '0x456';
+
+const RPC_DEVNET = new JsonRpcProvider(new Connection({
+  fullnode: 'https://fullnode.devnet.vincagame.com:443',
+  faucet: 'https://faucet.devnet.sui.io/gas',
+}));
+
+const RPC_TESTNET = new JsonRpcProvider(new Connection({
+  fullnode: 'https://fullnode.testnet.sui.io:443/',
+  faucet: 'https://faucet.testnet.sui.io/gas',
+}));
 
 export function getConfig(network: string): [JsonRpcProvider, string, string] {
     switch (network) {

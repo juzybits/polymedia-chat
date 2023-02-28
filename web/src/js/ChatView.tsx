@@ -16,11 +16,12 @@ import verifiedBadge from '../img/verified_badge.svg';
 
 // Messages from these addresses will be hidden from everyone except from their authors
 const bannedAddresses: string[] = [
-    '0x4f7b3694ca43093a669e46209e9a15ce0bcccab8'
+    '0x4f7b3694ca43093a669e46209e9a15ce0bcccab8',
 ];
 
 const verifiedAddresses: string[] = [
-    '0x37e19fe9f6dde6161e2e042505586231c1e055c4'
+    '0x37e19fe9f6dde6161e2e042505586231c1e055c4',
+    '0x4b09ce9fd4001a21d321b819c40183fa506ac5cc',
 ];
 
 export const ChatView: React.FC = () =>
