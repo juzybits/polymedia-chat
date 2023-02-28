@@ -59,7 +59,9 @@ export function ChatNew() {
                 console.debug('[onSubmitCreateChat] Success:', resp);
                 const newObjId = effects.created[0].reference.objectId;
                 notify('SUCCESS!');
-                navigate('/' + newObjId);
+                navigate('/' + newObjId, {
+                    state: { isNewChat: true }
+                });
             } else {
                 setError(effects.status.error);
             }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, SyntheticEvent } from 'react';
-import { Link, useParams, useOutletContext } from 'react-router-dom';
+import { Link, useLocation, useParams, useOutletContext } from 'react-router-dom';
 import { GetObjectDataResponse, SuiAddress, SuiObject, SuiMoveObject } from '@mysten/sui.js';
 import { useWalletKit } from '@mysten/wallet-kit';
 import emojiData from '@emoji-mart/data';
@@ -20,8 +20,7 @@ const bannedAddresses: string[] = [
 ];
 
 const verifiedAddresses: string[] = [
-    '0x37e19fe9f6dde6161e2e042505586231c1e055c4',
-    '0x4b09ce9fd4001a21d321b819c40183fa506ac5cc',
+    '0x0e3a1382a557072bf3f0ae2c288e2c933b41efb6',
 ];
 
 export const ChatView: React.FC = () =>
@@ -133,6 +132,7 @@ export const ChatView: React.FC = () =>
         }
     }, [messages]);
 
+    const location = useLocation();
     const reloadChat = () => {
         if (refIsScrolledUp.current || refIsReloadInProgress.current) {
             return;
@@ -141,8 +141,14 @@ export const ChatView: React.FC = () =>
         rpc.getObject(chatId)
         .then((resp: GetObjectDataResponse) => {
             if (resp.status != 'Exists') {
-                setError(`[reloadChat] Object does not exist. Status: ${resp.status}`);
-                return;
+                if (location.state && location.state.isNewChat) {
+                    // Sometimes there is lag after the chat is created, so let's retry
+                    setTimeout(reloadChat, 1000);
+                    return;
+                } else {
+                    setError(`[reloadChat] Object does not exist. Status: ${resp.status}`);
+                    return;
+                }
             }
             const objData = (resp.details as SuiObject).data as SuiMoveObject;
             if (!isExpectedType(objData.type, packageId, 'chat', 'ChatRoom')) {
@@ -218,7 +224,7 @@ export const ChatView: React.FC = () =>
             // @ts-ignore
             const effects = resp.effects.effects || resp.effects; // Suiet || Sui|Ethos
             if (effects.status.status == 'success') {
-                reloadChat();
+                setTimeout(reloadChat, 1000);
                 setChatInputValue('');
             } else {
                 setError(`[onSubmitAddMessage] Response error: ${effects.status.error}`);
