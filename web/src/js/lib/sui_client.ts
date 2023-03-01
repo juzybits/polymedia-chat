@@ -9,7 +9,7 @@ const POLYMEDIA_PACKAGE_TESTNET = '0x123';
 const SUI_FANS_CHAT_ID_TESTNET = '0x456';
 
 const RPC_DEVNET = new JsonRpcProvider(new Connection({
-  fullnode: 'https://fullnode.devnet.vincagame.com:443',
+  fullnode: 'https://node.shinami.com/api/v1/01c15cf6a15cbe4ac73d0037e4a70ca0',
   faucet: 'https://faucet.devnet.sui.io/gas',
 }));
 
