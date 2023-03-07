@@ -1,12 +1,13 @@
 {
-    "name": "polymedia-chat",
-    "author": "juzybits <https://twitter.com/juzybits>",
+    "name": "@polymedia/chat-web",
+    "author": "@juzybits (https://polymedia.app)",
     "private": true,
     "dependencies": {
         "@emoji-mart/data": "1",
         "@emoji-mart/react": "1",
         "@mysten/sui.js": "latest",
         "@mysten/wallet-kit": "latest",
+        "@polymedia/profile-sdk": "latest",
         "emoji-mart": "5",
         "react": "18",
         "react-dom": "18",
