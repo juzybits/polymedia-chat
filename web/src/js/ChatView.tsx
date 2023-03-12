@@ -10,7 +10,7 @@ import { Nav } from './components/Nav';
 import { parseMagicText, MagicAddress } from './components/MagicText';
 import { timeAgo } from './lib/common';
 import { getAddressColor, getAddressEmoji } from './lib/addresses';
-import { isExpectedType, getConfig } from './lib/sui_client';
+import { getConfig } from './lib/sui_client';
 import '../css/Chat.less';
 import verifiedBadge from '../img/verified_badge.svg';
 
@@ -32,8 +32,7 @@ export const ChatView: React.FC = () =>
     const refHasCurrentAccount = useRef(false);
     /* Polymedia Profile */
     const profileManager = new ProfileManager({network});
-    const [profiles, setProfiles] = useState( new Map<SuiAddress, PolymediaProfile|null>() );
-    const refProfiles = useRef(profiles);
+    const refProfiles = useRef( new Map<SuiAddress, PolymediaProfile|null>() );
     /* Chat messages */
     const [chatObj, setChatObj] = useState<SuiMoveObject|null>(null);
     const [messages, setMessages] = useState<object[]>([]);
@@ -85,10 +84,10 @@ export const ChatView: React.FC = () =>
         refUserAddr.current = currentAccount;
         localStorage.setItem('polymedia.userAddr', currentAccount)
         // Preload the current address profile so it's ready when/if the user talks
-        if (!profiles.has(currentAccount)) {
-            const newProfiles = new Set(profiles.keys());
-            newProfiles.add(currentAccount);
-            fetchProfiles(newProfiles);
+        if (!refProfiles.current.has(currentAccount)) {
+            const lookupAddresses = new Set(refProfiles.current.keys());
+            lookupAddresses.add(currentAccount);
+            fetchProfiles(lookupAddresses);
         }
         focusChatInput();
     }, [currentAccount]);
@@ -107,7 +106,6 @@ export const ChatView: React.FC = () =>
         }
         profileManager.getProfiles({lookupAddresses: authorAddresses})
         .then(newProfiles => {
-            setProfiles(newProfiles);
             refProfiles.current = newProfiles;
         })
         .catch((error: any) => {
@@ -151,45 +149,45 @@ export const ChatView: React.FC = () =>
                 }
             }
             const objData = (resp.details as SuiObject).data as SuiMoveObject;
-            if (!isExpectedType(objData.type, packageId, 'chat', 'ChatRoom')) {
-                setError(`[reloadChat] Wrong object type: ${objData.type}`);
-            } else {
-                setError('');
-                setChatObj(objData);
-                const userIsBanned = refUserAddr.current && bannedAddresses.includes(refUserAddr.current);
-                const newMsgs = objData.fields.messages;
-                const formattedMessages = [];
-                const authorAddresses = new Set<string>();
-                // Order messages
-                const idx = Number(objData.fields.last_index);
-                const sortedMessages = [ ...newMsgs.slice(idx+1), ...newMsgs.slice(0, idx+1) ];
-                for (const msg of sortedMessages) {
-                    // Skip messages from banned addresses (unless the user is banned)
-                    if (!userIsBanned && bannedAddresses.includes(msg.fields.author))
-                        continue;
-                    // Extract the message fields
-                    formattedMessages.push(msg.fields);
-                    // Collect user addresses
-                    authorAddresses.add(msg.fields.author);
-                }
-
-                // Teaser for Polymedia Profile
-                if (refHasCurrentAccount.current && !refUserClosedTeaser.current) {
-                    const isMissingProfile = refUserAddr.current && refProfiles.current.get(refUserAddr.current) === null;
-                    isMissingProfile && formattedMessages.push({
-                        author: '0x0000000000000000000000000000000000000000',
-                        text: `Wake up ${refUserAddr.current}`,
-                        timestamp: String(Date.now()),
-                    });
-                }
-
-                // Update state
-                setMessages(formattedMessages);
-                fetchProfiles(authorAddresses);
-
-                // Tweets
-                // twttr && twttr.widgets.load(refMessageList.current);
+            // if (!isExpectedType(objData.type, packageId, 'vector_chat', 'ChatRoom')) {
+            //     setError(`[reloadChat] Wrong object type: ${objData.type}`);
+            // } else {
+            setError('');
+            setChatObj(objData);
+            const userIsBanned = refUserAddr.current && bannedAddresses.includes(refUserAddr.current);
+            const newMsgs = objData.fields.messages;
+            const formattedMessages = [];
+            const authorAddresses = new Set<string>();
+            // Order messages
+            const idx = Number(objData.fields.last_index);
+            const sortedMessages = [ ...newMsgs.slice(idx+1), ...newMsgs.slice(0, idx+1) ];
+            for (const msg of sortedMessages) {
+                // Skip messages from banned addresses (unless the user is banned)
+                if (!userIsBanned && bannedAddresses.includes(msg.fields.author))
+                    continue;
+                // Extract the message fields
+                formattedMessages.push(msg.fields);
+                // Collect user addresses
+                authorAddresses.add(msg.fields.author);
             }
+
+            // Teaser for Polymedia Profile
+            if (refHasCurrentAccount.current && !refUserClosedTeaser.current) {
+                const isMissingProfile = refUserAddr.current && refProfiles.current.get(refUserAddr.current) === null;
+                isMissingProfile && formattedMessages.push({
+                    author: '0x0000000000000000000000000000000000000000',
+                    text: `Wake up ${refUserAddr.current}`,
+                    timestamp: String(Date.now()),
+                });
+            }
+
+            // Update state
+            setMessages(formattedMessages);
+            fetchProfiles(authorAddresses);
+
+            // Tweets
+            // twttr && twttr.widgets.load(refMessageList.current);
+            // }
         })
         .catch(err => {
             setError(`[reloadChat] RPC error: ${err.message}`)
@@ -346,7 +344,7 @@ export const ChatView: React.FC = () =>
                     url: 'https://i.imgur.com/au3wKTL.jpg',
                     owner: msg.author,
                 } as PolymediaProfile)
-                : profiles.get(msg.author);
+                : refProfiles.current.get(msg.author);
             let teaserButtons = <></>;
             if (isPolymediaTeaser) {
                 teaserButtons = <div className='teaser-buttons'>
@@ -367,7 +365,7 @@ export const ChatView: React.FC = () =>
             } else {
                 pfpStyles.backgroundColor = getAddressColor(msg.author, 12);
             }
-            const magicText = parseMagicText(profiles, msg.text, copyAddress);
+            const magicText = parseMagicText(refProfiles.current, msg.text, copyAddress);
             const isVerified = verifiedAddresses.includes(msg.author);
             return <div key={idx} className={`message ${currentAccount && msg.text.includes(currentAccount) ? 'highlight' : ''}`}>
                 <div className='message-pfp-wrap'>
