@@ -2,7 +2,7 @@ import { useEffect, useState, SyntheticEvent } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { useWalletKit } from '@mysten/wallet-kit';
 
-import { getConfig } from './lib/sui_client';
+import { getConfig } from './lib/chat';
 import { Nav } from './components/Nav';
 import '../css/New.less';
 

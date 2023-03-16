@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useOutletContext } from 'react-router-dom';
 import { Nav } from './components/Nav';
-import { getConfig } from './lib/sui_client';
+import { getConfig } from './lib/chat';
 import '../css/Menu.less';
 
 export function ChatMenu() {

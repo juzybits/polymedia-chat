@@ -10,7 +10,7 @@ import { Nav } from './components/Nav';
 import { parseMagicText, MagicAddress } from './components/MagicText';
 import { timeAgo } from './lib/common';
 import { getAddressColor, getAddressEmoji } from './lib/addresses';
-import { getConfig } from './lib/sui_client';
+import { getConfig } from './lib/chat';
 import '../css/Chat.less';
 import verifiedBadge from '../img/verified_badge.svg';
 
