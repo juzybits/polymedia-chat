@@ -9,11 +9,13 @@ const POLYMEDIA_PACKAGE_TESTNET = '0x123';
 const SUI_FANS_CHAT_ID_TESTNET = '0x456';
 
 const RPC_DEVNET = new JsonRpcProvider(new Connection({
-  fullnode: 'https://node.shinami.com/api/v1/186668da9c42b69678719e785ed644a2',
+  // fullnode: 'https://node.shinami.com/api/v1/186668da9c42b69678719e785ed644a2',
+  fullnode: 'https://fullnode.devnet.sui.io:443/',
   faucet: 'https://faucet.devnet.sui.io/gas',
 }));
 
 const RPC_TESTNET = new JsonRpcProvider(new Connection({
+  // fullnode: '...',
   fullnode: 'https://fullnode.testnet.sui.io:443/',
   faucet: 'https://faucet.testnet.sui.io/gas',
 }));
