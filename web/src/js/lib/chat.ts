@@ -4,9 +4,11 @@ import { Connection, JsonRpcProvider } from '@mysten/sui.js';
 
 const POLYMEDIA_PACKAGE_DEVNET = '0xd39e9e9728d5c4205348fd056fb0158591aff1f0';
 const SUI_FANS_CHAT_ID_DEVNET = '0x7eb30d77b25424f575b26802aa885ae810956188';
+const SUI_FANS_CHAT_ID_DEVNET_SPECIAL = '0xbb4304e621c2164bc722e105590eb6374c334e16';
 
 const POLYMEDIA_PACKAGE_TESTNET = '0x123';
 const SUI_FANS_CHAT_ID_TESTNET = '0x456';
+const SUI_FANS_CHAT_ID_TESTNET_SPECIAL = '0x789';
 
 const FAUCET_DEVNET = 'https://faucet.devnet.sui.io/gas';
 const FAUCET_TESTNET = 'https://faucet.testnet.sui.io/gas';
@@ -40,6 +42,7 @@ type Config = {
   rpcWebsocket: JsonRpcProvider;
   polymediaPackageId: string;
   suiFansChatId: string;
+  suiFansChatIdSpecial: string;
 };
 
 export function getConfig(network: string): Config {
@@ -50,6 +53,7 @@ export function getConfig(network: string): Config {
                 rpcWebsocket: RPC_DEVNET_WEBSOCKET,
                 polymediaPackageId: POLYMEDIA_PACKAGE_DEVNET,
                 suiFansChatId: SUI_FANS_CHAT_ID_DEVNET,
+                suiFansChatIdSpecial: SUI_FANS_CHAT_ID_DEVNET_SPECIAL,
             };
         case 'testnet':
             return {
@@ -57,6 +61,7 @@ export function getConfig(network: string): Config {
                 rpcWebsocket: RPC_TESTNET_WEBSOCKET,
                 polymediaPackageId: POLYMEDIA_PACKAGE_TESTNET,
                 suiFansChatId: SUI_FANS_CHAT_ID_TESTNET,
+                suiFansChatIdSpecial: SUI_FANS_CHAT_ID_TESTNET_SPECIAL,
             };
         default:
             throw new Error('Invalid network: ' + network);

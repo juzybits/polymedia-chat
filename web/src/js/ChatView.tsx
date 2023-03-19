@@ -34,7 +34,7 @@ export const ChatView: React.FC = () =>
 {
     /* Global state */
     const [notify, network, connectModalOpen, setConnectModalOpen]: any = useOutletContext();
-    const { rpc, polymediaPackageId, suiFansChatId } = getConfig(network);
+    const { rpc, polymediaPackageId, suiFansChatId, suiFansChatIdSpecial } = getConfig(network);
     const { currentAccount, signAndExecuteTransaction } = useWalletKit();
     const refHasCurrentAccount = useRef(false);
     /* Polymedia Profile */
@@ -62,11 +62,25 @@ export const ChatView: React.FC = () =>
 
     const refUserFingerprint = useRef('');
 
+    /* User moderation */
+    const calcUserFingerprint = async () => {
+        refUserFingerprint.current = await fpPromise
+            .then(fp => fp.get())
+            .then(result => result.visitorId);
+        if (bannedFingerprints.includes(refUserFingerprint.current)) {
+            localStorage.setItem('polymedia.special', '1');
+        }
+    };
+    const isBannedUser = () => {
+        return (localStorage.getItem('polymedia.special') === '1')
+            || (refUserAddr.current && bannedAddresses.includes(refUserAddr.current));
+    };
+
     // Handle '/@sui-fans' alias
     let chatId = useParams().uid || '';
     const chatAlias = chatId;
     if (chatId == '@sui-fans') {
-        chatId = suiFansChatId;
+        chatId = isBannedUser() ? suiFansChatIdSpecial : suiFansChatId;
     }
 
     /// Handle 1st render
@@ -83,15 +97,6 @@ export const ChatView: React.FC = () =>
     }, []);
 
     /* Addresses and Polymedia Profile */
-
-    const calcUserFingerprint = async () => {
-        refUserFingerprint.current = await fpPromise
-            .then(fp => fp.get())
-            .then(result => FingerprintJS.hashComponents(result.components));
-        if (bannedFingerprints.includes(refUserFingerprint.current)) {
-            localStorage.setItem('polymedia.special', '1');
-        }
-    };
 
     // Handle wallet connect/disconnect
     useEffect(() => {
@@ -173,8 +178,7 @@ export const ChatView: React.FC = () =>
             // } else {
             setError('');
             setChatObj(objData);
-            const userIsBanned = (localStorage.getItem('polymedia.special') === '1')
-                || (refUserAddr.current && bannedAddresses.includes(refUserAddr.current));
+            const userIsBanned = isBannedUser();
             const newMsgs = objData.fields.messages;
             const formattedMessages = [];
             const authorAddresses = new Set<string>();
@@ -230,7 +234,7 @@ export const ChatView: React.FC = () =>
         // await preapproveTxns();
         console.debug(`[onSubmitAddMessage] Calling chat::add_message on package: ${polymediaPackageId}`);
         let msgText = getChatInputValue();
-        if ( localStorage.getItem('polymedia.special') === '1' ) {
+        if ( isBannedUser() ) {
             msgText += '\u200B';
         }
         signAndExecuteTransaction({
