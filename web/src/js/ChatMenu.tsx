@@ -9,7 +9,7 @@ export function ChatMenu() {
     const [error, setError] = useState('');
 
     const [_notify, network] = useOutletContext<string>();
-    const [rpc, _packageId, suiFansChatId] = getConfig(network);
+    const { rpc, suiFansChatId } = getConfig(network);
 
     let chatId = useParams().uid || '';
     const chatAlias = chatId;

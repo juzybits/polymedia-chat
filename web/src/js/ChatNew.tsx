@@ -16,7 +16,7 @@ export function ChatNew() {
     const [error, setError] = useState('');
 
     const [notify, network, _connectModalOpen, setConnectModalOpen]: any = useOutletContext();
-    const [_rpc, packageId, _suiFansChatId] = getConfig(network);
+    const { polymediaPackageId } = getConfig(network);
     const { isConnected, signAndExecuteTransaction } = useWalletKit();
 
     /* Effects */
@@ -35,11 +35,11 @@ export function ChatNew() {
             return;
         }
         setWaiting(true);
-        console.debug(`[onSubmitCreateChat] Calling item::create on package: ${packageId}`);
+        console.debug(`[onSubmitCreateChat] Calling item::create on package: ${polymediaPackageId}`);
         signAndExecuteTransaction({
             kind: 'moveCall',
             data: {
-                packageObjectId: packageId,
+                packageObjectId: polymediaPackageId,
                 module: 'chat',
                 function: 'create',
                 typeArguments: [],

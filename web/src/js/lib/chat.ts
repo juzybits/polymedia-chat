@@ -8,28 +8,62 @@ const SUI_FANS_CHAT_ID_DEVNET = '0x7eb30d77b25424f575b26802aa885ae810956188';
 const POLYMEDIA_PACKAGE_TESTNET = '0x123';
 const SUI_FANS_CHAT_ID_TESTNET = '0x456';
 
+const FAUCET_DEVNET = 'https://faucet.devnet.sui.io/gas';
+const FAUCET_TESTNET = 'https://faucet.testnet.sui.io/gas';
+
 const RPC_DEVNET = new JsonRpcProvider(new Connection({
   // fullnode: 'https://node.shinami.com/api/v1/186668da9c42b69678719e785ed644a2',
   fullnode: 'https://fullnode.devnet.sui.io:443/',
-  faucet: 'https://faucet.devnet.sui.io/gas',
+  faucet: FAUCET_DEVNET,
 }));
 
 const RPC_TESTNET = new JsonRpcProvider(new Connection({
   // fullnode: '...',
   fullnode: 'https://fullnode.testnet.sui.io:443/',
-  faucet: 'https://faucet.testnet.sui.io/gas',
+  faucet: FAUCET_TESTNET,
 }));
 
-export function getConfig(network: string): [JsonRpcProvider, string, string] {
+const RPC_DEVNET_WEBSOCKET = new JsonRpcProvider(new Connection({
+    // fullnode: 'wss://node.shinami.com/ws/v1/186668da9c42b69678719e785ed644a2',
+    fullnode: 'https://fullnode.devnet.sui.io:443/',
+    faucet: FAUCET_DEVNET,
+}));
+
+const RPC_TESTNET_WEBSOCKET = new JsonRpcProvider(new Connection({ // TODO
+    fullnode: '...',
+    faucet: FAUCET_TESTNET,
+}));
+
+
+type Config = {
+  rpc: JsonRpcProvider;
+  rpcWebsocket: JsonRpcProvider;
+  polymediaPackageId: string;
+  suiFansChatId: string;
+};
+
+export function getConfig(network: string): Config {
     switch (network) {
         case 'devnet':
-            return [RPC_DEVNET, POLYMEDIA_PACKAGE_DEVNET, SUI_FANS_CHAT_ID_DEVNET ];
+            return {
+                rpc: RPC_DEVNET,
+                rpcWebsocket: RPC_DEVNET_WEBSOCKET,
+                polymediaPackageId: POLYMEDIA_PACKAGE_DEVNET,
+                suiFansChatId: SUI_FANS_CHAT_ID_DEVNET,
+            };
         case 'testnet':
-            return [RPC_TESTNET, POLYMEDIA_PACKAGE_TESTNET, SUI_FANS_CHAT_ID_TESTNET ];
+            return {
+                rpc: RPC_TESTNET,
+                rpcWebsocket: RPC_TESTNET_WEBSOCKET,
+                polymediaPackageId: POLYMEDIA_PACKAGE_TESTNET,
+                suiFansChatId: SUI_FANS_CHAT_ID_TESTNET,
+            };
         default:
             throw new Error('Invalid network: ' + network);
     }
 }
+
+/*
 
 export function isExpectedType(type: string, expectPackage: string, expectModule: string, expectType: string): boolean {
     // Handle missing leading zeros ('0x00ab::x::Y' is returned as '0xab::x::Y' by the RPC)
@@ -38,7 +72,6 @@ export function isExpectedType(type: string, expectPackage: string, expectModule
     return !!type.match(typeRegex);
 }
 
-/*
 /// Represents a `polymedia_chat::item::Item` Sui object
 export type Item = {
     id: string, // The Sui object UID
@@ -82,7 +115,7 @@ function parseItem(resp: GetObjectDataResponse): Item|null
 export async function getItems(objectIds: string[]): Promise<Item[]>
 {
     console.debug(`[getItem] Fetching ${objectIds.length} objects`);
-    return rpc.getObjectBatch(objectIds)
+    return rpcPrivate.getObjectBatch(objectIds)
         .then((objectsData: GetObjectDataResponse[]) => {
             return objectsData.reduce((items: Item[], resp: GetObjectDataResponse) => {
                 const item = parseItem(resp);

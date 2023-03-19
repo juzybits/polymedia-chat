@@ -34,7 +34,7 @@ export const ChatView: React.FC = () =>
 {
     /* Global state */
     const [notify, network, connectModalOpen, setConnectModalOpen]: any = useOutletContext();
-    const [rpc, packageId, suiFansChatId] = getConfig(network);
+    const { rpc, polymediaPackageId, suiFansChatId } = getConfig(network);
     const { currentAccount, signAndExecuteTransaction } = useWalletKit();
     const refHasCurrentAccount = useRef(false);
     /* Polymedia Profile */
@@ -168,7 +168,7 @@ export const ChatView: React.FC = () =>
                 }
             }
             const objData = (resp.details as SuiObject).data as SuiMoveObject;
-            // if (!isExpectedType(objData.type, packageId, 'vector_chat', 'ChatRoom')) {
+            // if (!isExpectedType(objData.type, polymediaPackageId, 'vector_chat', 'ChatRoom')) {
             //     setError(`[reloadChat] Wrong object type: ${objData.type}`);
             // } else {
             setError('');
@@ -228,7 +228,7 @@ export const ChatView: React.FC = () =>
         setError('');
         setIsSendingMsg(true);
         // await preapproveTxns();
-        console.debug(`[onSubmitAddMessage] Calling chat::add_message on package: ${packageId}`);
+        console.debug(`[onSubmitAddMessage] Calling chat::add_message on package: ${polymediaPackageId}`);
         let msgText = getChatInputValue();
         if ( localStorage.getItem('polymedia.special') === '1' ) {
             msgText += '\u200B';
@@ -236,7 +236,7 @@ export const ChatView: React.FC = () =>
         signAndExecuteTransaction({
             kind: 'moveCall',
             data: {
-                packageObjectId: packageId,
+                packageObjectId: polymediaPackageId,
                 module: 'chat',
                 function: 'add_message',
                 typeArguments: [],
@@ -491,7 +491,7 @@ const onChangeChatInput = (e: SyntheticEvent) => {
 /*
 const preapproveTxns = useCallback(async () => {
     await wallet?.requestPreapproval({
-        packageObjectId: packageId,
+        packageObjectId: polymediaPackageId,
         module: 'chat',
         function: 'add_message',
         objectId: chatId,
