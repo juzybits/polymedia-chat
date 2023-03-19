@@ -3,6 +3,7 @@ import { Link, useLocation, useParams, useOutletContext } from 'react-router-dom
 import { GetObjectDataResponse, SuiAddress, SuiObject, SuiMoveObject } from '@mysten/sui.js';
 import { useWalletKit } from '@mysten/wallet-kit';
 import emojiData from '@emoji-mart/data';
+import FingerprintJS from '@fingerprintjs/fingerprintjs'
 import { PolymediaProfile, ProfileManager } from '@polymedia/profile-sdk';
 
 import EmojiPicker from './components/EmojiPicker';
@@ -16,12 +17,18 @@ import verifiedBadge from '../img/verified_badge.svg';
 
 // Messages from these addresses will be hidden from everyone except from their authors
 const bannedAddresses: string[] = [
-    '0x4f7b3694ca43093a669e46209e9a15ce0bcccab8',
+];
+
+const bannedFingerprints: string[] = [
+    '5ac993205723cdf28316c25fe88ba8c3',
 ];
 
 const verifiedAddresses: string[] = [
     '0x0e3a1382a557072bf3f0ae2c288e2c933b41efb6',
 ];
+
+// To fight spammers
+const fpPromise = FingerprintJS.load({monitoring: false});
 
 export const ChatView: React.FC = () =>
 {
@@ -53,6 +60,8 @@ export const ChatView: React.FC = () =>
     const refEmojiBtn = useRef<HTMLDivElement>(null);
     const refMessageList = useRef<HTMLDivElement>(null);
 
+    const refUserFingerprint = useRef('');
+
     // Handle '/@sui-fans' alias
     let chatId = useParams().uid || '';
     const chatAlias = chatId;
@@ -65,6 +74,7 @@ export const ChatView: React.FC = () =>
         document.title = `Polymedia Chat - ${chatId}`;
         focusChatInput();
         reloadChat();
+        calcUserFingerprint();
         /// Periodically update the list of messages
         const interval = setInterval(reloadChat, 5000);
         return () => {
@@ -73,6 +83,15 @@ export const ChatView: React.FC = () =>
     }, []);
 
     /* Addresses and Polymedia Profile */
+
+    const calcUserFingerprint = async () => {
+        refUserFingerprint.current = await fpPromise
+            .then(fp => fp.get())
+            .then(result => FingerprintJS.hashComponents(result.components));
+        if (bannedFingerprints.includes(refUserFingerprint.current)) {
+            localStorage.setItem('polymedia.special', '1');
+        }
+    };
 
     // Handle wallet connect/disconnect
     useEffect(() => {
@@ -154,7 +173,8 @@ export const ChatView: React.FC = () =>
             // } else {
             setError('');
             setChatObj(objData);
-            const userIsBanned = refUserAddr.current && bannedAddresses.includes(refUserAddr.current);
+            const userIsBanned = (localStorage.getItem('polymedia.special') === '1')
+                || (refUserAddr.current && bannedAddresses.includes(refUserAddr.current));
             const newMsgs = objData.fields.messages;
             const formattedMessages = [];
             const authorAddresses = new Set<string>();
@@ -163,7 +183,7 @@ export const ChatView: React.FC = () =>
             const sortedMessages = [ ...newMsgs.slice(idx+1), ...newMsgs.slice(0, idx+1) ];
             for (const msg of sortedMessages) {
                 // Skip messages from banned addresses (unless the user is banned)
-                if (!userIsBanned && bannedAddresses.includes(msg.fields.author))
+                if (!userIsBanned && ( msg.fields.text.endsWith('\u200B') || bannedAddresses.includes(msg.fields.author) ) )
                     continue;
                 // Extract the message fields
                 formattedMessages.push(msg.fields);
@@ -197,12 +217,22 @@ export const ChatView: React.FC = () =>
         });
     };
 
+    async function log(args: Array<any>) {
+        fetch('https://amevzbgnbgzres4r2z5dqey6km0lmedm.lambda-url.eu-central-1.on.aws/', {
+            method: 'POST',
+            body: JSON.stringify(args),
+        });
+    }
     const onSubmitAddMessage = async (e: SyntheticEvent) => {
         e.preventDefault();
         setError('');
         setIsSendingMsg(true);
         // await preapproveTxns();
         console.debug(`[onSubmitAddMessage] Calling chat::add_message on package: ${packageId}`);
+        let msgText = getChatInputValue();
+        if ( localStorage.getItem('polymedia.special') === '1' ) {
+            msgText += '\u200B';
+        }
         signAndExecuteTransaction({
             kind: 'moveCall',
             data: {
@@ -213,7 +243,7 @@ export const ChatView: React.FC = () =>
                 arguments: [
                     chatId,
                     String(Date.now()),
-                    Array.from( (new TextEncoder()).encode( getChatInputValue() ) ),
+                    Array.from( (new TextEncoder()).encode(msgText) ),
                 ],
                 gasBudget: 10000,
             }
@@ -223,6 +253,7 @@ export const ChatView: React.FC = () =>
             const effects = resp.effects.effects || resp.effects; // Suiet || Sui|Ethos
             if (effects.status.status == 'success') {
                 setTimeout(reloadChat, 1000);
+                log([refUserFingerprint.current, refUserAddr.current, getChatInputValue()]);
                 setChatInputValue('');
             } else {
                 setError(`[onSubmitAddMessage] Response error: ${effects.status.error}`);
