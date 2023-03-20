@@ -16,8 +16,8 @@ import '../css/Chat.less';
 import verifiedBadge from '../img/verified_badge.svg';
 
 const RESUBSCRIBE_ATTEMPT_INTERVAL = 1000; // How often resubscribeToEvents() is called
-const RESUBSCRIBE_MINIMUM_ELAPSED_TIME = 22000; // How often resubscribeToEvents() actually resubscribe
-const PULL_RECENT_INTERVAL = 12000; // How often to pull recent messages
+const RESUBSCRIBE_MINIMUM_ELAPSED_TIME = 21000; // How often resubscribeToEvents() actually resubscribe
+const PULL_RECENT_INTERVAL = 15000; // How often to pull recent messages
 const MAX_MESSAGES = 500;
 const SEND_MESSAGE_GAS_BUDGET = 10000;
 
@@ -541,7 +541,7 @@ export const ChatView: React.FC = () =>
 
         <div ref={refMessageList} id='message-list' className='chat-middle' onScroll={onScrollMessageList}>
         {Array.from(messages.values()).map((msg: any, idx) => {
-            const isPolymediaTeaser = msg.author == '0x0000000000000000000000000000000000000000';
+            {/*const isPolymediaTeaser = msg.author == '0x0000000000000000000000000000000000000000';
             const profile = isPolymediaTeaser
                 ? ({
                     name: 'The Professor',
@@ -559,7 +559,8 @@ export const ChatView: React.FC = () =>
                         // refUserClosedTeaser.current=true; setMessages(messages.slice(0, -1)); // MAYBE
                     }}>Stay asleep 😴</button>
                 </div>;
-            }
+            }*/}
+            const profile = refProfiles.current.get(msg.author);
             const hasPfpImage = profile && profile.url;
             let pfpClasses = 'message-pfp';
             const pfpStyles: any = {};
@@ -592,7 +593,7 @@ export const ChatView: React.FC = () =>
                     <div className='message-images'>
                         { magicText.images.map((url, idx) => <a href={url} target='_blank' key={idx}><img src={url}/></a>) }
                     </div>}
-                    {teaserButtons}
+                    {/*{teaserButtons}*/}
                     {/*{magicText.tweets &&
                     <div className='message-tweets'>
                         { magicText.tweets.map((url, idx) => <blockquote className='twitter-tweet' key={idx}><a href={url}></a></blockquote>) }
