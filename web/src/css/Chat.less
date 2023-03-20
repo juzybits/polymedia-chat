@@ -151,13 +151,30 @@
             }
         }
     }
-    .error {
+    .error, #profile-cta {
         padding: var(--padding-rail);
         border-top: var(--panel-border);
         max-height: 14em;
         overflow-y: scroll;
         overflow-wrap: break-word;
         max-height: 8em;
+    }
+    #profile-cta {
+        .cta-close {
+            display: block;
+            text-align: right;
+            margin-top: -0.4em;
+            margin-bottom: -0.6em;
+            margin-right: -0.6em;
+            span {
+                font-size: 0.8em;
+                color: var(--red);
+                &:hover {
+                    cursor: pointer;
+                    color: red;
+                }
+            }
+        }
     }
     em-emoji-picker {
         position: absolute;

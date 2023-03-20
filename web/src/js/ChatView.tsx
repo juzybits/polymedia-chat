@@ -36,7 +36,8 @@ const bannedAddresses: string[] = [
 
 // Shows checkmark
 const verifiedAddresses: string[] = [
-    '0x0e3a1382a557072bf3f0ae2c288e2c933b41efb6',
+    '0x0e3a1382a557072bf3f0ae2c288e2c933b41efb6', // Suiet
+    '0xb8e9b348974f902eb0f555dc410780650b3d990d', // Ethos
 ];
 
 // To fight spammers
@@ -52,7 +53,9 @@ export const ChatView: React.FC = () =>
     const profileManager = new ProfileManager({network});
     const refProfiles = useRef( new Map<SuiAddress, PolymediaProfile|null>() );
     const refHasCurrentAccount = useRef(false);
-    const refUserAddr = useRef(localStorage.getItem('polymedia.userAddr') || ''); // Current user. MAYBE: store an array
+    const refLastUserAddr = useRef(localStorage.getItem('polymedia.userAddr') || ''); // MAYBE: store an array
+    const [showProfileCTA, setShowProfileCTA] = useState(false);
+    const refUserClosedProfileCTA = useRef(false);
     // const refUserClosedTeaser = useRef(false);
     /* Chat messages */
     const [chatObj, setChatObj] = useState<SuiMoveObject|null>(null);
@@ -91,7 +94,7 @@ export const ChatView: React.FC = () =>
     // };
     const isBannedUser = () => {
         return (localStorage.getItem('polymedia.special') === '1')
-            || (refUserAddr.current && bannedAddresses.includes(refUserAddr.current));
+            || (refLastUserAddr.current && bannedAddresses.includes(refLastUserAddr.current));
     };
 
     // Handle '/@sui-fans' alias
@@ -118,12 +121,15 @@ export const ChatView: React.FC = () =>
     useEffect(() => {
         refHasCurrentAccount.current = Boolean(currentAccount);
         if (!currentAccount) {
+            setShowProfileCTA(false);
             return;
         }
-        // Update the current address everywhere
-        refUserAddr.current = currentAccount;
-        localStorage.setItem('polymedia.userAddr', currentAccount)
+        // Update the user address everywhere
+        refLastUserAddr.current = currentAccount;
+        localStorage.setItem('polymedia.userAddr', currentAccount);
+
         focusChatInput();
+        maybeShowProfileCTA();
     }, [currentAccount]);
 
     /// Re-focus on the text input after connecting, once the modal is closed
@@ -133,6 +139,16 @@ export const ChatView: React.FC = () =>
         }
     }, [connectModalOpen]);
 
+    // Show 'create profile' call to action if the user doesn't have a Polymedia Profile
+    const maybeShowProfileCTA = () => {
+        if (refHasCurrentAccount.current
+            && !refUserClosedProfileCTA.current
+            && refProfiles.current.get(refLastUserAddr.current) === null
+        ) {
+            setShowProfileCTA(true);
+        }
+    };
+
     const fetchProfiles = (authors: Set<SuiAddress>) => {
         let newAuthors = new Set<SuiAddress>();
         for (const author of authors) {
@@ -141,8 +157,8 @@ export const ChatView: React.FC = () =>
             }
         }
         // Look up the current address to make sure the profile is ready when the user talks
-        if (currentAccount && !refProfiles.current.has(currentAccount)) {
-            newAuthors.add(currentAccount);
+        if (refLastUserAddr.current && !refProfiles.current.has(refLastUserAddr.current)) {
+            newAuthors.add(refLastUserAddr.current);
         }
         if (!newAuthors.size) {
             console.debug('[fetchProfiles] No new authors. Skipping.');
@@ -157,6 +173,7 @@ export const ChatView: React.FC = () =>
         .then(newProfiles => {
             refProfiles.current = newProfiles;
             setMessages(new Map(refMessages.current));
+            maybeShowProfileCTA();
         })
         .catch((err) => {
             const errMsg = `[fetchProfiles] Request error: ${err.message}`;
@@ -357,10 +374,10 @@ export const ChatView: React.FC = () =>
 
         // Teaser for Polymedia Profile // MAYBE: replace with "create profile" CTA
         // if (refHasCurrentAccount.current && !refUserClosedTeaser.current) {
-        //     const isMissingProfile = refUserAddr.current && refProfiles.current.get(refUserAddr.current) === null;
+        //     const isMissingProfile = refLastUserAddr.current && refProfiles.current.get(refLastUserAddr.current) === null;
         //     isMissingProfile && formattedMessages.push({
         //         author: '0x0000000000000000000000000000000000000000',
-        //         text: `Wake up ${refUserAddr.current}`,
+        //         text: `Wake up ${refLastUserAddr.current}`,
         //         timestamp: String(Date.now()),
         //     });
         // }
@@ -396,7 +413,7 @@ export const ChatView: React.FC = () =>
             // @ts-ignore
             const effects = resp.effects.effects || resp.effects; // Suiet || Sui|Ethos
             if (effects.status.status == 'success') {
-                // log([refUserFingerprint.current, refUserAddr.current, getChatInputValue()]);
+                // log([refUserFingerprint.current, refLastUserAddr.current, getChatInputValue()]);
                 setChatInputValue('');
             } else {
                 const errMsg = `[onSubmitAddMessage] Response error: ${effects.status.error}`;
@@ -523,6 +540,11 @@ export const ChatView: React.FC = () =>
         focusChatInput();
     };
 
+    const closeProfileCTA = () => {
+        setShowProfileCTA(false);
+        refUserClosedProfileCTA.current=true;
+    };
+
     /* HTML */
 
     const description = chatObj ? chatObj.fields.description : '';
@@ -622,6 +644,16 @@ export const ChatView: React.FC = () =>
             </form>
 
             { uiError && <div className='error'>{uiError}</div> }
+
+            { showProfileCTA && <div id='profile-cta'>
+                <span className='cta-text'>Hey anon, <a href='https://profile.polymedia.app/manage'
+                    target='_blank' onClick={closeProfileCTA}>create a profile
+                    </a> so people know what to call you.
+                </span>
+                <span className='cta-close'><span onClick={closeProfileCTA}>close</span>
+                </span>
+            </div>
+            }
 
             { showEmojiPicker &&
                 <EmojiPicker data={emojiData}
