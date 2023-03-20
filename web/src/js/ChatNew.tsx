@@ -10,8 +10,6 @@ export function ChatNew() {
 
     const [inputName, setInputName] = useState('');
     const [inputDescription, setInputDescription] = useState('');
-    const [inputMaxMsgAmount, setInputMaxMsgAmount] = useState(150);
-    const [inputMaxMsgLength, setInputMaxMsgLength] = useState(500);
     const [waiting, setWaiting] = useState(false);
     const [error, setError] = useState('');
 
@@ -40,14 +38,12 @@ export function ChatNew() {
             kind: 'moveCall',
             data: {
                 packageObjectId: polymediaPackageId,
-                module: 'chat',
-                function: 'create',
+                module: 'event_chat',
+                function: 'create_room',
                 typeArguments: [],
                 arguments: [
                     inputName,
                     inputDescription,
-                    String(inputMaxMsgAmount),
-                    String(inputMaxMsgLength),
                 ],
                 gasBudget: 10000,
             }
@@ -106,6 +102,7 @@ export function ChatNew() {
                         onChange={e => setInputDescription(e.target.value)}
                     />
                 </div>
+                {/*
                 <div className='form-field'>
                     <label>History capacity (10-400 messages)</label>
                     <input value={inputMaxMsgAmount} type='text' required
@@ -130,6 +127,7 @@ export function ChatNew() {
                                     : Number(e.target.value) ) }
                     />
                 </div>
+                */}
                 <button type='submit'className={waiting ? 'primary waiting' : 'primary'} disabled={waiting}
                     >CREATE</button>
             </form>

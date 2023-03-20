@@ -1,5 +1,5 @@
 /// A simple message board
-module polymedia_chat::chat
+module polymedia_chat::vector_chat
 {
     use std::string::{Self, String};
     use std::vector;

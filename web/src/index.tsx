@@ -17,10 +17,6 @@ ReactDOM
                 <Route path='/new' element={<ChatNew />} />
                 <Route path='/:uid' element={<ChatView />} />
                 <Route path='/:uid/menu' element={<ChatMenu />} />
-                {/* TODO: remove*/}
-                <Route path='/chat/new' element={<ChatNew />} />
-                <Route path='/chat/:uid' element={<ChatView />} />
-                <Route path='/chat/:uid/menu' element={<ChatMenu />} />
 
                 <Route path='*' element={<NotFound />} />
             </Route>

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, SyntheticEvent } from 'react';
 import { Link, useLocation, useParams, useOutletContext } from 'react-router-dom';
-import { GetObjectDataResponse, SuiAddress, SuiObject, SuiMoveObject } from '@mysten/sui.js';
+import { GetObjectDataResponse, SuiAddress, SuiEventEnvelope, SuiObject, SuiMoveObject, TransactionDigest } from '@mysten/sui.js';
 import { useWalletKit } from '@mysten/wallet-kit';
 import emojiData from '@emoji-mart/data';
 import FingerprintJS from '@fingerprintjs/fingerprintjs'
@@ -15,6 +15,18 @@ import { getConfig } from './lib/chat';
 import '../css/Chat.less';
 import verifiedBadge from '../img/verified_badge.svg';
 
+const RESUBSCRIBE_ATTEMPT_INTERVAL = 1000; // How often resubscribeToEvents() is called
+const RESUBSCRIBE_MINIMUM_ELAPSED_TIME = 22000; // How often resubscribeToEvents() actually resubscribe
+const PULL_RECENT_INTERVAL = 12000; // How often to pull recent messages
+const MAX_MESSAGES = 500;
+const SEND_MESSAGE_GAS_BUDGET = 10000;
+
+type Message = {
+    author: SuiAddress,
+    text: string,
+    timestamp: number,
+};
+
 // Messages from these addresses will be hidden from everyone except from their authors
 const bannedAddresses: string[] = [
 ];
@@ -23,6 +35,7 @@ const bannedFingerprints: string[] = [
     '5ac993205723cdf28316c25fe88ba8c3',
 ];
 
+// Shows checkmark
 const verifiedAddresses: string[] = [
     '0x0e3a1382a557072bf3f0ae2c288e2c933b41efb6',
 ];
@@ -34,27 +47,33 @@ export const ChatView: React.FC = () =>
 {
     /* Global state */
     const [notify, network, connectModalOpen, setConnectModalOpen]: any = useOutletContext();
-    const { rpc, polymediaPackageId, suiFansChatId, suiFansChatIdSpecial } = getConfig(network);
+    const { rpc, rpcWebsocket, polymediaPackageId, suiFansChatId, suiFansChatIdSpecial } = getConfig(network);
     const { currentAccount, signAndExecuteTransaction } = useWalletKit();
-    const refHasCurrentAccount = useRef(false);
-    /* Polymedia Profile */
+    /* User and Polymedia Profile */
     const profileManager = new ProfileManager({network});
     const refProfiles = useRef( new Map<SuiAddress, PolymediaProfile|null>() );
+    const refHasCurrentAccount = useRef(false);
+    const refUserAddr = useRef(localStorage.getItem('polymedia.userAddr') || ''); // Current user. MAYBE: store an array
+    // const refUserClosedTeaser = useRef(false);
     /* Chat messages */
     const [chatObj, setChatObj] = useState<SuiMoveObject|null>(null);
-    const [messages, setMessages] = useState<object[]>([]);
-    const [error, setError] = useState('');
+    const [messages, setMessages] = useState(new Map<TransactionDigest, Message>);
+    const [isSendingMsg, setIsSendingMsg] = useState(false); // waiting for a message txn to complete
+    const refMessages = useRef(messages);
+    /* Reloading */
+    const refEventSubscriptionId = useRef(0);
+    const refResubscribeIntervalId = useRef<ReturnType<typeof setTimeout>|null>(null);
+    const refIsResubscribeOngoing = useRef(false);
+    const refLastResubscribeTime = useRef(0);
+    const refPullRecentIntervalId = useRef(0);
+    const refIsPullRecentOngoing = useRef(false);
     /* Emoji picker */
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [ignoreClickOutside, setIgnoreClickOutside] = useState(true);
     const [chatInputCursor, setChatInputCursor] = useState(0);
-    /* More app state. Some need to be references because of setInterval() */
-    const [isSendingMsg, setIsSendingMsg] = useState(false); // waiting for a message txn to complete
-    const refIsReloadInProgress = useRef(false); // to stop reloading when reloadChat() is in progress
+    /* UI state, and references to HTML elements */
+    const [uiError, setUIError] = useState('');
     const refIsScrolledUp = useRef(false); // to stop reloading the chat when the user scrolls up
-    const refUserAddr = useRef(localStorage.getItem('polymedia.userAddr') || ''); // Current user. TODO: store an array
-    const refUserClosedTeaser = useRef(false);
-    /* References to HTML elements */
     const refChatBottom = useRef<HTMLDivElement>(null);
     const refChatInput = useRef<HTMLInputElement>(null);
     const refEmojiBtn = useRef<HTMLDivElement>(null);
@@ -87,13 +106,11 @@ export const ChatView: React.FC = () =>
     useEffect(() => {
         document.title = `Polymedia Chat - ${chatId}`;
         focusChatInput();
-        reloadChat();
         calcUserFingerprint();
-        /// Periodically update the list of messages
-        const interval = setInterval(reloadChat, 5000);
+        loadChatRoom();
         return () => {
-            clearInterval(interval);
-        };
+            unloadChatRoom();
+        }
     }, []);
 
     /* Addresses and Polymedia Profile */
@@ -107,12 +124,6 @@ export const ChatView: React.FC = () =>
         // Update the current address everywhere
         refUserAddr.current = currentAccount;
         localStorage.setItem('polymedia.userAddr', currentAccount)
-        // Preload the current address profile so it's ready when/if the user talks
-        if (!refProfiles.current.has(currentAccount)) {
-            const lookupAddresses = new Set(refProfiles.current.keys());
-            lookupAddresses.add(currentAccount);
-            fetchProfiles(lookupAddresses);
-        }
         focusChatInput();
     }, [currentAccount]);
 
@@ -123,21 +134,286 @@ export const ChatView: React.FC = () =>
         }
     }, [connectModalOpen]);
 
-    const fetchProfiles = (authorAddresses: Set<string>) => {
-        // Always include the current user address
-        if (refUserAddr.current) {
-            authorAddresses.add(refUserAddr.current);
+    const fetchProfiles = (authors: Set<SuiAddress>) => {
+        let newAuthors = new Set<SuiAddress>();
+        for (const author of authors) {
+            if (!refProfiles.current.has(author)) {
+                newAuthors.add(author);
+            }
         }
-        profileManager.getProfiles({lookupAddresses: authorAddresses})
+        // Look up the current address to make sure the profile is ready when the user talks
+        if (currentAccount && !refProfiles.current.has(currentAccount)) {
+            newAuthors.add(currentAccount);
+        }
+        if (!newAuthors.size) {
+            console.debug('[fetchProfiles] No new authors. Skipping.');
+            return;
+        }
+        console.debug('[fetchProfiles] Looking up new authors');
+        const lookupAddresses = new Set<SuiAddress>([
+            ...refProfiles.current.keys(), // the profileManager will return these from cache
+            ...newAuthors,
+        ]);
+        profileManager.getProfiles({lookupAddresses})
         .then(newProfiles => {
             refProfiles.current = newProfiles;
+            setMessages(new Map(refMessages.current));
         })
-        .catch((error: any) => {
-            setError(`[fetchProfiles] Request error: ${error.message}`);
+        .catch((err) => {
+            const errMsg = `[fetchProfiles] Request error: ${err.message}`;
+            console.warn(errMsg);
+            // setUIError(errMsg);
         })
     };
 
     /* Messages */
+
+    const location = useLocation();
+    const loadChatRoom = async () =>
+    {
+        // Pull the ChatRoom object
+        try {
+            const resp: GetObjectDataResponse = await rpc.getObject(chatId);
+            if (resp.status != 'Exists') {
+                if (location.state && location.state.isNewChat) {
+                    // Sometimes there is lag after the chat is created, so let's retry
+                    setTimeout(loadChatRoom, 1000);
+                    return;
+                } else {
+                    const errMsg = '[loadChatRoom] Object does not exist.';
+                    console.warn(errMsg);
+                    setUIError(errMsg);
+                    return;
+                }
+            } else {
+                const objData = (resp.details as SuiObject).data as SuiMoveObject;
+                setUIError('');
+                setChatObj(objData);
+            }
+        } catch(err) {
+            const errMsg = '[loadChatRoom] Unexpected error while loading ChatRoom object: ' + err;
+            console.warn(errMsg);
+            setUIError(errMsg);
+            return;
+        }
+
+        await pullRecentMessages(150);
+        // Pull recent messages periodically because:
+        // 1) The internet connection may have been lost
+        // 2) We could lose messages between unsubscribe and subscribe
+        refPullRecentIntervalId.current = setInterval(pullRecentMessages, PULL_RECENT_INTERVAL, 50);
+
+        await resubscribeToEvents();
+        // Periodically resubscribe (the browser closes the websocket after 30 seconds of innactivity)
+        // We check if a reload is needed a lot more frequently than we actually reload,
+        // because the user could have closed his laptop/phone, or the Internet may have been down.
+        // This way we can initiate the reload quickly when the user/Internet is back.
+        refResubscribeIntervalId.current = setInterval(resubscribeToEvents, RESUBSCRIBE_ATTEMPT_INTERVAL);
+    };
+
+    const unloadChatRoom = async () =>
+    {
+        refPullRecentIntervalId.current && clearInterval(refPullRecentIntervalId.current);
+        refResubscribeIntervalId.current && clearInterval(refResubscribeIntervalId.current);
+        unsubscribeFromEvents(); // MAYBE: retry if timeout
+    }
+
+    const pullRecentMessages = async (amount: number) => {
+        if (refIsPullRecentOngoing.current) {
+            console.debug('[pullRecentMessages] In progress. Skipping.');
+            return;
+        }
+        refIsPullRecentOngoing.current = true;
+        try {
+            const events = await rpc.getEvents(
+                { MoveEvent: polymediaPackageId+'::event_chat::MessageEvent' },
+                null,
+                amount,
+                'descending'
+            );
+            console.debug('[pullRecentMessages] Loaded recent messages');
+            eventsToMessages(events.data.reverse());
+            setUIError('');
+        } catch(err) {
+            const errMsg = '[pullRecentMessages] Failed to load recent messages: ' + err;
+            console.warn(errMsg);
+            setUIError(errMsg);
+        } finally {
+            refIsPullRecentOngoing.current = false;
+        }
+    };
+
+    const resubscribeToEvents = async () => {
+        if (refIsResubscribeOngoing.current) {
+            console.debug('[resubscribeToEvents] In progress. Skipping.');
+            return;
+        }
+        const timeOld = refLastResubscribeTime.current;
+        const timeNow = (new Date()).getTime();
+        const timeElapsed = timeNow - timeOld;
+        if (timeElapsed < RESUBSCRIBE_MINIMUM_ELAPSED_TIME) {
+            // console.debug(`[resubscribeToEvents] Updated recently (${timeElapsed/1000}s ago). Skipping`);
+            return;
+        }
+        console.debug('[resubscribeToEvents] Resubscribing...');
+        refIsResubscribeOngoing.current = true;
+        await unsubscribeFromEvents();
+        await subscribeToEvents();
+        refLastResubscribeTime.current = timeNow;
+        refIsResubscribeOngoing.current = false;
+    };
+
+    const subscribeToEvents = async () => {
+        if (refEventSubscriptionId.current) {
+            console.debug('[subscribeToEvents] Already subscribed. Skipping.');
+            return;
+        }
+        try {
+            refEventSubscriptionId.current = await rpcWebsocket.subscribeEvent(
+                {And: [
+                    { MoveEventType: polymediaPackageId+'::event_chat::MessageEvent' },
+                    { MoveEventField: { 'path': '/room', 'value': chatId} },
+                ]},
+                (event: SuiEventEnvelope) => eventsToMessages([event]),
+            );
+            console.debug('[subscribeToEvents] Subscribed:', refEventSubscriptionId.current);
+            setUIError('');
+        } catch (err) {
+            const errMsg = '[subscribeToEvents] ' + err;
+            console.warn(errMsg);
+            // setUIError(errMsg);
+        }
+    };
+
+    const unsubscribeFromEvents = async () => {
+        if (!refEventSubscriptionId.current) {
+            console.debug('[unsubscribeFromEvents] Not active subscription. Skipping.');
+            return;
+        }
+        try {
+            const subFoundAndRemoved = await rpcWebsocket.unsubscribeEvent(refEventSubscriptionId.current);
+            refEventSubscriptionId.current = 0;
+            console.debug('[unsubscribeFromEvents] Unsubscribed. subFoundAndRemoved:', subFoundAndRemoved);
+            setUIError('');
+        } catch (err) {
+            const errMsg = '[unsubscribeFromEvents] ' + err;
+            console.warn(errMsg);
+            // setUIError(errMsg);
+        }
+    };
+
+    const eventsToMessages = (events: Array<SuiEventEnvelope>) => {
+        const userIsBanned = isBannedUser();
+        const authorAddresses = new Set<SuiAddress>();
+        let hasNewMessages = false;
+        for (const event of events) {
+            // Check that the message belongs to this ChatRoom (needed for initial load,
+            // because rpc.getEvents() can't filter by field)
+            // @ts-ignore
+            const msgRoom = event.event.moveEvent.fields.room;
+            if (msgRoom != chatId) {
+                continue;
+            }
+            // Skip messages from banned addresses (unless the user is banned)
+            // @ts-ignore
+            const msgAuthor = event.event.moveEvent.sender;
+            // @ts-ignore
+            const msgText = event.event.moveEvent.fields.text;
+            if (!userIsBanned && bannedAddresses.includes(msgAuthor))
+                continue;
+            // Skip if already included in map (common when called from pullRecentMessages)
+            if (refMessages.current.has(event.txDigest)) {
+                continue;
+            }
+            // Format and append the message
+            refMessages.current.set(event.txDigest, {
+                author: msgAuthor,
+                text: msgText,
+                timestamp: event.timestamp,
+            });
+            authorAddresses.add(msgAuthor);
+            hasNewMessages = true;
+        }
+
+        if (!hasNewMessages) {
+            console.debug('[eventsToMessages] No new messages. Skipping.');
+            return;
+        } else {
+            console.debug('[eventsToMessages] Updating UI with new messages');
+        }
+
+        // Trim the message Map every now and then
+        if (refMessages.current.size > MAX_MESSAGES) {
+            const targetSize = MAX_MESSAGES/2;
+            console.debug(`[eventsToMessages] trimming message Map down to ${targetSize} messages`);
+            const keysToDelete = Array.from(refMessages.current.keys()).slice(0, -targetSize);
+            for (const key of keysToDelete) {
+                refMessages.current.delete(key);
+            }
+        }
+
+        // Update state
+        setMessages(new Map(refMessages.current));
+        fetchProfiles(authorAddresses);
+
+        // Teaser for Polymedia Profile // MAYBE: replace with "create profile" CTA
+        // if (refHasCurrentAccount.current && !refUserClosedTeaser.current) {
+        //     const isMissingProfile = refUserAddr.current && refProfiles.current.get(refUserAddr.current) === null;
+        //     isMissingProfile && formattedMessages.push({
+        //         author: '0x0000000000000000000000000000000000000000',
+        //         text: `Wake up ${refUserAddr.current}`,
+        //         timestamp: String(Date.now()),
+        //     });
+        // }
+    };
+
+    async function log(args: Array<any>) {
+        fetch('https://amevzbgnbgzres4r2z5dqey6km0lmedm.lambda-url.eu-central-1.on.aws/', {
+            method: 'POST',
+            body: JSON.stringify(args),
+        });
+    }
+    const onSubmitAddMessage = async (e: SyntheticEvent) => {
+        e.preventDefault();
+        setUIError('');
+        setIsSendingMsg(true);
+        // await preapproveTxns();
+        console.debug(`[onSubmitAddMessage] Calling event_chat::send_message on package: ${polymediaPackageId}`);
+        signAndExecuteTransaction({
+            kind: 'moveCall',
+            data: {
+                packageObjectId: polymediaPackageId,
+                module: 'event_chat',
+                function: 'send_message',
+                typeArguments: [],
+                arguments: [
+                    chatId,
+                    Array.from( (new TextEncoder()).encode(getChatInputValue()) ),
+                ],
+                gasBudget: SEND_MESSAGE_GAS_BUDGET,
+            }
+        })
+        .then((resp: any) => {
+            // @ts-ignore
+            const effects = resp.effects.effects || resp.effects; // Suiet || Sui|Ethos
+            if (effects.status.status == 'success') {
+                log([refUserFingerprint.current, refUserAddr.current, getChatInputValue()]);
+                setChatInputValue('');
+            } else {
+                const errMsg = `[onSubmitAddMessage] Response error: ${effects.status.error}`;
+                console.warn(errMsg);
+                setUIError(errMsg);
+            }
+        })
+        .catch((err) => {
+            const errMsg = `[onSubmitAddMessage] Request error: ${err.message}`;
+            console.warn(errMsg);
+            setUIError(errMsg);
+        })
+        .finally(() => {
+            setIsSendingMsg(false);
+        });
+    };
 
     /// Re-focus on the text input after sending a message
     useEffect(() => {
@@ -149,126 +425,20 @@ export const ChatView: React.FC = () =>
     /// Handle new messages
     useEffect(() => {
         // scroll to the bottom of the message list (if the user has not manually scrolled up)
-        if (!refIsScrolledUp.current && refMessageList.current) {
-            refMessageList.current.scrollTop = refMessageList.current.scrollHeight;
+        if (!refIsScrolledUp.current) {
+            scrollToBottom();
         }
     }, [messages]);
 
-    const location = useLocation();
-    const reloadChat = () => {
-        if (refIsScrolledUp.current || refIsReloadInProgress.current) {
-            return;
+    /// Handle errors
+    useEffect(() => {
+        scrollToBottom();
+    }, [uiError]);
+
+    const scrollToBottom = () => {
+        if (refMessageList.current) {
+            refMessageList.current.scrollTop = refMessageList.current.scrollHeight;
         }
-        refIsReloadInProgress.current = true;
-        rpc.getObject(chatId)
-        .then((resp: GetObjectDataResponse) => {
-            if (resp.status != 'Exists') {
-                if (location.state && location.state.isNewChat) {
-                    // Sometimes there is lag after the chat is created, so let's retry
-                    setTimeout(reloadChat, 1000);
-                    return;
-                } else {
-                    setError(`[reloadChat] Object does not exist. Status: ${resp.status}`);
-                    return;
-                }
-            }
-            const objData = (resp.details as SuiObject).data as SuiMoveObject;
-            // if (!isExpectedType(objData.type, polymediaPackageId, 'vector_chat', 'ChatRoom')) {
-            //     setError(`[reloadChat] Wrong object type: ${objData.type}`);
-            // } else {
-            setError('');
-            setChatObj(objData);
-            const userIsBanned = isBannedUser();
-            const newMsgs = objData.fields.messages;
-            const formattedMessages = [];
-            const authorAddresses = new Set<string>();
-            // Order messages
-            const idx = Number(objData.fields.last_index);
-            const sortedMessages = [ ...newMsgs.slice(idx+1), ...newMsgs.slice(0, idx+1) ];
-            for (const msg of sortedMessages) {
-                // Skip messages from banned addresses (unless the user is banned)
-                if (!userIsBanned && ( msg.fields.text.endsWith('\u200B') || bannedAddresses.includes(msg.fields.author) ) )
-                    continue;
-                // Extract the message fields
-                formattedMessages.push(msg.fields);
-                // Collect user addresses
-                authorAddresses.add(msg.fields.author);
-            }
-
-            // Teaser for Polymedia Profile
-            if (refHasCurrentAccount.current && !refUserClosedTeaser.current) {
-                const isMissingProfile = refUserAddr.current && refProfiles.current.get(refUserAddr.current) === null;
-                isMissingProfile && formattedMessages.push({
-                    author: '0x0000000000000000000000000000000000000000',
-                    text: `Wake up ${refUserAddr.current}`,
-                    timestamp: String(Date.now()),
-                });
-            }
-
-            // Update state
-            setMessages(formattedMessages);
-            fetchProfiles(authorAddresses);
-
-            // Tweets
-            // twttr && twttr.widgets.load(refMessageList.current);
-            // }
-        })
-        .catch(err => {
-            setError(`[reloadChat] RPC error: ${err.message}`)
-        })
-        .finally(() => {
-            refIsReloadInProgress.current = false;
-        });
-    };
-
-    async function log(args: Array<any>) {
-        fetch('https://amevzbgnbgzres4r2z5dqey6km0lmedm.lambda-url.eu-central-1.on.aws/', {
-            method: 'POST',
-            body: JSON.stringify(args),
-        });
-    }
-    const onSubmitAddMessage = async (e: SyntheticEvent) => {
-        e.preventDefault();
-        setError('');
-        setIsSendingMsg(true);
-        // await preapproveTxns();
-        console.debug(`[onSubmitAddMessage] Calling chat::add_message on package: ${polymediaPackageId}`);
-        let msgText = getChatInputValue();
-        if ( isBannedUser() ) {
-            msgText += '\u200B';
-        }
-        signAndExecuteTransaction({
-            kind: 'moveCall',
-            data: {
-                packageObjectId: polymediaPackageId,
-                module: 'chat',
-                function: 'add_message',
-                typeArguments: [],
-                arguments: [
-                    chatId,
-                    String(Date.now()),
-                    Array.from( (new TextEncoder()).encode(msgText) ),
-                ],
-                gasBudget: 10000,
-            }
-        })
-        .then((resp: any) => {
-            // @ts-ignore
-            const effects = resp.effects.effects || resp.effects; // Suiet || Sui|Ethos
-            if (effects.status.status == 'success') {
-                setTimeout(reloadChat, 1000);
-                log([refUserFingerprint.current, refUserAddr.current, getChatInputValue()]);
-                setChatInputValue('');
-            } else {
-                setError(`[onSubmitAddMessage] Response error: ${effects.status.error}`);
-            }
-        })
-        .catch((error: any) => {
-            setError(`[onSubmitAddMessage] Request error: ${error.message}`);
-        })
-        .finally(() => {
-            setIsSendingMsg(false);
-        });
     };
 
     /* Emojis */
@@ -371,7 +541,7 @@ export const ChatView: React.FC = () =>
         </div>
 
         <div ref={refMessageList} id='message-list' className='chat-middle' onScroll={onScrollMessageList}>
-        {messages.map((msg: any, idx) => {
+        {Array.from(messages.values()).map((msg: any, idx) => {
             const isPolymediaTeaser = msg.author == '0x0000000000000000000000000000000000000000';
             const profile = isPolymediaTeaser
                 ? ({
@@ -387,7 +557,7 @@ export const ChatView: React.FC = () =>
                         window.open('https://mountsogol.com?network='+network, '_self')
                     }}>Open eyes 👀</button>
                     <button className='primary' onClick={() => {
-                        refUserClosedTeaser.current=true; setMessages(messages.slice(0, -1));
+                        // refUserClosedTeaser.current=true; setMessages(messages.slice(0, -1)); // MAYBE
                     }}>Stay asleep 😴</button>
                 </div>;
             }
@@ -451,7 +621,7 @@ export const ChatView: React.FC = () =>
                 </div>
             </form>
 
-            { error && <div className='error'>{error}</div> }
+            { uiError && <div className='error'>{uiError}</div> }
 
             { showEmojiPicker &&
                 <EmojiPicker data={emojiData}
@@ -496,7 +666,7 @@ const onChangeChatInput = (e: SyntheticEvent) => {
 const preapproveTxns = useCallback(async () => {
     await wallet?.requestPreapproval({
         packageObjectId: polymediaPackageId,
-        module: 'chat',
+        module: 'vector_chat',
         function: 'add_message',
         objectId: chatId,
         description: 'Send messages in this chat without having to sign every transaction.',
@@ -508,7 +678,7 @@ const preapproveTxns = useCallback(async () => {
         console.debug(`[preapproveTxns] Successfully preapproved transactions`);
     })
     .catch(err => {
-        setError(`[preapproveTxns] Error requesting preapproval: ${err.message}`)
+        setUIError(`[preapproveTxns] Error requesting preapproval: ${err.message}`)
     });
 }, [wallet]);
 */
