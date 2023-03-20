@@ -2,8 +2,8 @@ import { useEffect, useRef, useState, SyntheticEvent } from 'react';
 import { Link, useLocation, useParams, useOutletContext } from 'react-router-dom';
 import { GetObjectDataResponse, SuiAddress, SuiEventEnvelope, SuiObject, SuiMoveObject, TransactionDigest } from '@mysten/sui.js';
 import { useWalletKit } from '@mysten/wallet-kit';
+// import FingerprintJS from '@fingerprintjs/fingerprintjs'
 import emojiData from '@emoji-mart/data';
-import FingerprintJS from '@fingerprintjs/fingerprintjs'
 import { PolymediaProfile, ProfileManager } from '@polymedia/profile-sdk';
 
 import EmojiPicker from './components/EmojiPicker';
@@ -31,9 +31,8 @@ type Message = {
 const bannedAddresses: string[] = [
 ];
 
-const bannedFingerprints: string[] = [
-    '5ac993205723cdf28316c25fe88ba8c3',
-];
+// const bannedFingerprints: string[] = [
+// ];
 
 // Shows checkmark
 const verifiedAddresses: string[] = [
@@ -41,7 +40,7 @@ const verifiedAddresses: string[] = [
 ];
 
 // To fight spammers
-const fpPromise = FingerprintJS.load({monitoring: false});
+// const fpPromise = FingerprintJS.load({monitoring: false});
 
 export const ChatView: React.FC = () =>
 {
@@ -79,17 +78,17 @@ export const ChatView: React.FC = () =>
     const refEmojiBtn = useRef<HTMLDivElement>(null);
     const refMessageList = useRef<HTMLDivElement>(null);
 
-    const refUserFingerprint = useRef('');
+    // const refUserFingerprint = useRef('');
 
     /* User moderation */
-    const calcUserFingerprint = async () => {
-        refUserFingerprint.current = await fpPromise
-            .then(fp => fp.get())
-            .then(result => result.visitorId);
-        if (bannedFingerprints.includes(refUserFingerprint.current)) {
-            localStorage.setItem('polymedia.special', '1');
-        }
-    };
+    // const calcUserFingerprint = async () => {
+    //     refUserFingerprint.current = await fpPromise
+    //         .then(fp => fp.get())
+    //         .then(result => result.visitorId);
+    //     if (bannedFingerprints.includes(refUserFingerprint.current)) {
+    //         localStorage.setItem('polymedia.special', '1');
+    //     }
+    // };
     const isBannedUser = () => {
         return (localStorage.getItem('polymedia.special') === '1')
             || (refUserAddr.current && bannedAddresses.includes(refUserAddr.current));
@@ -106,7 +105,7 @@ export const ChatView: React.FC = () =>
     useEffect(() => {
         document.title = `Polymedia Chat - ${chatId}`;
         focusChatInput();
-        calcUserFingerprint();
+        // calcUserFingerprint();
         loadChatRoom();
         return () => {
             unloadChatRoom();
@@ -367,12 +366,12 @@ export const ChatView: React.FC = () =>
         // }
     };
 
-    async function log(args: Array<any>) {
-        fetch('https://amevzbgnbgzres4r2z5dqey6km0lmedm.lambda-url.eu-central-1.on.aws/', {
-            method: 'POST',
-            body: JSON.stringify(args),
-        });
-    }
+    // async function log(args: Array<any>) {
+    //     fetch('', {
+    //         method: 'POST',
+    //         body: JSON.stringify(args),
+    //     });
+    // }
     const onSubmitAddMessage = async (e: SyntheticEvent) => {
         e.preventDefault();
         setUIError('');
@@ -397,7 +396,7 @@ export const ChatView: React.FC = () =>
             // @ts-ignore
             const effects = resp.effects.effects || resp.effects; // Suiet || Sui|Ethos
             if (effects.status.status == 'success') {
-                log([refUserFingerprint.current, refUserAddr.current, getChatInputValue()]);
+                // log([refUserFingerprint.current, refUserAddr.current, getChatInputValue()]);
                 setChatInputValue('');
             } else {
                 const errMsg = `[onSubmitAddMessage] Response error: ${effects.status.error}`;
