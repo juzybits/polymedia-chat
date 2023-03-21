@@ -321,8 +321,10 @@ export const ChatView: React.FC = () =>
     const eventsToMessages = (events: Array<SuiEventEnvelope>) => {
         const userIsBanned = isBannedUser();
         const authorAddresses = new Set<SuiAddress>();
-        let hasNewMessages = false;
         for (const event of events) {
+            // Skip if already included in map (common when called from pullRecentMessages)
+            if (refMessages.current.has(event.txDigest))
+                continue;
             // Check that the message belongs to this ChatRoom (needed for initial load,
             // because rpc.getEvents() can't filter by field)
             // @ts-ignore
@@ -337,10 +339,6 @@ export const ChatView: React.FC = () =>
             const msgText = event.event.moveEvent.fields.text;
             if (!userIsBanned && bannedAddresses.includes(msgAuthor))
                 continue;
-            // Skip if already included in map (common when called from pullRecentMessages)
-            if (refMessages.current.has(event.txDigest)) {
-                continue;
-            }
             // Format and append the message
             refMessages.current.set(event.txDigest, {
                 author: msgAuthor,
@@ -348,14 +346,6 @@ export const ChatView: React.FC = () =>
                 timestamp: event.timestamp,
             });
             authorAddresses.add(msgAuthor);
-            hasNewMessages = true;
-        }
-
-        if (!hasNewMessages) {
-            console.debug('[eventsToMessages] No new messages. Skipping.');
-            return;
-        } else {
-            console.debug('[eventsToMessages] Updating UI with new messages');
         }
 
         // Trim the message Map every now and then
