@@ -14,8 +14,8 @@ const FAUCET_DEVNET = 'https://faucet.devnet.sui.io/gas';
 const FAUCET_TESTNET = 'https://faucet.testnet.sui.io/gas';
 
 const RPC_DEVNET = new JsonRpcProvider(new Connection({
-  // fullnode: 'https://node.shinami.com/api/v1/186668da9c42b69678719e785ed644a2',
-  fullnode: 'https://fullnode.devnet.sui.io:443/',
+  fullnode: 'https://node.shinami.com/api/v1/186668da9c42b69678719e785ed644a2',
+  // fullnode: 'https://fullnode.devnet.sui.io:443/',
   faucet: FAUCET_DEVNET,
 }));
 
@@ -26,8 +26,8 @@ const RPC_TESTNET = new JsonRpcProvider(new Connection({
 }));
 
 const RPC_DEVNET_WEBSOCKET = new JsonRpcProvider(new Connection({
-    // fullnode: 'wss://node.shinami.com/ws/v1/186668da9c42b69678719e785ed644a2',
-    fullnode: 'https://fullnode.devnet.sui.io:443/',
+    fullnode: 'wss://node.shinami.com/ws/v1/186668da9c42b69678719e785ed644a2',
+    // fullnode: 'https://fullnode.devnet.sui.io:443/',
     faucet: FAUCET_DEVNET,
 }));
 
