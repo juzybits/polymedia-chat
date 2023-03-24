@@ -7,6 +7,7 @@
         "@emoji-mart/react": "1",
         "@mysten/sui.js": "latest",
         "@mysten/wallet-kit": "latest",
+        "@polymedia/profile-sdk": "0.1.12",
         "emoji-mart": "5",
         "react": "18",
         "react-dom": "18",
