@@ -64,10 +64,10 @@ export const ChatView: React.FC = () =>
     const refMessages = useRef(messages);
     /* Reloading */
     const refEventSubscriptionId = useRef(0);
-    const refResubscribeIntervalId = useRef<ReturnType<typeof setTimeout>|null>(null);
+    const refResubscribeIntervalId = useRef<ReturnType<typeof setInterval>|null>(null);
     const refIsResubscribeOngoing = useRef(false);
     const refLastResubscribeTime = useRef(0);
-    const refPullRecentIntervalId = useRef(0);
+    const refPullRecentIntervalId = useRef<ReturnType<typeof setInterval>|null>(null);
     const refIsPullRecentOngoing = useRef(false);
     /* Emoji picker */
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
