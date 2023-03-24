@@ -2,12 +2,14 @@
 
 import { Connection, JsonRpcProvider } from '@mysten/sui.js';
 
-const POLYMEDIA_PACKAGE_DEVNET = '0x5c23a7d6416a0e7f62923f71fd6029ee5afe0983';
-const SUI_FANS_CHAT_ID_DEVNET = '0xd4073fcc4639608b87f7cc1faa8cb6192d5a5af8';
+const POLYMEDIA_PACKAGE_DEVNET = '0xd5679408e37a91ab07bd70493ab31fef6a0337d8';
+const SUI_FANS_CHAT_ID_DEVNET = '0x5018916b1b4bbcc1fd6e7c0125365ac59c491881';
+const POLYMEDIA_PACKAGE_DEVNET_SPECIAL = '0x5c23a7d6416a0e7f62923f71fd6029ee5afe0983';
 const SUI_FANS_CHAT_ID_DEVNET_SPECIAL = '0x12f47a966773c6ec07a19fc95b856e285ba48cf5';
 
 const POLYMEDIA_PACKAGE_TESTNET = '0x123';
 const SUI_FANS_CHAT_ID_TESTNET = '0x456';
+const POLYMEDIA_PACKAGE_TESTNET_SPECIAL = '0x123';
 const SUI_FANS_CHAT_ID_TESTNET_SPECIAL = '0x789';
 
 const FAUCET_DEVNET = 'https://faucet.devnet.sui.io/gas';
@@ -15,6 +17,7 @@ const FAUCET_TESTNET = 'https://faucet.testnet.sui.io/gas';
 
 const RPC_DEVNET = new JsonRpcProvider(new Connection({
   fullnode: 'https://node.shinami.com/api/v1/186668da9c42b69678719e785ed644a2',
+  // fullnode: 'https://fullnode.devnet.vincagame.com:443',
   // fullnode: 'https://fullnode.devnet.sui.io:443/',
   faucet: FAUCET_DEVNET,
 }));
@@ -41,6 +44,7 @@ type Config = {
   rpc: JsonRpcProvider;
   rpcWebsocket: JsonRpcProvider;
   polymediaPackageId: string;
+  polymediaPackageIdSpecial: string;
   suiFansChatId: string;
   suiFansChatIdSpecial: string;
 };
@@ -52,6 +56,7 @@ export function getConfig(network: string): Config {
                 rpc: RPC_DEVNET,
                 rpcWebsocket: RPC_DEVNET_WEBSOCKET,
                 polymediaPackageId: POLYMEDIA_PACKAGE_DEVNET,
+                polymediaPackageIdSpecial: POLYMEDIA_PACKAGE_DEVNET_SPECIAL,
                 suiFansChatId: SUI_FANS_CHAT_ID_DEVNET,
                 suiFansChatIdSpecial: SUI_FANS_CHAT_ID_DEVNET_SPECIAL,
             };
@@ -60,6 +65,7 @@ export function getConfig(network: string): Config {
                 rpc: RPC_TESTNET,
                 rpcWebsocket: RPC_TESTNET_WEBSOCKET,
                 polymediaPackageId: POLYMEDIA_PACKAGE_TESTNET,
+                polymediaPackageIdSpecial: POLYMEDIA_PACKAGE_TESTNET_SPECIAL,
                 suiFansChatId: SUI_FANS_CHAT_ID_TESTNET,
                 suiFansChatIdSpecial: SUI_FANS_CHAT_ID_TESTNET_SPECIAL,
             };

@@ -47,7 +47,8 @@ export const ChatView: React.FC = () =>
 {
     /* Global state */
     const [notify, network, connectModalOpen, setConnectModalOpen]: any = useOutletContext();
-    const { rpc, rpcWebsocket, polymediaPackageId, suiFansChatId, suiFansChatIdSpecial } = getConfig(network);
+    const { rpc, rpcWebsocket, polymediaPackageId, polymediaPackageIdSpecial,
+            suiFansChatId, suiFansChatIdSpecial } = getConfig(network);
     const { currentAccount, signAndExecuteTransaction } = useWalletKit();
     /* User and Polymedia Profile */
     const profileManager = new ProfileManager({network});
@@ -96,6 +97,8 @@ export const ChatView: React.FC = () =>
         return (localStorage.getItem('polymedia.special') === '1')
             || (refLastUserAddr.current && bannedAddresses.includes(refLastUserAddr.current));
     };
+
+    const packageId = isBannedUser() ? polymediaPackageIdSpecial : polymediaPackageId;
 
     // Handle '/@sui-fans' alias
     let chatId = useParams().uid || '';
@@ -242,7 +245,7 @@ export const ChatView: React.FC = () =>
         refIsPullRecentOngoing.current = true;
         try {
             const events = await rpc.getEvents(
-                { MoveEvent: polymediaPackageId+'::event_chat::MessageEvent' },
+                { MoveEvent: packageId+'::event_chat::MessageEvent' },
                 null,
                 amount,
                 'descending'
@@ -287,7 +290,7 @@ export const ChatView: React.FC = () =>
         try {
             refEventSubscriptionId.current = await rpcWebsocket.subscribeEvent(
                 {And: [
-                    { MoveEventType: polymediaPackageId+'::event_chat::MessageEvent' },
+                    { MoveEventType: packageId+'::event_chat::MessageEvent' },
                     { MoveEventField: { 'path': '/room', 'value': chatId} },
                 ]},
                 (event: SuiEventEnvelope) => eventsToMessages([event]),
@@ -384,11 +387,11 @@ export const ChatView: React.FC = () =>
         setUIError('');
         setIsSendingMsg(true);
         // await preapproveTxns();
-        console.debug(`[onSubmitAddMessage] Calling event_chat::send_message on package: ${polymediaPackageId}`);
+        console.debug(`[onSubmitAddMessage] Calling event_chat::send_message on package: ${packageId}`);
         signAndExecuteTransaction({
             kind: 'moveCall',
             data: {
-                packageObjectId: polymediaPackageId,
+                packageObjectId: packageId,
                 module: 'event_chat',
                 function: 'send_message',
                 typeArguments: [],
@@ -687,7 +690,7 @@ const onChangeChatInput = (e: SyntheticEvent) => {
 /*
 const preapproveTxns = useCallback(async () => {
     await wallet?.requestPreapproval({
-        packageObjectId: polymediaPackageId,
+        packageObjectId: packageId,
         module: 'vector_chat',
         function: 'add_message',
         objectId: chatId,
