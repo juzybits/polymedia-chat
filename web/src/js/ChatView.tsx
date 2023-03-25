@@ -17,7 +17,7 @@ import verifiedBadge from '../img/verified_badge.svg';
 
 const RESUBSCRIBE_ATTEMPT_INTERVAL = 1000; // How often resubscribeToEvents() is called
 const RESUBSCRIBE_MINIMUM_ELAPSED_TIME = 21000; // How often resubscribeToEvents() actually resubscribe
-const PULL_RECENT_INTERVAL = 15000; // How often to pull recent messages
+const PULL_RECENT_INTERVAL = 30000; // How often to pull recent messages
 const MAX_MESSAGES = 500;
 const SEND_MESSAGE_GAS_BUDGET = 10000;
 
@@ -167,14 +167,12 @@ export const ChatView: React.FC = () =>
             console.debug('[fetchProfiles] No new authors. Skipping.');
             return;
         }
-        console.debug('[fetchProfiles] Looking up new authors');
-        const lookupAddresses = new Set<SuiAddress>([
-            ...refProfiles.current.keys(), // the profileManager will return these from cache
-            ...newAuthors,
-        ]);
-        profileManager.getProfiles({lookupAddresses})
+        console.debug(`[fetchProfiles] Looking up ${newAuthors.size} new authors`);
+        profileManager.getProfiles({lookupAddresses: newAuthors})
         .then(newProfiles => {
-            refProfiles.current = newProfiles;
+            for (const [address, profile] of newProfiles.entries()) {
+                refProfiles.current.set(address, profile);
+            }
             setMessages(new Map(refMessages.current));
             maybeShowProfileCTA();
         })
