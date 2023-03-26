@@ -17,7 +17,7 @@ import verifiedBadge from '../img/verified_badge.svg';
 
 const RESUBSCRIBE_ATTEMPT_INTERVAL = 1000; // How often resubscribeToEvents() is called
 const RESUBSCRIBE_MINIMUM_ELAPSED_TIME = 21000; // How often resubscribeToEvents() actually resubscribe
-const PULL_RECENT_INTERVAL = 30000; // How often to pull recent messages
+const PULL_RECENT_INTERVAL = 10000; // How often to pull recent messages
 const MAX_MESSAGES = 500;
 const SEND_MESSAGE_GAS_BUDGET = 10000;
 
@@ -218,7 +218,7 @@ export const ChatView: React.FC = () =>
         // Pull recent messages periodically because:
         // 1) The internet connection may have been lost
         // 2) We could lose messages between unsubscribe and subscribe
-        refPullRecentIntervalId.current = setInterval(pullRecentMessages, PULL_RECENT_INTERVAL, 50);
+        refPullRecentIntervalId.current = setInterval(pullRecentMessages, PULL_RECENT_INTERVAL, 20);
 
         await resubscribeToEvents();
         // Periodically resubscribe (the browser closes the websocket after 30 seconds of innactivity)
@@ -248,7 +248,7 @@ export const ChatView: React.FC = () =>
                 amount,
                 'descending'
             );
-            console.debug('[pullRecentMessages] Loaded recent messages');
+            console.debug('[pullRecentMessages] Pulled recent messages');
             eventsToMessages(events.data.reverse());
             setUIError('');
         } catch(err) {
