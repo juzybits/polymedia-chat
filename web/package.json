@@ -5,6 +5,7 @@
     "dependencies": {
         "@emoji-mart/data": "1",
         "@emoji-mart/react": "1",
+        "@fingerprintjs/fingerprintjs": "latest",
         "@mysten/sui.js": "latest",
         "@mysten/wallet-kit": "latest",
         "@polymedia/profile-sdk": "0.1.12",
