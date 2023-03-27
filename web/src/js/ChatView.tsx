@@ -620,7 +620,7 @@ export const ChatView: React.FC = () =>
             <form onSubmit={onSubmitAddMessage} className='chat-input-wrapper'
                   onClick={currentAccount ? undefined : () => setConnectModalOpen(true)}>
                 <input ref={refChatInput} type='text' required
-                    maxLength={chatObj?.fields.max_msg_length}
+                    maxLength={2000}
                     className={`${isSendingMsg ? 'waiting' : (!currentAccount ? 'disabled' : '')}`}
                     disabled={!currentAccount || isSendingMsg}
                     autoCorrect='off' autoComplete='off'

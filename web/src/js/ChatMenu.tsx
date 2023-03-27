@@ -79,7 +79,7 @@ export function ChatMenu() {
                         <span className='menu-field-label'>Description:</span>
                         <span className='menu-field-value'>{chatObj.details.data.fields.description}</span>
                     </div>
-                    <div className='menu-field'>
+                    {/*<div className='menu-field'>
                         <span className='menu-field-label'>Max messages:</span>
                         <span className='menu-field-value'>{chatObj.details.data.fields.max_msg_amount}</span>
                     </div>
@@ -87,7 +87,7 @@ export function ChatMenu() {
                         <span className='menu-field-label'>Max message length:</span>
                         <span className='menu-field-value'>{chatObj.details.data.fields.max_msg_length}</span>
                     </div>
-                    {/*<div className='menu-field'>
+                    <div className='menu-field'>
                         <span className='menu-field-label'>Version:</span>
                         <span className='menu-field-value'>{chatObj.details.reference.version}</span>
                     </div>*/}
