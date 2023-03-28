@@ -43,7 +43,7 @@ export function Nav({ menuPath, menuTitle }: NavProps)
             ?
                 <span id='nav-btn-disconnect'
                       onClick={ async () => { await disconnect(); setConnectModalOpen(true); } }>
-                    {'@' + currentAccount.slice(2, 6)}
+                    {'@' + currentAccount.address.slice(2, 6)}
                 </span>
             :
                 <span id='nav-btn-connect'

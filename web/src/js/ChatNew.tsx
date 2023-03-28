@@ -1,5 +1,6 @@
 import { useEffect, useState, SyntheticEvent } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
+import { TransactionBlock } from '@mysten/sui.js';
 import { useWalletKit } from '@mysten/wallet-kit';
 
 import { getConfig } from './lib/chat';
@@ -15,7 +16,7 @@ export function ChatNew() {
 
     const [notify, network, _connectModalOpen, setConnectModalOpen]: any = useOutletContext();
     const { polymediaPackageId } = getConfig(network);
-    const { isConnected, signAndExecuteTransaction } = useWalletKit();
+    const { isConnected, signAndExecuteTransactionBlock } = useWalletKit();
 
     /* Effects */
 
@@ -34,19 +35,22 @@ export function ChatNew() {
         }
         setWaiting(true);
         console.debug(`[onSubmitCreateChat] Calling item::create on package: ${polymediaPackageId}`);
-        signAndExecuteTransaction({
-            kind: 'moveCall',
-            data: {
-                packageObjectId: polymediaPackageId,
-                module: 'event_chat',
-                function: 'create_room',
-                typeArguments: [],
-                arguments: [
-                    inputName,
-                    inputDescription,
-                ],
-                gasBudget: 10000,
-            }
+
+        const tx = new TransactionBlock();
+        tx.moveCall({
+            target: `${polymediaPackageId}::event_chat::create_room`,
+            typeArguments: [],
+            arguments: [
+                tx.pure(inputName),
+                tx.pure(inputDescription),
+            ],
+        });
+
+        signAndExecuteTransactionBlock({
+            transactionBlock: tx,
+            options: {
+                showEffects: true,
+            },
         })
         .then((resp: any) => {
             // @ts-ignore

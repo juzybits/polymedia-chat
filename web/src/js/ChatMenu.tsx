@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useOutletContext } from 'react-router-dom';
+import { SuiMoveObject } from '@mysten/sui.js';
+
 import { Nav } from './components/Nav';
 import { getConfig } from './lib/chat';
 import '../css/Menu.less';
 
 export function ChatMenu() {
-    const [chatObj, setChatObj]: any = useState(null);
+    const [chatObj, setChatObj] = useState<SuiMoveObject|null>(null);
     const [error, setError] = useState('');
 
     const [_notify, network] = useOutletContext<string>();
@@ -28,13 +30,20 @@ export function ChatMenu() {
 
     const loadObject = async () => {
         console.debug('[loadObject] Fetching object:', chatId);
-        rpc.getObject(chatId)
-        .then((obj: any) => {
-            if (obj.status != 'Exists') {
-                setError(`[loadObject] Object does not exist. Status: ${obj.status}`);
+        rpc.getObject({
+            id: chatId,
+            options: {
+                showContent: true,
+            },
+        })
+        .then(resp => {
+            if (resp.error) {
+                setError('[loadObject] Error loading chat room: ' + JSON.stringify(resp.error));
+            } else if (!resp.data) {
+                setError('[loadObject] UNEXPECTED Missing object data. resp: ' + JSON.stringify(resp));
             } else {
                 setError('');
-                setChatObj(obj);
+                setChatObj(resp.data.content as SuiMoveObject);
             }
         })
         .catch(err => {
@@ -66,26 +75,26 @@ export function ChatMenu() {
                     <div className='menu-field'>
                         <span className='menu-field-label'>Object ID:</span>
                         <span className='menu-field-value'>
-                            <a href={'https://explorer.sui.io/object/'+chatObj.details.data.fields.id.id+'?network='+network} target='_blank'>
-                                {chatObj.details.data.fields.id.id}
+                            <a href={'https://explorer.sui.io/object/'+chatObj.fields.id.id+'?network='+network} target='_blank'>
+                                {chatObj.fields.id.id}
                             </a>
                         </span>
                     </div>
                     <div className='menu-field'>
                         <span className='menu-field-label'>Name:</span>
-                        <span className='menu-field-value'>{chatObj.details.data.fields.name}</span>
+                        <span className='menu-field-value'>{chatObj.fields.name}</span>
                     </div>
                     <div className='menu-field'>
                         <span className='menu-field-label'>Description:</span>
-                        <span className='menu-field-value'>{chatObj.details.data.fields.description}</span>
+                        <span className='menu-field-value'>{chatObj.fields.description}</span>
                     </div>
                     {/*<div className='menu-field'>
                         <span className='menu-field-label'>Max messages:</span>
-                        <span className='menu-field-value'>{chatObj.details.data.fields.max_msg_amount}</span>
+                        <span className='menu-field-value'>{chatObj.fields.max_msg_amount}</span>
                     </div>
                     <div className='menu-field'>
                         <span className='menu-field-label'>Max message length:</span>
-                        <span className='menu-field-value'>{chatObj.details.data.fields.max_msg_length}</span>
+                        <span className='menu-field-value'>{chatObj.fields.max_msg_length}</span>
                     </div>
                     <div className='menu-field'>
                         <span className='menu-field-label'>Version:</span>

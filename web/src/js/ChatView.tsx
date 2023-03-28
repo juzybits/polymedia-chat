@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState, SyntheticEvent } from 'react';
 import { Link, useLocation, useParams, useOutletContext } from 'react-router-dom';
-import { GetObjectDataResponse, SuiAddress, SuiEventEnvelope, SuiObject, SuiMoveObject, TransactionDigest } from '@mysten/sui.js';
+import {
+    SuiAddress,
+    SuiEvent,
+    SuiMoveObject,
+    SuiObjectResponse,
+    TransactionBlock,
+    TransactionDigest,
+} from '@mysten/sui.js';
 import { useWalletKit } from '@mysten/wallet-kit';
 import FingerprintJS from '@fingerprintjs/fingerprintjs'
 import emojiData from '@emoji-mart/data';
@@ -17,14 +24,18 @@ import verifiedBadge from '../img/verified_badge.svg';
 
 const RESUBSCRIBE_ATTEMPT_INTERVAL = 1000; // How often resubscribeToEvents() is called
 const RESUBSCRIBE_MINIMUM_ELAPSED_TIME = 21000; // How often resubscribeToEvents() actually resubscribe
-const PULL_RECENT_INTERVAL = 10000; // How often to pull recent messages
+const PULL_RECENT_INTERVAL = 3000; // How often to pull recent messages
 const MAX_MESSAGES = 500;
-const SEND_MESSAGE_GAS_BUDGET = 10000;
 
 type Message = {
     author: SuiAddress,
     text: string,
     timestamp: number,
+};
+
+type MessageEvent = {
+    room: SuiAddress,
+    text: string,
 };
 
 // Messages from these addresses will be hidden from everyone except from their authors
@@ -36,8 +47,7 @@ const bannedFingerprints: string[] = [
 
 // Shows checkmark
 const verifiedAddresses: string[] = [
-    '0x0e3a1382a557072bf3f0ae2c288e2c933b41efb6', // Suiet
-    '0xb8e9b348974f902eb0f555dc410780650b3d990d', // Ethos
+    '0x93543ba125f9c0826b567813193737e9e69077ecd427238cb0eb4acbb096edc5', // Sui
 ];
 
 // To fight spammers
@@ -49,7 +59,7 @@ export const ChatView: React.FC = () =>
     const [notify, network, connectModalOpen, setConnectModalOpen]: any = useOutletContext();
     const { rpc, rpcWebsocket, polymediaPackageId, polymediaPackageIdSpecial,
             suiFansChatId, suiFansChatIdSpecial } = getConfig(network);
-    const { currentAccount, signAndExecuteTransaction } = useWalletKit();
+    const { currentAccount, signAndExecuteTransactionBlock } = useWalletKit();
     /* User and Polymedia Profile */
     const profileManager = new ProfileManager({network});
     const refProfiles = useRef( new Map<SuiAddress, PolymediaProfile|null>() );
@@ -128,8 +138,8 @@ export const ChatView: React.FC = () =>
             return;
         }
         // Update the user address everywhere
-        refLastUserAddr.current = currentAccount;
-        localStorage.setItem('polymedia.userAddr', currentAccount);
+        refLastUserAddr.current = currentAccount.address;
+        localStorage.setItem('polymedia.userAddr', currentAccount.address);
 
         focusChatInput();
         maybeShowProfileCTA();
@@ -190,22 +200,31 @@ export const ChatView: React.FC = () =>
     {
         // Pull the ChatRoom object
         try {
-            const resp: GetObjectDataResponse = await rpc.getObject(chatId);
-            if (resp.status != 'Exists') {
+            const resp: SuiObjectResponse = await rpc.getObject({
+                id: chatId,
+                options: {
+                    showContent: true,
+                },
+            });
+            if (resp.error) {
                 if (location.state && location.state.isNewChat) {
                     // Sometimes there is lag after the chat is created, so let's retry
                     setTimeout(loadChatRoom, 1000);
                     return;
                 } else {
-                    const errMsg = '[loadChatRoom] Object does not exist.';
+                    const errMsg = '[loadChatRoom] Object does not exist. resp.error: ' + JSON.stringify(resp.error);
                     console.warn(errMsg);
                     setUIError(errMsg);
                     return;
                 }
+            } else if (!resp.data) {
+                const errMsg = '[loadChatRoom] UNEXPECTED Missing object data. resp: ' + JSON.stringify(resp);
+                console.warn(errMsg);
+                setUIError(errMsg);
+                return;
             } else {
-                const objData = (resp.details as SuiObject).data as SuiMoveObject;
                 setUIError('');
-                setChatObj(objData);
+                setChatObj(resp.data.content as SuiMoveObject);
             }
         } catch(err) {
             const errMsg = '[loadChatRoom] Unexpected error while loading ChatRoom object: ' + err;
@@ -242,12 +261,12 @@ export const ChatView: React.FC = () =>
         }
         refIsPullRecentOngoing.current = true;
         try {
-            const events = await rpc.getEvents(
-                { MoveEvent: packageId+'::event_chat::MessageEvent' },
-                null,
-                amount,
-                'descending'
-            );
+            const events = await rpc.queryEvents({
+                query: { MoveEventType: packageId+'::event_chat::MessageEvent' }, // TODO: can we filter by field now?
+                cursor: null,
+                limit: amount,
+                order: 'descending'
+            });
             console.debug('[pullRecentMessages] Pulled recent messages');
             eventsToMessages(events.data.reverse());
             setUIError('');
@@ -260,7 +279,8 @@ export const ChatView: React.FC = () =>
         }
     };
 
-    const resubscribeToEvents = async () => {
+    const resubscribeToEvents = async () => { // TODO: re-enable
+        return;
         if (refIsResubscribeOngoing.current) {
             console.debug('[resubscribeToEvents] In progress. Skipping.');
             return;
@@ -286,13 +306,13 @@ export const ChatView: React.FC = () =>
             return;
         }
         try {
-            refEventSubscriptionId.current = await rpcWebsocket.subscribeEvent(
-                {And: [
+            refEventSubscriptionId.current = await rpcWebsocket.subscribeEvent({
+                filter: {And: [
                     { MoveEventType: packageId+'::event_chat::MessageEvent' },
                     { MoveEventField: { 'path': '/room', 'value': chatId} },
                 ]},
-                (event: SuiEventEnvelope) => eventsToMessages([event]),
-            );
+                onMessage: (event: SuiEvent) => eventsToMessages([event]),
+            });
             console.debug('[subscribeToEvents] Subscribed:', refEventSubscriptionId.current);
             setUIError('');
         } catch (err) {
@@ -308,7 +328,7 @@ export const ChatView: React.FC = () =>
             return;
         }
         try {
-            const subFoundAndRemoved = await rpcWebsocket.unsubscribeEvent(refEventSubscriptionId.current);
+            const subFoundAndRemoved = await rpcWebsocket.unsubscribeEvent({id: refEventSubscriptionId.current});
             refEventSubscriptionId.current = 0;
             console.debug('[unsubscribeFromEvents] Unsubscribed. subFoundAndRemoved:', subFoundAndRemoved);
             setUIError('');
@@ -319,32 +339,28 @@ export const ChatView: React.FC = () =>
         }
     };
 
-    const eventsToMessages = (events: Array<SuiEventEnvelope>) => {
+    const eventsToMessages = (events: Array<SuiEvent>) => {
         const userIsBanned = isBannedUser();
         const authorAddresses = new Set<SuiAddress>();
         for (const event of events) {
             // Skip if already included in map (common when called from pullRecentMessages)
-            if (refMessages.current.has(event.txDigest))
+            if (refMessages.current.has(event.id.txDigest))
                 continue;
             // Check that the message belongs to this ChatRoom (needed for initial load,
             // because rpc.getEvents() can't filter by field)
-            // @ts-ignore
-            const msgRoom = event.event.moveEvent.fields.room;
-            if (msgRoom != chatId) {
+            const msgEvent = event.parsedJson as MessageEvent;
+            if (msgEvent.room != chatId) {
                 continue;
             }
             // Skip messages from banned addresses (unless the user is banned)
-            // @ts-ignore
-            const msgAuthor = event.event.moveEvent.sender;
-            // @ts-ignore
-            const msgText = event.event.moveEvent.fields.text;
+            const msgAuthor = event.sender;
             if (!userIsBanned && bannedAddresses.includes(msgAuthor))
                 continue;
             // Format and append the message
-            refMessages.current.set(event.txDigest, {
+            refMessages.current.set(event.id.txDigest, {
                 author: msgAuthor,
-                text: msgText,
-                timestamp: event.timestamp,
+                text: msgEvent.text,
+                timestamp: event.timestampMs||0,
             });
             authorAddresses.add(msgAuthor);
         }
@@ -374,11 +390,11 @@ export const ChatView: React.FC = () =>
         // }
     };
 
-    async function log(args: Array<any>) {
-        fetch('https://xgpkrw6zkgwtp2yafliwyhyasu0ygrms.lambda-url.eu-central-1.on.aws', {
-            method: 'POST',
-            body: JSON.stringify(args),
-        });
+    async function log(_args: Array<any>) {
+        // fetch('https://xgpkrw6zkgwtp2yafliwyhyasu0ygrms.lambda-url.eu-central-1.on.aws', {
+        //     method: 'POST',
+        //     body: JSON.stringify(args),
+        // });
     }
     const onSubmitAddMessage = async (e: SyntheticEvent) => {
         e.preventDefault();
@@ -386,22 +402,24 @@ export const ChatView: React.FC = () =>
         setIsSendingMsg(true);
         // await preapproveTxns();
         console.debug(`[onSubmitAddMessage] Calling event_chat::send_message on package: ${packageId}`);
-        signAndExecuteTransaction({
-            kind: 'moveCall',
-            data: {
-                packageObjectId: packageId,
-                module: 'event_chat',
-                function: 'send_message',
-                typeArguments: [],
-                arguments: [
-                    chatId,
-                    Array.from( (new TextEncoder()).encode(getChatInputValue()) ),
-                ],
-                gasBudget: SEND_MESSAGE_GAS_BUDGET,
-            }
+
+        const tx = new TransactionBlock();
+        tx.moveCall({
+            target: `${packageId}::event_chat::send_message`,
+            typeArguments: [],
+            arguments: [
+                tx.object(chatId),
+                tx.pure(Array.from( (new TextEncoder()).encode(getChatInputValue()) )),
+            ],
+        });
+
+        signAndExecuteTransactionBlock({
+            transactionBlock: tx,
+            options: {
+                showEffects: true,
+            },
         })
         .then((resp: any) => {
-            // @ts-ignore
             const effects = resp.effects.effects || resp.effects; // Suiet || Sui|Ethos
             if (effects.status.status == 'success') {
                 log([refUserFingerprint.current, refLastUserAddr.current, getChatInputValue()]);
@@ -585,7 +603,7 @@ export const ChatView: React.FC = () =>
             }
             const magicText = parseMagicText(refProfiles.current, msg.text, copyAddress);
             const isVerified = verifiedAddresses.includes(msg.author);
-            return <div key={idx} className={`message ${currentAccount && msg.text.includes(currentAccount) ? 'highlight' : ''}`}>
+            return <div key={idx} className={`message ${currentAccount && msg.text.includes(currentAccount.address) ? 'highlight' : ''}`}>
                 <div className='message-pfp-wrap'>
                     <span className={pfpClasses} style={pfpStyles} onClick={() => copyAddress(msg.author)}>
                         {!hasPfpImage && getAddressEmoji(msg.author)}

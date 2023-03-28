@@ -2,10 +2,10 @@
 
 import { Connection, JsonRpcProvider } from '@mysten/sui.js';
 
-const POLYMEDIA_PACKAGE_DEVNET = '0xd5679408e37a91ab07bd70493ab31fef6a0337d8';
-const SUI_FANS_CHAT_ID_DEVNET = '0x5018916b1b4bbcc1fd6e7c0125365ac59c491881';
-const POLYMEDIA_PACKAGE_DEVNET_SPECIAL = '0x5c23a7d6416a0e7f62923f71fd6029ee5afe0983';
-const SUI_FANS_CHAT_ID_DEVNET_SPECIAL = '0x12f47a966773c6ec07a19fc95b856e285ba48cf5';
+const POLYMEDIA_PACKAGE_DEVNET = '0x663365df8746f0730721a92588ddd771a8a9578106a162bd32a7f1d683cd1a62';
+const SUI_FANS_CHAT_ID_DEVNET = '0xa03e781ab74a5ad813a3ea736508ad1fd285923fafb7895a7821a38bac0a632f';
+const POLYMEDIA_PACKAGE_DEVNET_SPECIAL = '0x91c1316dbd38adbdd5e42e4e9e2c171fea406ae7df9b25efc720897230711f76';
+const SUI_FANS_CHAT_ID_DEVNET_SPECIAL = '0xc9651b8146e04c32a1c9defd6b6a37b90a229c988c6f20c67de56267bb3c7b9f';
 
 const POLYMEDIA_PACKAGE_TESTNET = '0x123';
 const SUI_FANS_CHAT_ID_TESTNET = '0x456';
@@ -17,8 +17,8 @@ const FAUCET_TESTNET = 'https://faucet.testnet.sui.io/gas';
 
 const RPC_DEVNET = new JsonRpcProvider(new Connection({
   fullnode: 'https://node.shinami.com/api/v1/186668da9c42b69678719e785ed644a2',
+  // fullnode: 'https://fullnode.devnet.sui.io:443',
   // fullnode: 'https://fullnode.devnet.vincagame.com:443',
-  // fullnode: 'https://fullnode.devnet.sui.io:443/',
   faucet: FAUCET_DEVNET,
 }));
 
@@ -30,7 +30,7 @@ const RPC_TESTNET = new JsonRpcProvider(new Connection({
 
 const RPC_DEVNET_WEBSOCKET = new JsonRpcProvider(new Connection({
     fullnode: 'wss://node.shinami.com/ws/v1/186668da9c42b69678719e785ed644a2',
-    // fullnode: 'https://fullnode.devnet.sui.io:443/',
+    // fullnode: 'https://fullnode.devnet.sui.io:443',
     faucet: FAUCET_DEVNET,
 }));
 
