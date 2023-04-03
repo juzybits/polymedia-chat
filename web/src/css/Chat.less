@@ -1,3 +1,5 @@
+@import './variables.less';
+
 #chat-wrapper {
     display: flex;
     flex-flow: column;
@@ -5,12 +7,22 @@
     .chat-top {
         padding: 0.4em var(--padding-rail) 0.55em;
         border-bottom: var(--panel-border);
+        @media(max-width: @mobile-width) {
+            padding: 0.2em var(--padding-rail) 0.32em;
+            font-size: 0.9em;
+        }
     }
     .chat-middle {
         flex-grow: 1;
         border-bottom: var(--panel-border);
+        @media(max-width: @mobile-width) {
+            font-size: 0.9em;
+        }
     }
     .chat-bottom {
+        @media(max-width: @mobile-width) {
+            font-size: 0.9em;
+        }
     }
     .chat-title {
         display: flex;
@@ -22,13 +34,19 @@
         .chat-description {
             flex-grow: 0;
             white-space: nowrap;
-            overflow-x: clip;
             font-size: 0.8em;
             color: var(--text-color);
             padding-top: 0.5em;
             &:hover {
                 cursor: pointer;
                 text-decoration: none;
+            }
+            /* Scroll horizontally, and hide scrollbar */
+            overflow-x: scroll;
+            -ms-overflow-style: none;  // Internet Explorer 10+
+            scrollbar-width: none; // Firefox
+            &::-webkit-scrollbar { // Chrome and Safari
+                display: none;
             }
         }
         .chat-title-divider {
