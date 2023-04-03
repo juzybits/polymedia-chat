@@ -10,7 +10,7 @@ export function App()
         setNotification(text);
         setTimeout(() => { setNotification('') }, 1200);
     };
-    const network = 'devnet';
+    const network = 'localnet';
     // Delete query string
     window.history.replaceState({}, document.title, window.location.pathname);
     /*

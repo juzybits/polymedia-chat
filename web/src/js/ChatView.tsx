@@ -186,9 +186,8 @@ export const ChatView: React.FC = () =>
             setMessages(new Map(refMessages.current));
             maybeShowProfileCTA();
         })
-        .catch((err) => {
-            const errMsg = `[fetchProfiles] Request error: ${err.message}`;
-            console.warn(errMsg);
+        .catch(err => {
+            console.warn('[fetchProfiles]', err.stack)
             // setUIError(errMsg);
         })
     };
@@ -592,11 +591,11 @@ export const ChatView: React.FC = () =>
                 </div>;
             }*/}
             const profile = refProfiles.current.get(msg.author);
-            const hasPfpImage = profile && profile.url;
+            const hasPfpImage = profile && profile.imageUrl;
             let pfpClasses = 'message-pfp';
             const pfpStyles: any = {};
             if (hasPfpImage) {
-                pfpStyles.backgroundImage = 'url('+encodeURI(profile.url)+')';
+                pfpStyles.backgroundImage = 'url('+encodeURI(profile.imageUrl)+')';
                 pfpClasses += ' polymedia-profile';
             } else {
                 pfpStyles.backgroundColor = getAddressColor(msg.author, 12);
