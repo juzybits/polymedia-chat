@@ -41,8 +41,8 @@ export function ChatNew() {
             target: `${polymediaPackageId}::event_chat::create_room`,
             typeArguments: [],
             arguments: [
-                tx.pure(inputName),
-                tx.pure(inputDescription),
+                tx.pure(Array.from( (new TextEncoder()).encode(inputName) )),
+                tx.pure(Array.from( (new TextEncoder()).encode(inputDescription) )),
             ],
         });
 
