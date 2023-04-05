@@ -1,6 +1,7 @@
 /// Helpers to parse/fetch/publish `polymedia_chat::item::Item` objects on the Sui network
 
 import { Connection, JsonRpcProvider } from '@mysten/sui.js';
+import { RPC_CONFIG } from '@polymedia/webutils';
 
 const POLYMEDIA_PACKAGE_LOCALNET = '0xb0effff6ecd97100c8d08743ef133d00387c61a559d2eaedca6b808fe671fa6a';
 const SUI_FANS_CHAT_ID_LOCALNET = '0x6313ac0fab76dcc38c75ef42fd1617599070e76a5c29ad72f65e1121b5dae220';
@@ -17,40 +18,31 @@ const SUI_FANS_CHAT_ID_TESTNET = '0x456';
 const POLYMEDIA_PACKAGE_TESTNET_SPECIAL = '0x123';
 const SUI_FANS_CHAT_ID_TESTNET_SPECIAL = '0x789';
 
-const FAUCET_DEVNET = 'https://faucet.devnet.sui.io/gas';
-const FAUCET_TESTNET = 'https://faucet.testnet.sui.io/gas';
-
 const RPC_LOCALNET = new JsonRpcProvider(new Connection({
-    fullnode: 'http://127.0.0.1:9000',
-    faucet: 'http://127.0.0.1:9123',
+    fullnode: RPC_CONFIG.LOCALNET_FULLNODE,
+    faucet: RPC_CONFIG.LOCALNET_FAUCET,
 }));
 
 const RPC_DEVNET = new JsonRpcProvider(new Connection({
-    fullnode: 'https://fullnode.devnet.sui.io:443',
     // fullnode: 'https://node.shinami.com/api/v1/186668da9c42b69678719e785ed644a2',
-    // fullnode: 'https://sui-devnet-endpoint.blockvision.org',
-    // fullnode: 'https://fullnode.devnet.vincagame.com:443',
-    faucet: FAUCET_DEVNET,
-}));
-
-const RPC_TESTNET = new JsonRpcProvider(new Connection({
-    fullnode: 'https://fullnode.testnet.sui.io:443',
-    // fullnode: 'https://sui-testnet-endpoint.blockvision.org',
-    // fullnode: 'https://fullnode.testnet.vincagame.com:443',
-    faucet: FAUCET_TESTNET,
+    fullnode: RPC_CONFIG.DEVNET_FULLNODE,
+    faucet: RPC_CONFIG.DEVNET_FAUCET,
 }));
 
 const RPC_DEVNET_WEBSOCKET = new JsonRpcProvider(new Connection({
-    fullnode: 'https://fullnode.devnet.sui.io:443',
     // fullnode: 'wss://node.shinami.com/ws/v1/186668da9c42b69678719e785ed644a2',
-    // fullnode: 'wss://sui-devnet-endpoint.blockvision.org/websocket',
-    faucet: FAUCET_DEVNET,
+    fullnode: RPC_CONFIG.DEVNET_WEBSOCKET,
+    faucet: RPC_CONFIG.DEVNET_FAUCET,
 }));
 
-const RPC_TESTNET_WEBSOCKET = new JsonRpcProvider(new Connection({ // TODO
-    fullnode: 'https://fullnode.testnet.sui.io:443',
-    // fullnode: 'wss://sui-testnet-endpoint.blockvision.org/websocket',
-    faucet: FAUCET_TESTNET,
+const RPC_TESTNET = new JsonRpcProvider(new Connection({
+    fullnode: RPC_CONFIG.TESTNET_FULLNODE,
+    faucet: RPC_CONFIG.TESTNET_FAUCET,
+}));
+
+const RPC_TESTNET_WEBSOCKET = new JsonRpcProvider(new Connection({
+    fullnode: RPC_CONFIG.TESTNET_WEBSOCKET,
+    faucet: RPC_CONFIG.TESTNET_FAUCET,
 }));
 
 type Config = {
