@@ -3,6 +3,7 @@
 import { ReactNode } from 'react';
 import { useOutletContext, Link } from 'react-router-dom';
 import { useWalletKit, ConnectModal } from '@mysten/wallet-kit';
+import { NetworkSelector } from '@polymedia/webutils';
 
 import '../../css/Nav.less';
 import imgLogo from '../../img/logo.png';
@@ -51,6 +52,7 @@ export function Nav({ menuPath, menuTitle }: NavProps)
                     LOG IN
                 </span>
             }
+            <NetworkSelector />
             </div>
 
         </header>

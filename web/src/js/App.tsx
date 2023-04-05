@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { WalletKitProvider } from '@mysten/wallet-kit';
-
-import { NetworkSelector, currentNetwork as network } from '@polymedia/webutils';
+import { currentNetwork as network } from '@polymedia/webutils';
 
 export function App()
 {
@@ -15,7 +14,6 @@ export function App()
 
     return <WalletKitProvider>
         {notification && <div className='notification'>{notification}</div>}
-        <NetworkSelector />
         <Outlet context={[notify, network, connectModalOpen, setConnectModalOpen]} />
     </WalletKitProvider>;
 }
