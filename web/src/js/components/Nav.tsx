@@ -3,20 +3,22 @@
 import { ReactNode } from 'react';
 import { useOutletContext, Link } from 'react-router-dom';
 import { useWalletKit, ConnectModal } from '@mysten/wallet-kit';
-import { NetworkSelector } from '@polymedia/webutils';
 
+import { NetworkName, NetworkSelector } from '@polymedia/webutils';
+import { AppContext } from '../App';
 import '../../css/Nav.less';
 import imgLogo from '../../img/logo.png';
 
 type NavProps = {
+    network: NetworkName,
     menuPath?: string,
     menuTitle?: string | ReactNode,
 }
 
-export function Nav({ menuPath, menuTitle }: NavProps)
+export function Nav({ network, menuPath, menuTitle }: NavProps)
 {
     const { currentAccount, disconnect } = useWalletKit();
-    const [_notify, _network, connectModalOpen, setConnectModalOpen]: any = useOutletContext();
+    const { connectModalOpen, setConnectModalOpen } = useOutletContext<AppContext>();
 
     return <>
         <ConnectModal
@@ -52,7 +54,7 @@ export function Nav({ menuPath, menuTitle }: NavProps)
                     LOG IN
                 </span>
             }
-            <NetworkSelector />
+            <NetworkSelector currentNetwork={network} />
             </div>
 
         </header>

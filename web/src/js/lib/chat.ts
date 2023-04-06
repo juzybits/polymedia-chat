@@ -1,7 +1,7 @@
 /// Helpers to parse/fetch/publish `polymedia_chat::item::Item` objects on the Sui network
 
 import { Connection, JsonRpcProvider } from '@mysten/sui.js';
-import { RPC_CONFIG } from '@polymedia/webutils';
+import { NetworkName } from '@polymedia/webutils';
 
 const POLYMEDIA_PACKAGE_LOCALNET = '0xb0effff6ecd97100c8d08743ef133d00387c61a559d2eaedca6b808fe671fa6a';
 const SUI_FANS_CHAT_ID_LOCALNET = '0x6313ac0fab76dcc38c75ef42fd1617599070e76a5c29ad72f65e1121b5dae220';
@@ -18,15 +18,23 @@ const SUI_FANS_CHAT_ID_TESTNET = '0xc3c6c048e848e2a05cc0cc425d4ca61db8296873da6e
 const POLYMEDIA_PACKAGE_TESTNET_SPECIAL = '0x123';
 const SUI_FANS_CHAT_ID_TESTNET_SPECIAL = '0x789';
 
-const RPC_LOCALNET = new JsonRpcProvider(new Connection({
+const RPC_CONFIG = {
+    LOCALNET_FULLNODE: "http://127.0.0.1:9000",
+    LOCALNET_WEBSOCKET: "http://127.0.0.1:9000",
+    LOCALNET_FAUCET: "http://127.0.0.1:9123",
+
+    DEVNET_FULLNODE: "https://fullnode.devnet.sui.io:443",
+    DEVNET_WEBSOCKET: "https://fullnode.devnet.sui.io:443",
+    DEVNET_FAUCET: "https://faucet.devnet.sui.io/gas",
+
+    TESTNET_FULLNODE: "https://fullnode.testnet.sui.io:443",
+    TESTNET_WEBSOCKET: "https://fullnode.testnet.sui.io:443",
+    TESTNET_FAUCET: "https://faucet.testnet.sui.io/gas"
+};
+
+const RPC_LOCALNET_WEBSOCKET = new JsonRpcProvider(new Connection({
     fullnode: RPC_CONFIG.LOCALNET_FULLNODE,
     faucet: RPC_CONFIG.LOCALNET_FAUCET,
-}));
-
-const RPC_DEVNET = new JsonRpcProvider(new Connection({
-    // fullnode: 'https://node.shinami.com/api/v1/186668da9c42b69678719e785ed644a2',
-    fullnode: RPC_CONFIG.DEVNET_FULLNODE,
-    faucet: RPC_CONFIG.DEVNET_FAUCET,
 }));
 
 const RPC_DEVNET_WEBSOCKET = new JsonRpcProvider(new Connection({
@@ -35,18 +43,12 @@ const RPC_DEVNET_WEBSOCKET = new JsonRpcProvider(new Connection({
     faucet: RPC_CONFIG.DEVNET_FAUCET,
 }));
 
-const RPC_TESTNET = new JsonRpcProvider(new Connection({
-    fullnode: RPC_CONFIG.TESTNET_FULLNODE,
-    faucet: RPC_CONFIG.TESTNET_FAUCET,
-}));
-
 const RPC_TESTNET_WEBSOCKET = new JsonRpcProvider(new Connection({
     fullnode: RPC_CONFIG.TESTNET_WEBSOCKET,
     faucet: RPC_CONFIG.TESTNET_FAUCET,
 }));
 
 type Config = {
-  rpc: JsonRpcProvider;
   rpcWebsocket: JsonRpcProvider;
   polymediaPackageId: string;
   polymediaPackageIdSpecial: string;
@@ -54,12 +56,11 @@ type Config = {
   suiFansChatIdSpecial: string;
 };
 
-export function getConfig(network: string): Config {
+export function getConfig(network: NetworkName): Config {
     switch (network) {
         case 'localnet':
             return {
-                rpc: RPC_LOCALNET,
-                rpcWebsocket: RPC_LOCALNET,
+                rpcWebsocket: RPC_LOCALNET_WEBSOCKET,
                 polymediaPackageId: POLYMEDIA_PACKAGE_LOCALNET,
                 polymediaPackageIdSpecial: POLYMEDIA_PACKAGE_LOCALNET_SPECIAL,
                 suiFansChatId: SUI_FANS_CHAT_ID_LOCALNET,
@@ -67,7 +68,6 @@ export function getConfig(network: string): Config {
             };
         case 'devnet':
             return {
-                rpc: RPC_DEVNET,
                 rpcWebsocket: RPC_DEVNET_WEBSOCKET,
                 polymediaPackageId: POLYMEDIA_PACKAGE_DEVNET,
                 polymediaPackageIdSpecial: POLYMEDIA_PACKAGE_DEVNET_SPECIAL,
@@ -76,7 +76,6 @@ export function getConfig(network: string): Config {
             };
         case 'testnet':
             return {
-                rpc: RPC_TESTNET,
                 rpcWebsocket: RPC_TESTNET_WEBSOCKET,
                 polymediaPackageId: POLYMEDIA_PACKAGE_TESTNET,
                 polymediaPackageIdSpecial: POLYMEDIA_PACKAGE_TESTNET_SPECIAL,

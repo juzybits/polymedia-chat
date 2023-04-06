@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams, useOutletContext } from 'react-router-dom';
 import { SuiMoveObject } from '@mysten/sui.js';
 
+import { AppContext } from './App';
 import { Nav } from './components/Nav';
 import { getConfig } from './lib/chat';
 import '../css/Menu.less';
@@ -10,8 +11,8 @@ export function ChatMenu() {
     const [chatObj, setChatObj] = useState<SuiMoveObject|null>(null);
     const [error, setError] = useState('');
 
-    const [_notify, network] = useOutletContext<string>();
-    const { rpc, suiFansChatId } = getConfig(network);
+    const { network, rpcProvider } = useOutletContext<AppContext>();
+    const { suiFansChatId } = getConfig(network);
 
     let chatId = useParams().uid || '';
     const chatAlias = chatId;
@@ -30,7 +31,7 @@ export function ChatMenu() {
 
     const loadObject = async () => {
         console.debug('[loadObject] Fetching object:', chatId);
-        rpc.getObject({
+        rpcProvider.getObject({
             id: chatId,
             options: {
                 showContent: true,
@@ -56,7 +57,7 @@ export function ChatMenu() {
     return <div id='page' className='page-tool'>
     <div className='menu-wrapper'>
 
-        <Nav menuPath={`/${chatAlias}`} menuTitle='BACK' />
+        <Nav network={network} menuPath={`/${chatAlias}`} menuTitle='BACK' />
 
         <div className='menu-content'>
 

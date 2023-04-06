@@ -3,6 +3,7 @@ import { useNavigate, useOutletContext } from 'react-router-dom';
 import { TransactionBlock } from '@mysten/sui.js';
 import { useWalletKit } from '@mysten/wallet-kit';
 
+import { AppContext } from './App';
 import { getConfig } from './lib/chat';
 import { Nav } from './components/Nav';
 import '../css/New.less';
@@ -14,7 +15,7 @@ export function ChatNew() {
     const [waiting, setWaiting] = useState(false);
     const [error, setError] = useState('');
 
-    const [notify, network, _connectModalOpen, setConnectModalOpen]: any = useOutletContext();
+    const { network, notify, setConnectModalOpen } = useOutletContext<AppContext>();
     const { polymediaPackageId } = getConfig(network);
     const { isConnected, signAndExecuteTransactionBlock } = useWalletKit();
 
@@ -81,7 +82,7 @@ export function ChatNew() {
     return <div id='page' className='page-tool'>
     <div className='new-wrapper'>
 
-        <Nav menuPath='/' menuTitle='BACK' />
+        <Nav network={network} menuPath='/' menuTitle='BACK' />
 
         <div className='new-content'>
 

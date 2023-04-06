@@ -13,6 +13,7 @@ import FingerprintJS from '@fingerprintjs/fingerprintjs'
 import emojiData from '@emoji-mart/data';
 import { PolymediaProfile, ProfileManager } from '@polymedia/profile-sdk';
 
+import { AppContext } from './App';
 import EmojiPicker from './components/EmojiPicker';
 import { Nav } from './components/Nav';
 import { parseMagicText, MagicAddress } from './components/MagicText';
@@ -48,6 +49,7 @@ const bannedFingerprints: string[] = [
 // Shows checkmark
 const verifiedAddresses: string[] = [
     '0x93543ba125f9c0826b567813193737e9e69077ecd427238cb0eb4acbb096edc5', // Sui
+    '0x017d58f4347357b1157c00eb2e67e318a83673decc6a7dd9fe24d34c202c2713', // Suiet
 ];
 
 // To fight spammers
@@ -56,12 +58,12 @@ const fpPromise = FingerprintJS.load({monitoring: false});
 export const ChatView: React.FC = () =>
 {
     /* Global state */
-    const [notify, network, connectModalOpen, setConnectModalOpen]: any = useOutletContext();
-    const { rpc, rpcWebsocket, polymediaPackageId, polymediaPackageIdSpecial,
+    const { notify, network, connectModalOpen, setConnectModalOpen, rpcProvider } = useOutletContext<AppContext>();
+    const { rpcWebsocket, polymediaPackageId, polymediaPackageIdSpecial,
             suiFansChatId, suiFansChatIdSpecial } = getConfig(network);
     const { currentAccount, signAndExecuteTransactionBlock } = useWalletKit();
     /* User and Polymedia Profile */
-    const profileManager = new ProfileManager({network});
+    const profileManager = new ProfileManager({network, rpcProvider});
     const refProfiles = useRef( new Map<SuiAddress, PolymediaProfile|null>() );
     const refHasCurrentAccount = useRef(false);
     const refLastUserAddr = useRef(localStorage.getItem('polymedia.userAddr') || ''); // MAYBE: store an array
@@ -199,7 +201,7 @@ export const ChatView: React.FC = () =>
     {
         // Pull the ChatRoom object
         try {
-            const resp: SuiObjectResponse = await rpc.getObject({
+            const resp: SuiObjectResponse = await rpcProvider.getObject({
                 id: chatId,
                 options: {
                     showContent: true,
@@ -261,7 +263,7 @@ export const ChatView: React.FC = () =>
         setUIError('');
         refIsPullRecentOngoing.current = true;
         try {
-            const events = await rpc.queryEvents({
+            const events = await rpcProvider.queryEvents({
                 query: { MoveEventType: packageId+'::event_chat::MessageEvent' }, // TODO: can we filter by field now?
                 cursor: null,
                 limit: amount,
@@ -346,7 +348,7 @@ export const ChatView: React.FC = () =>
             if (refMessages.current.has(event.id.txDigest))
                 continue;
             // Check that the message belongs to this ChatRoom (needed for initial load,
-            // because rpc.getEvents() can't filter by field)
+            // because rpcProvider.getEvents() can't filter by field)
             const msgEvent = event.parsedJson as MessageEvent;
             if (msgEvent.room != chatId) {
                 continue;
@@ -558,7 +560,7 @@ export const ChatView: React.FC = () =>
     const description = chatObj ? chatObj.fields.description : '';
     return <div id='page' className='page-tool'>
     <div id='chat-wrapper'>
-        <Nav menuPath={`/${chatAlias}/menu`} />
+        <Nav network={network} menuPath={`/${chatAlias}/menu`} />
         <div className='chat-top'>
             <div className='chat-title'>
                <h1 className='chat-title'>{chatObj ? chatObj.fields.name : 'Loading...'}</h1>
