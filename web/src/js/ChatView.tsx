@@ -258,6 +258,7 @@ export const ChatView: React.FC = () =>
             console.debug('[pullRecentMessages] In progress. Skipping.');
             return;
         }
+        setUIError('');
         refIsPullRecentOngoing.current = true;
         try {
             const events = await rpc.queryEvents({
@@ -268,7 +269,6 @@ export const ChatView: React.FC = () =>
             });
             console.debug('[pullRecentMessages] Pulled recent messages');
             eventsToMessages(events.data.reverse());
-            setUIError('');
         } catch(err) {
             const errMsg = '[pullRecentMessages] Failed to load recent messages: ' + err;
             console.warn(errMsg);
