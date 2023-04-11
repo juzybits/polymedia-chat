@@ -61,8 +61,15 @@ const verifiedAddresses: string[] = [
 export const ChatView: React.FC = () =>
 {
     /* Global state */
-    const { notify, network, connectModalOpen, setConnectModalOpen, rpcProvider } = useOutletContext<AppContext>();
-    const { rpcWebsocket, polymediaPackageId, polymediaPackageIdSpecial,
+    const {
+        network,
+        rpcProvider,
+        rpcProviderWss,
+        notify,
+        connectModalOpen,
+        setConnectModalOpen
+    } = useOutletContext<AppContext>();
+    const { polymediaPackageId, polymediaPackageIdSpecial,
             suiFansChatId, suiFansChatIdSpecial } = getConfig(network);
     const { currentAccount, signAndExecuteTransactionBlock } = useWalletKit();
     /* User and Polymedia Profile */
@@ -313,7 +320,7 @@ export const ChatView: React.FC = () =>
             return;
         }
         try {
-            refEventSubscriptionId.current = await rpcWebsocket.subscribeEvent({
+            refEventSubscriptionId.current = await rpcProviderWss.subscribeEvent({
                 filter: {And: [
                     { MoveEventType: packageId+'::event_chat::MessageEvent' },
                     { MoveEventField: { 'path': '/room', 'value': chatId} },
@@ -335,7 +342,7 @@ export const ChatView: React.FC = () =>
             return;
         }
         try {
-            const subFoundAndRemoved = await rpcWebsocket.unsubscribeEvent({id: refEventSubscriptionId.current});
+            const subFoundAndRemoved = await rpcProviderWss.unsubscribeEvent({id: refEventSubscriptionId.current});
             refEventSubscriptionId.current = 0;
             console.debug('[unsubscribeFromEvents] Unsubscribed. subFoundAndRemoved:', subFoundAndRemoved);
             setUIError('');
