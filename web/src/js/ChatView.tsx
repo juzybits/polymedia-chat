@@ -410,13 +410,14 @@ export const ChatView: React.FC = () =>
         // await preapproveTxns();
         console.debug(`[onSubmitAddMessage] Calling event_chat::send_message on package: ${packageId}`);
 
+        const messageText = getChatInputValue();
         const tx = new TransactionBlock();
         tx.moveCall({
             target: `${packageId}::event_chat::send_message`,
             typeArguments: [],
             arguments: [
                 tx.object(chatId),
-                tx.pure(Array.from( (new TextEncoder()).encode(getChatInputValue()) )),
+                tx.pure(Array.from((new TextEncoder()).encode(messageText))),
             ],
         });
 
@@ -429,8 +430,19 @@ export const ChatView: React.FC = () =>
         .then(resp => {
             const effects = resp.effects as TransactionEffects;
             if (effects.status.status == 'success') {
-                // log([refUserFingerprint.current, refLastUserAddr.current, getChatInputValue()]);
                 setChatInputValue('');
+                // Immediately render the user message if the transaction is confirmed
+                if (resp.confirmedLocalExecution) {
+                    refMessages.current.set(resp.digest, {
+                        author: refLastUserAddr.current,
+                        text: messageText,
+                        timestamp: Number(Date.now()),
+                    });
+                    // Update state
+                    setMessages(new Map(refMessages.current));
+                    fetchProfiles(new Set<SuiAddress>([refLastUserAddr.current]));
+                }
+                // log([refUserFingerprint.current, refLastUserAddr.current, getChatInputValue()]);
             } else {
                 const errMsg = `[onSubmitAddMessage] Response error: ${effects.status.error}`;
                 console.warn(errMsg);
