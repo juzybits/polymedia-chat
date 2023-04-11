@@ -25,7 +25,7 @@ import verifiedBadge from '../img/verified_badge.svg';
 
 const RESUBSCRIBE_ATTEMPT_INTERVAL = 1000; // How often resubscribeToEvents() is called
 const RESUBSCRIBE_MINIMUM_ELAPSED_TIME = 21000; // How often resubscribeToEvents() actually resubscribe
-const PULL_RECENT_INTERVAL = 3000; // How often to pull recent messages
+const PULL_RECENT_INTERVAL = 5000; // How often to pull recent messages
 const MAX_MESSAGES = 500;
 
 type Message = {
@@ -265,6 +265,10 @@ export const ChatView: React.FC = () =>
         try {
             const events = await rpcProvider.queryEvents({
                 query: { MoveEventType: packageId+'::event_chat::MessageEvent' }, // TODO: can we filter by field now?
+                // query: {And: [
+                //     { MoveEventType: packageId+'::event_chat::MessageEvent' },
+                //     { MoveEventField: { 'path': '/room', 'value': chatId} },
+                // ]},
                 cursor: null,
                 limit: amount,
                 order: 'descending'
@@ -281,7 +285,6 @@ export const ChatView: React.FC = () =>
     };
 
     const resubscribeToEvents = async () => { // TODO: re-enable
-        return;
         if (refIsResubscribeOngoing.current) {
             console.debug('[resubscribeToEvents] In progress. Skipping.');
             return;
@@ -361,7 +364,7 @@ export const ChatView: React.FC = () =>
             refMessages.current.set(event.id.txDigest, {
                 author: msgAuthor,
                 text: msgEvent.text,
-                timestamp: event.timestampMs||0,
+                timestamp: Number(event.timestampMs||0),
             });
             authorAddresses.add(msgAuthor);
         }
