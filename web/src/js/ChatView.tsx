@@ -9,7 +9,7 @@ import {
     TransactionDigest,
 } from '@mysten/sui.js';
 import { useWalletKit } from '@mysten/wallet-kit';
-import FingerprintJS from '@fingerprintjs/fingerprintjs'
+// import FingerprintJS from '@fingerprintjs/fingerprintjs'
 import emojiData from '@emoji-mart/data';
 import { PolymediaProfile, ProfileManager } from '@polymedia/profile-sdk';
 
@@ -43,8 +43,8 @@ type MessageEvent = {
 const bannedAddresses: string[] = [
 ];
 
-const bannedFingerprints: string[] = [
-];
+// const bannedFingerprints: string[] = [
+// ];
 
 // Shows checkmark
 const verifiedAddresses: string[] = [
@@ -53,7 +53,7 @@ const verifiedAddresses: string[] = [
 ];
 
 // To fight spammers
-const fpPromise = FingerprintJS.load({monitoring: false});
+// const fpPromise = FingerprintJS.load({monitoring: false});
 
 export const ChatView: React.FC = () =>
 {
@@ -94,17 +94,17 @@ export const ChatView: React.FC = () =>
     const refEmojiBtn = useRef<HTMLDivElement>(null);
     const refMessageList = useRef<HTMLDivElement>(null);
 
-    const refUserFingerprint = useRef('');
+    // const refUserFingerprint = useRef('');
 
     /* User moderation */
-    const calcUserFingerprint = async () => {
-        refUserFingerprint.current = await fpPromise
-            .then(fp => fp.get())
-            .then(result => result.visitorId);
-        if (bannedFingerprints.includes(refUserFingerprint.current)) {
-            localStorage.setItem('polymedia.special', '1');
-        }
-    };
+    // const calcUserFingerprint = async () => {
+    //     refUserFingerprint.current = await fpPromise
+    //         .then(fp => fp.get())
+    //         .then(result => result.visitorId);
+    //     if (bannedFingerprints.includes(refUserFingerprint.current)) {
+    //         localStorage.setItem('polymedia.special', '1');
+    //     }
+    // };
     const isBannedUser = () => {
         return (localStorage.getItem('polymedia.special') === '1')
             || (refLastUserAddr.current && bannedAddresses.includes(refLastUserAddr.current));
@@ -123,7 +123,7 @@ export const ChatView: React.FC = () =>
     useEffect(() => {
         document.title = `Polymedia Chat - ${chatId}`;
         focusChatInput();
-        calcUserFingerprint();
+        // calcUserFingerprint();
         loadChatRoom();
         return () => {
             unloadChatRoom();
@@ -394,12 +394,12 @@ export const ChatView: React.FC = () =>
         // }
     };
 
-    async function log(_args: Array<any>) {
-        // fetch('https://xgpkrw6zkgwtp2yafliwyhyasu0ygrms.lambda-url.eu-central-1.on.aws', {
+    // async function log(_args: Array<any>) {
+        // fetch('', {
         //     method: 'POST',
         //     body: JSON.stringify(args),
         // });
-    }
+    // }
     const onSubmitAddMessage = async (e: SyntheticEvent) => {
         e.preventDefault();
         setUIError('');
@@ -426,7 +426,7 @@ export const ChatView: React.FC = () =>
         .then((resp: any) => {
             const effects = resp.effects.effects || resp.effects; // Suiet || Sui|Ethos
             if (effects.status.status == 'success') {
-                log([refUserFingerprint.current, refLastUserAddr.current, getChatInputValue()]);
+                // log([refUserFingerprint.current, refLastUserAddr.current, getChatInputValue()]);
                 setChatInputValue('');
             } else {
                 const errMsg = `[onSubmitAddMessage] Response error: ${effects.status.error}`;
