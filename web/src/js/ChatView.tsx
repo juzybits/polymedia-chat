@@ -7,6 +7,7 @@ import {
     SuiObjectResponse,
     TransactionBlock,
     TransactionDigest,
+    TransactionEffects,
 } from '@mysten/sui.js';
 import { useWalletKit } from '@mysten/wallet-kit';
 // import FingerprintJS from '@fingerprintjs/fingerprintjs'
@@ -25,7 +26,7 @@ import verifiedBadge from '../img/verified_badge.svg';
 
 const RESUBSCRIBE_ATTEMPT_INTERVAL = 1000; // How often resubscribeToEvents() is called
 const RESUBSCRIBE_MINIMUM_ELAPSED_TIME = 21000; // How often resubscribeToEvents() actually resubscribe
-const PULL_RECENT_INTERVAL = 5000; // How often to pull recent messages
+const PULL_RECENT_INTERVAL = 30000; // How often to pull recent messages
 const MAX_MESSAGES = 500;
 
 type Message = {
@@ -49,7 +50,9 @@ const bannedAddresses: string[] = [
 // Shows checkmark
 const verifiedAddresses: string[] = [
     '0x93543ba125f9c0826b567813193737e9e69077ecd427238cb0eb4acbb096edc5', // Sui
+    '0x139f6d74d202cd572dad492c69eb5d9a62d0ce4a348fe162f074e278b64e3613', // Ethos
     '0x017d58f4347357b1157c00eb2e67e318a83673decc6a7dd9fe24d34c202c2713', // Suiet
+    '0x047f19f4d9a109b2ae85067bf584305c35dfff04e3bd121b8ac6bed303205930', // Martian
 ];
 
 // To fight spammers
@@ -210,7 +213,7 @@ export const ChatView: React.FC = () =>
             if (resp.error) {
                 if (location.state && location.state.isNewChat) {
                     // Sometimes there is lag after the chat is created, so let's retry
-                    setTimeout(loadChatRoom, 1000);
+                    setTimeout(loadChatRoom, 1500);
                     return;
                 } else {
                     const errMsg = '[loadChatRoom] Object does not exist. resp.error: ' + JSON.stringify(resp.error);
@@ -423,8 +426,8 @@ export const ChatView: React.FC = () =>
                 showEffects: true,
             },
         })
-        .then((resp: any) => {
-            const effects = resp.effects.effects || resp.effects; // Suiet || Sui|Ethos
+        .then(resp => {
+            const effects = resp.effects as TransactionEffects;
             if (effects.status.status == 'success') {
                 // log([refUserFingerprint.current, refLastUserAddr.current, getChatInputValue()]);
                 setChatInputValue('');

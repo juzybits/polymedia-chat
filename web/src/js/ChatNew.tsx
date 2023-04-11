@@ -1,6 +1,6 @@
 import { useEffect, useState, SyntheticEvent } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
-import { TransactionBlock } from '@mysten/sui.js';
+import { OwnedObjectRef, TransactionBlock, TransactionEffects } from '@mysten/sui.js';
 import { useWalletKit } from '@mysten/wallet-kit';
 
 import { AppContext } from './App';
@@ -53,21 +53,20 @@ export function ChatNew() {
                 showEffects: true,
             },
         })
-        .then((resp: any) => {
-            // @ts-ignore
-            const effects = resp.effects.effects || resp.effects; // Suiet || Sui|Ethos
+        .then(resp => {
+            const effects = resp.effects as TransactionEffects;
             if (effects.status.status == 'success') {
                 console.debug('[onSubmitCreateChat] Success:', resp);
-                const newObjId = effects.created[0].reference.objectId;
+                const newObjId = (effects.created as OwnedObjectRef[])[0].reference.objectId;
                 notify('SUCCESS!');
                 navigate('/' + newObjId, {
                     state: { isNewChat: true }
                 });
             } else {
-                setError(effects.status.error);
+                setError(effects.status.error || 'Unexpected error. Response: '+JSON.stringify(resp));
             }
         })
-        .catch((error: any) => {
+        .catch(error => {
             setError(error.message);
         })
         .finally(() => {
