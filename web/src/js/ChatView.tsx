@@ -10,9 +10,8 @@ import {
     TransactionEffects,
 } from '@mysten/sui.js';
 import { useWalletKit } from '@mysten/wallet-kit';
-// import FingerprintJS from '@fingerprintjs/fingerprintjs'
-import emojiData from '@emoji-mart/data';
 import { PolymediaProfile, ProfileManager } from '@polymedia/profile-sdk';
+// import FingerprintJS from '@fingerprintjs/fingerprintjs'
 
 import { AppContext } from './App';
 import EmojiPicker from './components/EmojiPicker';
@@ -691,7 +690,7 @@ export const ChatView: React.FC = () =>
             }
 
             { showEmojiPicker &&
-                <EmojiPicker data={emojiData}
+                <EmojiPicker
                     onEmojiSelect={onSelectEmoji}
                     onClickOutside={onclickOutsideEmojiPicker}
                     autoFocus={true}

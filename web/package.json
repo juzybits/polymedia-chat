@@ -3,7 +3,6 @@
     "author": "@juzybits (https://polymedia.app)",
     "private": true,
     "dependencies": {
-        "@emoji-mart/data": "1",
         "@emoji-mart/react": "1",
         "@mysten/sui.js": "latest",
         "@mysten/wallet-kit": "latest",
