@@ -23,9 +23,9 @@ import { getConfig } from './lib/chat';
 import '../css/Chat.less';
 import verifiedBadge from '../img/verified_badge.svg';
 
-const RESUBSCRIBE_ATTEMPT_INTERVAL = 1000; // How often resubscribeToEvents() is called
-const RESUBSCRIBE_MINIMUM_ELAPSED_TIME = 21000; // How often resubscribeToEvents() actually resubscribe
-const PULL_RECENT_INTERVAL = 30000; // How often to pull recent messages
+const RESUBSCRIBE_INTERVAL = 24000; // How often to resubscribeToEvents()
+const PULL_RECENT_INTERVAL = 8000; // How often to pull recent messages
+const PULL_RECENT_AMOUNT = 30; // How many recent messages to pull each time
 const MAX_MESSAGES = 500;
 
 type Message = {
@@ -63,7 +63,6 @@ export const ChatView: React.FC = () =>
     const {
         network,
         rpcProvider,
-        rpcProviderWss,
         notify,
         connectModalOpen,
         setConnectModalOpen
@@ -88,7 +87,6 @@ export const ChatView: React.FC = () =>
     const refEventSubscriptionId = useRef(0);
     const refResubscribeIntervalId = useRef<ReturnType<typeof setInterval>|null>(null);
     const refIsResubscribeOngoing = useRef(false);
-    const refLastResubscribeTime = useRef(0);
     const refPullRecentIntervalId = useRef<ReturnType<typeof setInterval>|null>(null);
     const refIsPullRecentOngoing = useRef(false);
     /* Emoji picker */
@@ -243,18 +241,15 @@ export const ChatView: React.FC = () =>
             return;
         }
 
-        await pullRecentMessages(150);
+        await pullRecentMessages(180);
         // Pull recent messages periodically because:
         // 1) The internet connection may have been lost
         // 2) We could lose messages between unsubscribe and subscribe
-        refPullRecentIntervalId.current = setInterval(pullRecentMessages, PULL_RECENT_INTERVAL, 20);
+        refPullRecentIntervalId.current = setInterval(pullRecentMessages, PULL_RECENT_INTERVAL, PULL_RECENT_AMOUNT);
 
         await resubscribeToEvents();
         // Periodically resubscribe (the browser closes the websocket after 30 seconds of innactivity)
-        // We check if a reload is needed a lot more frequently than we actually reload,
-        // because the user could have closed his laptop/phone, or the Internet may have been down.
-        // This way we can initiate the reload quickly when the user/Internet is back.
-        refResubscribeIntervalId.current = setInterval(resubscribeToEvents, RESUBSCRIBE_ATTEMPT_INTERVAL);
+        refResubscribeIntervalId.current = setInterval(resubscribeToEvents, RESUBSCRIBE_INTERVAL);
     };
 
     const unloadChatRoom = async () =>
@@ -298,18 +293,10 @@ export const ChatView: React.FC = () =>
             console.debug('[resubscribeToEvents] In progress. Skipping.');
             return;
         }
-        const timeOld = refLastResubscribeTime.current;
-        const timeNow = (new Date()).getTime();
-        const timeElapsed = timeNow - timeOld;
-        if (timeElapsed < RESUBSCRIBE_MINIMUM_ELAPSED_TIME) {
-            // console.debug(`[resubscribeToEvents] Updated recently (${timeElapsed/1000}s ago). Skipping`);
-            return;
-        }
         console.debug('[resubscribeToEvents] Resubscribing...');
         refIsResubscribeOngoing.current = true;
         await unsubscribeFromEvents();
         await subscribeToEvents();
-        refLastResubscribeTime.current = timeNow;
         refIsResubscribeOngoing.current = false;
     };
 
@@ -319,7 +306,7 @@ export const ChatView: React.FC = () =>
             return;
         }
         try {
-            refEventSubscriptionId.current = await rpcProviderWss.subscribeEvent({
+            refEventSubscriptionId.current = await rpcProvider.subscribeEvent({
                 filter: {And: [
                     { MoveEventType: packageId+'::event_chat::MessageEvent' },
                     { MoveEventField: { 'path': '/room', 'value': chatId} },
@@ -341,7 +328,7 @@ export const ChatView: React.FC = () =>
             return;
         }
         try {
-            const subFoundAndRemoved = await rpcProviderWss.unsubscribeEvent({id: refEventSubscriptionId.current});
+            const subFoundAndRemoved = await rpcProvider.unsubscribeEvent({id: refEventSubscriptionId.current});
             refEventSubscriptionId.current = 0;
             console.debug('[unsubscribeFromEvents] Unsubscribed. subFoundAndRemoved:', subFoundAndRemoved);
             setUIError('');

@@ -7,7 +7,6 @@ import { NetworkName, loadNetwork, loadRpcConfig } from '@polymedia/webutils';
 export type AppContext = {
     network: NetworkName,
     rpcProvider: JsonRpcProvider,
-    rpcProviderWss: JsonRpcProvider,
     notify: (text: string) => void,
     connectModalOpen: boolean,
     setConnectModalOpen: React.Dispatch<React.SetStateAction<boolean>>,
@@ -19,18 +18,34 @@ export function App()
     const [notification, setNotification] = useState('');
     const [network, setNetwork] = useState<NetworkName|null>(null);
     const [rpcProvider, setRpcProvider] = useState<JsonRpcProvider|null>(null);
-    const [rpcProviderWss, setRpcProviderWss] = useState<JsonRpcProvider|null>(null);
 
     useEffect(() => {
         async function initialize() {
             const network = loadNetwork();
-            const rpcConfig = await loadRpcConfig({network});
-            const rpcProvider = new JsonRpcProvider(new Connection(rpcConfig));
-            const rpcConfigWss = await loadRpcConfig({network, websocket: true});
-            const rpcProviderWss = new JsonRpcProvider(new Connection(rpcConfigWss));
+            const rpcConfig = await loadRpcConfig({
+                network,
+                customEndpoints: {
+                    // devnet_fullnode: 'https://fullnode.devnet.sui.io'
+                    // devnet_fullnode: 'https://node.shinami.com/api/v1/186668da9c42b69678719e785ed644a2',
+                    // devnet_websocket: 'wss://node.shinami.com/ws/v1/186668da9c42b69678719e785ed644a2',
+                    // testnet_fullnode: 'https://fullnode.testnet.sui.io',
+                    // testnet_fullnode: 'https://node.shinami.com/api/v1/sui_testnet_c515e9bfb6cc1d541cbda378339a3cf9',
+                    // testnet_websocket: 'wss://node.shinami.com/ws/v1/sui_testnet_c515e9bfb6cc1d541cbda378339a3cf9',
+                }
+            });
+            const rpcProvider = new JsonRpcProvider(
+                new Connection(rpcConfig),
+                {
+                    socketOptions: {
+                        connectTimeout: 12000,
+                        callTimeout: 12000,
+                        reconnectInterval: 3000,
+                        maxReconnects: 1,
+                    },
+                },
+            );
             setNetwork(network);
             setRpcProvider(rpcProvider);
-            setRpcProviderWss(rpcProviderWss);
         };
         initialize();
     }, []);
@@ -40,14 +55,13 @@ export function App()
         setTimeout(() => { setNotification('') }, 1200);
     };
 
-    if (!network || !rpcProvider || !rpcProviderWss) {
+    if (!network || !rpcProvider) {
         return <></>;
     }
 
     const appContext: AppContext = {
         network,
         rpcProvider,
-        rpcProviderWss,
         notify,
         connectModalOpen,
         setConnectModalOpen,
