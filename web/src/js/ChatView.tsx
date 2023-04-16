@@ -48,10 +48,10 @@ const bannedAddresses: string[] = [
 
 // Shows checkmark
 const verifiedAddresses: string[] = [
-    '0x93543ba125f9c0826b567813193737e9e69077ecd427238cb0eb4acbb096edc5', // Sui
-    '0x139f6d74d202cd572dad492c69eb5d9a62d0ce4a348fe162f074e278b64e3613', // Ethos
+    '0x5d8133281aa26ad73542c0b53014c6831c37b9d98e7603fd0db2e1cc4453934a', // Sui
+    '0x6136a19722fa2421a9211b44efaf132972d6b5a670234bb1f98945eb1a0dbece', // Ethos
     '0x017d58f4347357b1157c00eb2e67e318a83673decc6a7dd9fe24d34c202c2713', // Suiet
-    '0x047f19f4d9a109b2ae85067bf584305c35dfff04e3bd121b8ac6bed303205930', // Martian
+    '0x7102570010cdc0f73bd14372c5a33df6f4560f11d75fbd87c1ab372755276ebc', // Martian
 ];
 
 // To fight spammers
@@ -273,7 +273,7 @@ export const ChatView: React.FC = () =>
                 //     { MoveEventType: packageId+'::event_chat::MessageEvent' },
                 //     { MoveEventField: { 'path': '/room', 'value': chatId} },
                 // ]},
-                cursor: null,
+                cursor: null, // TODO: set to most recent event ID
                 limit: amount,
                 order: 'descending'
             });
@@ -288,7 +288,7 @@ export const ChatView: React.FC = () =>
         }
     };
 
-    const resubscribeToEvents = async () => { // TODO: re-enable
+    const resubscribeToEvents = async () => {
         if (refIsResubscribeOngoing.current) {
             console.debug('[resubscribeToEvents] In progress. Skipping.');
             return;

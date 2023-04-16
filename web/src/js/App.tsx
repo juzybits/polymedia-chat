@@ -28,7 +28,13 @@ export function App()
                     // devnet_fullnode: 'https://fullnode.devnet.sui.io'
                     // devnet_fullnode: 'https://node.shinami.com/api/v1/186668da9c42b69678719e785ed644a2',
                     // devnet_websocket: 'wss://node.shinami.com/ws/v1/186668da9c42b69678719e785ed644a2',
+
                     // testnet_fullnode: 'https://fullnode.testnet.sui.io',
+                    // testnet_fullnode: 'https://rpc-testnet.suiscan.xyz',
+                    // testnet_fullnode: 'https://sui-rpc.testnet.lgns.net',
+                    // testnet_fullnode: 'https://sui-testnet.nodeinfra.com',
+                    // testnet_fullnode: 'https://fullnode.testnet.vincagame.com',
+
                     // testnet_fullnode: 'https://node.shinami.com/api/v1/sui_testnet_c515e9bfb6cc1d541cbda378339a3cf9',
                     // testnet_websocket: 'wss://node.shinami.com/ws/v1/sui_testnet_c515e9bfb6cc1d541cbda378339a3cf9',
                 }
