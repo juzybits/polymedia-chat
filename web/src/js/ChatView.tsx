@@ -196,8 +196,7 @@ export const ChatView: React.FC = () =>
             maybeShowProfileCTA();
         })
         .catch(err => {
-            console.warn('[fetchProfiles]', err.stack)
-            // setUIError(errMsg);
+            console.warn('[fetchProfiles]', err);
         })
     };
 
@@ -241,7 +240,7 @@ export const ChatView: React.FC = () =>
             return;
         }
 
-        await pullRecentMessages(180);
+        await pullRecentMessages(100);
         // Pull recent messages periodically because:
         // 1) The internet connection may have been lost
         // 2) We could lose messages between unsubscribe and subscribe
@@ -267,18 +266,31 @@ export const ChatView: React.FC = () =>
         setUIError('');
         refIsPullRecentOngoing.current = true;
         try {
-            const events = await rpcProvider.queryEvents({
-                query: { MoveEventType: packageId+'::event_chat::MessageEvent' }, // TODO: can we filter by field now?
-                // query: {And: [
-                //     { MoveEventType: packageId+'::event_chat::MessageEvent' },
-                //     { MoveEventField: { 'path': '/room', 'value': chatId} },
-                // ]},
-                cursor: null, // TODO: set to most recent event ID
-                limit: amount,
-                order: 'descending'
-            });
+            const allEvents = new Array<SuiEvent>();
+            let remainingEvents = amount;
+            let cursor = null;
+            while (remainingEvents > 0) {
+                const limit = Math.min(remainingEvents, 50);
+                const events = await rpcProvider.queryEvents({
+                    query: { MoveEventType: packageId+'::event_chat::MessageEvent' }, // TODO: filter by 'room' field (https://github.com/MystenLabs/sui/issues/11031)
+                    // query: {And: [
+                    //     { MoveEventType: packageId+'::event_chat::MessageEvent' },
+                    //     { MoveEventField: { 'path': '/room', 'value': chatId} },
+                    // ]},
+                    cursor: cursor,
+                    limit: limit,
+                    order: 'descending'
+                });
+                allEvents.push(...events.data);
+                remainingEvents -= limit;
+                if (events.nextCursor) {
+                    cursor = events.nextCursor;
+                } else {
+                    break;
+                }
+            }
             console.debug('[pullRecentMessages] Pulled recent messages');
-            eventsToMessages(events.data.reverse());
+            eventsToMessages(allEvents.reverse());
         } catch(err) {
             const errMsg = '[pullRecentMessages] Failed to load recent messages: ' + err;
             console.warn(errMsg);
