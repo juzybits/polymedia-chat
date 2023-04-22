@@ -26,7 +26,8 @@ import verifiedBadge from '../img/verified_badge.svg';
 const RESUBSCRIBE_INTERVAL = 24000; // How often to resubscribeToEvents()
 const PULL_RECENT_INTERVAL = 8000; // How often to pull recent messages
 const PULL_RECENT_AMOUNT = 30; // How many recent messages to pull each time
-const MAX_MESSAGES = 500;
+const PULL_RECENT_AMOUNT_1ST_PULL = 50; // How many recent messages to pull the first time
+// const MAX_MESSAGES = 500;
 
 type Message = {
     author: SuiAddress,
@@ -83,7 +84,7 @@ export const ChatView: React.FC = () =>
     const [messages, setMessages] = useState(new Map<TransactionDigest, Message>);
     const [isSendingMsg, setIsSendingMsg] = useState(false); // waiting for a message txn to complete
     const refMessages = useRef(messages);
-    /* Reloading */
+    /* Reloading messages */
     const refEventSubscriptionId = useRef(0);
     const refResubscribeIntervalId = useRef<ReturnType<typeof setInterval>|null>(null);
     const refIsResubscribeOngoing = useRef(false);
@@ -95,7 +96,10 @@ export const ChatView: React.FC = () =>
     const [chatInputCursor, setChatInputCursor] = useState(0);
     /* UI state, and references to HTML elements */
     const [uiError, setUIError] = useState('');
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
     const refIsScrolledUp = useRef(false); // to stop reloading the chat when the user scrolls up
+    const refFirstMessageTx = useRef<string|null>(null);
+    const refFirstMessageEl = useRef<HTMLDivElement|null>(null);
     const refChatBottom = useRef<HTMLDivElement>(null);
     const refChatInput = useRef<HTMLInputElement>(null);
     const refEmojiBtn = useRef<HTMLDivElement>(null);
@@ -240,7 +244,7 @@ export const ChatView: React.FC = () =>
             return;
         }
 
-        await pullRecentMessages(100);
+        await pullRecentMessages(PULL_RECENT_AMOUNT_1ST_PULL);
         // Pull recent messages periodically because:
         // 1) The internet connection may have been lost
         // 2) We could lose messages between unsubscribe and subscribe
@@ -257,6 +261,27 @@ export const ChatView: React.FC = () =>
         refResubscribeIntervalId.current && clearInterval(refResubscribeIntervalId.current);
         unsubscribeFromEvents(); // MAYBE: retry if timeout
     }
+
+    const pullOldMessages = async () => {
+        setIsLoadingMore(true);
+        try {
+            const currentOldestMsgTxDigest = messages.keys().next().value;
+            const oldEvents = await rpcProvider.queryEvents({
+                query: { MoveEventType: packageId+'::event_chat::MessageEvent' }, // TODO: filter by 'room' field (https://github.com/MystenLabs/sui/issues/11031)
+                cursor: { txDigest: currentOldestMsgTxDigest, eventSeq: '0' },
+                limit: 50,
+                order: 'descending'
+            });
+            console.debug('[pullOldMessages] Pulled old messages');
+            const newestOldMsgTxDigest = oldEvents.data[0].id.txDigest;
+            refFirstMessageTx.current = newestOldMsgTxDigest; // to scroll the user here
+            eventsToMessages(oldEvents.data.reverse(), true);
+        } catch(err) {
+            console.warn('[pullOldMessages] Failed to load old messages: ', err);
+        } finally {
+            setIsLoadingMore(false);
+        }
+    };
 
     const pullRecentMessages = async (amount: number) => {
         if (refIsPullRecentOngoing.current) {
@@ -351,9 +376,10 @@ export const ChatView: React.FC = () =>
         }
     };
 
-    const eventsToMessages = (events: Array<SuiEvent>) => {
+    const eventsToMessages = (events: Array<SuiEvent>, prepend=false) => {
         const userIsBanned = isBannedUser();
         const authorAddresses = new Set<SuiAddress>();
+        const oldMessages: typeof messages = new Map();
         for (const event of events) {
             // Skip if already included in map (common when called from pullRecentMessages)
             if (refMessages.current.has(event.id.txDigest))
@@ -369,14 +395,21 @@ export const ChatView: React.FC = () =>
             if (!userIsBanned && bannedAddresses.includes(msgAuthor))
                 continue;
             // Format and append the message
-            refMessages.current.set(event.id.txDigest, {
-                author: msgAuthor,
-                text: msgEvent.text,
-                timestamp: Number(event.timestampMs||0),
-            });
+            (prepend ? oldMessages : refMessages.current).set(
+                event.id.txDigest,
+                {
+                    author: msgAuthor,
+                    text: msgEvent.text,
+                    timestamp: Number(event.timestampMs||0),
+                }
+            );
             authorAddresses.add(msgAuthor);
         }
+        if (prepend && oldMessages.size) {
+            refMessages.current = new Map([...oldMessages, ...refMessages.current]);
+        }
 
+        /*
         // Trim the message Map every now and then
         if (refMessages.current.size > MAX_MESSAGES) {
             const targetSize = MAX_MESSAGES/2;
@@ -386,12 +419,13 @@ export const ChatView: React.FC = () =>
                 refMessages.current.delete(key);
             }
         }
+        */
 
         // Update state
         setMessages(new Map(refMessages.current));
         fetchProfiles(authorAddresses);
 
-        // Teaser for Polymedia Profile // MAYBE: replace with "create profile" CTA
+        // Teaser for Polymedia Profile // MAYBE: replace with 'create profile' CTA
         // if (refHasCurrentAccount.current && !refUserClosedTeaser.current) {
         //     const isMissingProfile = refLastUserAddr.current && refProfiles.current.get(refLastUserAddr.current) === null;
         //     isMissingProfile && formattedMessages.push({
@@ -473,8 +507,14 @@ export const ChatView: React.FC = () =>
 
     /// Handle new messages
     useEffect(() => {
+        // on 'load more', scroll the user to the newest out of the old messages
+        if (refFirstMessageTx.current && refFirstMessageEl.current) {
+            refFirstMessageEl.current.scrollIntoView();
+            refFirstMessageTx.current = null;
+            refFirstMessageEl.current = null;
+        }
         // scroll to the bottom of the message list (if the user has not manually scrolled up)
-        if (!refIsScrolledUp.current) {
+        else if (!refIsScrolledUp.current) {
             scrollToBottom();
         }
     }, [messages]);
@@ -595,7 +635,16 @@ export const ChatView: React.FC = () =>
         </div>
 
         <div ref={refMessageList} id='message-list' className='chat-middle' onScroll={onScrollMessageList}>
-        {Array.from(messages.values()).map((msg: any, idx) => {
+        <div id='load-more'>
+            {
+                !messages.size ? <></> : (
+                isLoadingMore
+                ? <label id='load-more-loading'>Loading...</label>
+                : <button id='load-more-btn' className='btn primary' onClick={pullOldMessages}>LOAD MORE</button>
+                )
+            }
+        </div>
+        {Array.from(messages.entries()).map(([txDigest, msg]) => {
             {/*const isPolymediaTeaser = msg.author == '0x0000000000000000000000000000000000000000';
             const profile = isPolymediaTeaser
                 ? ({
@@ -627,7 +676,13 @@ export const ChatView: React.FC = () =>
             }
             const magicText = parseMagicText(refProfiles.current, msg.text, copyAddress);
             const isVerified = verifiedAddresses.includes(msg.author);
-            return <div key={idx} className={`message ${currentAccount && msg.text.includes(currentAccount.address) ? 'highlight' : ''}`}>
+            const isFirstMessage = refFirstMessageTx.current === txDigest;
+            return (
+            <div
+                key={txDigest}
+                ref={isFirstMessage ? (el) => (refFirstMessageEl.current = el) : null}
+                className={`message ${currentAccount && msg.text.includes(currentAccount.address) ? 'highlight' : ''}`}
+            >
                 <div className='message-pfp-wrap'>
                     <span className={pfpClasses} style={pfpStyles} onClick={() => copyAddress(msg.author)}>
                         {!hasPfpImage && getAddressEmoji(msg.author)}
@@ -654,7 +709,8 @@ export const ChatView: React.FC = () =>
                         { magicText.tweets.map((url, idx) => <blockquote className='twitter-tweet' key={idx}><a href={url}></a></blockquote>) }
                     </div>}*/}
                 </span>
-            </div>;
+            </div>
+            );
         })}
         </div>
 
