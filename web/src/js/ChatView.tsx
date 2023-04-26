@@ -21,7 +21,8 @@ import { timeAgo } from './lib/common';
 import { getAddressColor, getAddressEmoji } from './lib/addresses';
 import { getConfig } from './lib/chat';
 import '../css/Chat.less';
-import verifiedBadge from '../img/verified_badge.svg';
+import badgeAdmin from '../img/badge_admin.svg';
+import badgeVerified from '../img/badge_verified.svg';
 
 const RESUBSCRIBE_INTERVAL = 24000; // How often to resubscribeToEvents()
 const PULL_RECENT_INTERVAL = 8000; // How often to pull recent messages
@@ -47,12 +48,18 @@ const bannedAddresses: string[] = [
 // const bannedFingerprints: string[] = [
 // ];
 
-// Shows checkmark
-const verifiedAddresses: string[] = [
+// Shows yellow checkmark
+const adminAddresses: string[] = [
     '0x5d8133281aa26ad73542c0b53014c6831c37b9d98e7603fd0db2e1cc4453934a', // Sui
     '0x6136a19722fa2421a9211b44efaf132972d6b5a670234bb1f98945eb1a0dbece', // Ethos
     '0x017d58f4347357b1157c00eb2e67e318a83673decc6a7dd9fe24d34c202c2713', // Suiet
     '0x7102570010cdc0f73bd14372c5a33df6f4560f11d75fbd87c1ab372755276ebc', // Martian
+];
+
+// Shows blue checkmark
+const verifiedAddresses: string[] = [
+    '0x48eebdd5a77bafe1092e370bcc838451f8d4973b8de5d7cb2274ccd9acb7e7d9', // tanveer
+    '0x2adf56292ff2888e825e6d5ec9cdf846bc322236cdd8c9adc298ffe441eb23e3', // Davidsknight
 ];
 
 // To fight spammers
@@ -403,7 +410,7 @@ export const ChatView: React.FC = () =>
                     timestamp: Number(event.timestampMs||0),
                 }
             );
-            authorAddresses.add(msgAuthor);
+            authorAddresses.add(msgAuthor); // TODO: include addresses within message text
         }
         if (prepend && oldMessages.size) {
             refMessages.current = new Map([...oldMessages, ...refMessages.current]);
@@ -675,6 +682,7 @@ export const ChatView: React.FC = () =>
                 pfpStyles.backgroundColor = getAddressColor(msg.author, 12);
             }
             const magicText = parseMagicText(refProfiles.current, msg.text, copyAddress);
+            const isAdmin = adminAddresses.includes(msg.author);
             const isVerified = verifiedAddresses.includes(msg.author);
             const isFirstMessage = refFirstMessageTx.current === txDigest;
             return (
@@ -691,7 +699,8 @@ export const ChatView: React.FC = () =>
                 <span className='message-body'>
                     <span className='message-author'>
                         <MagicAddress address={msg.author} onClickAddress={copyAddress} profileName={profile && profile.name} />
-                        {isVerified && <img className='verified-badge' src={verifiedBadge} />}
+                        {isAdmin && <img className='admin-badge' src={badgeAdmin} />}
+                        {isVerified && <img className='verified-badge' src={badgeVerified} />}
                     </span>
                     <span className='message-timestamp'>
                         {timeAgo(msg.timestamp)}
