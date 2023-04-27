@@ -21,8 +21,6 @@ import { timeAgo } from './lib/common';
 import { getAddressColor, getAddressEmoji } from './lib/addresses';
 import { getConfig } from './lib/chat';
 import '../css/Chat.less';
-import badgeAdmin from '../img/badge_admin.svg';
-import badgeVerified from '../img/badge_verified.svg';
 
 const RESUBSCRIBE_INTERVAL = 24000; // How often to resubscribeToEvents()
 const PULL_RECENT_INTERVAL = 8000; // How often to pull recent messages
@@ -39,6 +37,10 @@ type Message = {
 type MessageEvent = {
     room: SuiAddress,
     text: string,
+};
+
+export type ChatProfile = PolymediaProfile & {
+    badge: 'admin' | 'verified' | null;
 };
 
 // Messages from these addresses will be hidden from everyone except from their authors
@@ -80,7 +82,7 @@ export const ChatView: React.FC = () =>
     const { currentAccount, signAndExecuteTransactionBlock } = useWalletKit();
     /* User and Polymedia Profile */
     const profileManager = new ProfileManager({network, rpcProvider});
-    const refProfiles = useRef( new Map<SuiAddress, PolymediaProfile|null>() );
+    const refProfiles = useRef( new Map<SuiAddress, ChatProfile|null>() );
     const refHasCurrentAccount = useRef(false);
     const refLastUserAddr = useRef(localStorage.getItem('polymedia.userAddr') || ''); // MAYBE: store an array
     const [showProfileCTA, setShowProfileCTA] = useState(false);
@@ -201,7 +203,17 @@ export const ChatView: React.FC = () =>
         profileManager.getProfiles({lookupAddresses: newAuthors})
         .then(newProfiles => {
             for (const [address, profile] of newProfiles.entries()) {
-                refProfiles.current.set(address, profile);
+                let chatProfile: ChatProfile|null = null;
+                if (profile) {
+                    let badge: ChatProfile['badge'] = null;
+                    if (adminAddresses.includes(profile.owner)) {
+                        badge = 'admin';
+                    } else if (verifiedAddresses.includes(profile.owner)) {
+                        badge = 'verified';
+                    }
+                    chatProfile = {...profile, badge};
+                }
+                refProfiles.current.set(address, chatProfile);
             }
             setMessages(new Map(refMessages.current));
             maybeShowProfileCTA();
@@ -682,8 +694,6 @@ export const ChatView: React.FC = () =>
                 pfpStyles.backgroundColor = getAddressColor(msg.author, 12);
             }
             const magicText = parseMagicText(refProfiles.current, msg.text, copyAddress);
-            const isAdmin = adminAddresses.includes(msg.author);
-            const isVerified = verifiedAddresses.includes(msg.author);
             const isFirstMessage = refFirstMessageTx.current === txDigest;
             return (
             <div
@@ -698,9 +708,7 @@ export const ChatView: React.FC = () =>
                 </div>
                 <span className='message-body'>
                     <span className='message-author'>
-                        <MagicAddress address={msg.author} onClickAddress={copyAddress} profileName={profile && profile.name} />
-                        {isAdmin && <img className='admin-badge' src={badgeAdmin} />}
-                        {isVerified && <img className='verified-badge' src={badgeVerified} />}
+                        <MagicAddress address={msg.author} onClickAddress={copyAddress} profile={profile} />
                     </span>
                     <span className='message-timestamp'>
                         {timeAgo(msg.timestamp)}
