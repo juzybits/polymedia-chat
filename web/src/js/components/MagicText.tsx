@@ -17,34 +17,42 @@ const REGEX_URL = new RegExp(/(?:https?|ipfs):\/\/[^\s\/$.?#].[^\s]*[^\s.,|]+/ig
 // const REGEX_TWEET = new RegExp('https://twitter.com/[^/]+/status/.+');
 
 /// Shorten a 0x address, style it, and make it clickable
-export function MagicAddress(props: any) {
-    const shortAddr = shortenAddress(props.address);
+export const MagicAddress: React.FC<{
+    address: SuiAddress,
+    profile: ChatProfile|null|undefined,
+    onClickAddress: (address: string) => void,
+}> = ({
+    address,
+    profile,
+    onClickAddress,
+}) => {
+    const shortAddr = shortenAddress(address);
     let text: React.ReactNode;
-    if (props.profile) {
+    if (profile) {
         let badge: React.ReactNode;
-        if (props.profile.badge === 'admin') {
+        if (profile.badge === 'admin') {
             badge = <img className='admin-badge' src={badgeAdmin} />;
-        } else if (props.profile.badge === 'verified') {
+        } else if (profile.badge === 'verified') {
             badge = <img className='verified-badge' src={badgeVerified} />;
         } else {
             badge = <></>;
         }
-        text = <>{props.profile.name} ({shortAddr}){badge}</>;
+        text = <>{profile.name} ({shortAddr}){badge}</>;
     } else {
         text = <>{shortAddr}</>;
     }
 
-    return <span onClick={() => props.onClickAddress(props.address)}
+    return <span onClick={() => onClickAddress(address)}
         className='magic-address'
-        style={{ color: getAddressColor(props.address, 6, true) }} >
+        style={{ color: getAddressColor(address, 6, true) }} >
         {text}
     </span>;
 };
 
-export function MagicLink(props: any) {
-    return isTrustedDomain(props.href)
-        ? <a href={props.href} target='_blank'>{props.href}</a>
-        : props.href;
+export const MagicLink: React.FC<{href: string}> = ({href}) => {
+    return isTrustedDomain(href)
+        ? <a href={href} target='_blank'>{href}</a>
+        : <>href</>;
 };
 
 /// The result of parseMagicText()
@@ -55,7 +63,7 @@ export type MagicText = {
 };
 
 /// Parse plaintext and format any URLs and 0x addresses in it
-export function parseMagicText(profiles: Map<SuiAddress, ChatProfile|null>, plainText: string, onClickAddress: Function)
+export function parseMagicText(profiles: Map<SuiAddress, ChatProfile|null>, plainText: string, onClickAddress: (address: string) => void)
 {
     let key = 0;
     const chunk = (contents: any) => {
@@ -85,7 +93,7 @@ export function parseMagicText(profiles: Map<SuiAddress, ChatProfile|null>, plai
         if ( url.match(REGEX_IMAGE) ) {
             imgUrls.push(url);
         } else {
-            chunks.push( chunk(<MagicLink href={url} text={url} />) );
+            chunks.push( chunk(<MagicLink href={url} />) );
         }
         chunks.push( chunk(<ReplaceAddresses plainText={nonUrls.shift()} />) );
         // } else if ( url.match(REGEX_TWEET) ) {

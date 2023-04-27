@@ -53,7 +53,7 @@ const bannedAddresses: string[] = [
 // Shows yellow checkmark
 const adminAddresses: string[] = [
     '0x5d8133281aa26ad73542c0b53014c6831c37b9d98e7603fd0db2e1cc4453934a', // Sui
-    '0x6136a19722fa2421a9211b44efaf132972d6b5a670234bb1f98945eb1a0dbece', // Ethos
+    '0xe956f7c91679020f75d94c44f08fe5caefb4b1be6d384b9f1093ddccff6a93f5', // Ethos
     '0x017d58f4347357b1157c00eb2e67e318a83673decc6a7dd9fe24d34c202c2713', // Suiet
     '0x7102570010cdc0f73bd14372c5a33df6f4560f11d75fbd87c1ab372755276ebc', // Martian
 ];
