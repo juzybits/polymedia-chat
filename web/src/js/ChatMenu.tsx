@@ -16,8 +16,8 @@ export function ChatMenu() {
 
     let chatId = useParams().uid || '';
     const chatAlias = chatId;
-    if (chatId == '@sui-fans') {
-        chatId = suiFansChatId; // TODO
+    if (chatAlias == '@sui-fans') {
+        chatId = suiFansChatId;
     }
 
     /* Effects */

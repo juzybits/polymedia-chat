@@ -77,8 +77,7 @@ export const ChatView: React.FC = () =>
         connectModalOpen,
         setConnectModalOpen
     } = useOutletContext<AppContext>();
-    const { polymediaPackageId, polymediaPackageIdSpecial,
-            suiFansChatId, suiFansChatIdSpecial } = getConfig(network);
+    const { polymediaPackageId, suiFansChatId } = getConfig(network);
     const { currentAccount, signAndExecuteTransactionBlock } = useWalletKit();
     /* User and Polymedia Profile */
     const profileManager = new ProfileManager({network, rpcProvider});
@@ -125,18 +124,15 @@ export const ChatView: React.FC = () =>
     //         localStorage.setItem('polymedia.special', '1');
     //     }
     // };
-    const isBannedUser = () => {
-        return (localStorage.getItem('polymedia.special') === '1')
-            || (refLastUserAddr.current && bannedAddresses.includes(refLastUserAddr.current));
+    const isBannedUser = () => { // MAYBE: account for users with multiple addresses/wallets
+        return refLastUserAddr.current && bannedAddresses.includes(refLastUserAddr.current);
     };
-
-    const packageId = isBannedUser() ? polymediaPackageIdSpecial : polymediaPackageId;
 
     // Handle '/@sui-fans' alias
     let chatId = useParams().uid || '';
     const chatAlias = chatId;
-    if (chatId == '@sui-fans') {
-        chatId = isBannedUser() ? suiFansChatIdSpecial : suiFansChatId;
+    if (chatAlias == '@sui-fans') {
+        chatId = suiFansChatId;
     }
 
     /// Handle 1st render
@@ -286,7 +282,7 @@ export const ChatView: React.FC = () =>
         try {
             const currentOldestMsgTxDigest = messages.keys().next().value;
             const oldEvents = await rpcProvider.queryEvents({
-                query: { MoveEventType: packageId+'::event_chat::MessageEvent' }, // TODO: filter by 'room' field (https://github.com/MystenLabs/sui/issues/11031)
+                query: { MoveEventType: polymediaPackageId+'::event_chat::MessageEvent' }, // TODO: filter by 'room' field (https://github.com/MystenLabs/sui/issues/11031)
                 cursor: { txDigest: currentOldestMsgTxDigest, eventSeq: '0' },
                 limit: 50,
                 order: 'descending'
@@ -316,9 +312,9 @@ export const ChatView: React.FC = () =>
             while (remainingEvents > 0) {
                 const limit = Math.min(remainingEvents, 50);
                 const events = await rpcProvider.queryEvents({
-                    query: { MoveEventType: packageId+'::event_chat::MessageEvent' }, // TODO: filter by 'room' field (https://github.com/MystenLabs/sui/issues/11031)
+                    query: { MoveEventType: polymediaPackageId+'::event_chat::MessageEvent' }, // TODO: filter by 'room' field (https://github.com/MystenLabs/sui/issues/11031)
                     // query: {And: [
-                    //     { MoveEventType: packageId+'::event_chat::MessageEvent' },
+                    //     { MoveEventType: polymediaPackageId+'::event_chat::MessageEvent' },
                     //     { MoveEventField: { 'path': '/room', 'value': chatId} },
                     // ]},
                     cursor: cursor,
@@ -364,7 +360,7 @@ export const ChatView: React.FC = () =>
         try {
             refEventSubscriptionId.current = await rpcProvider.subscribeEvent({
                 filter: {And: [
-                    { MoveEventType: packageId+'::event_chat::MessageEvent' },
+                    { MoveEventType: polymediaPackageId+'::event_chat::MessageEvent' },
                     { MoveEventField: { 'path': '/room', 'value': chatId} },
                 ]},
                 onMessage: (event: SuiEvent) => eventsToMessages([event]),
@@ -466,12 +462,12 @@ export const ChatView: React.FC = () =>
         setUIError('');
         setIsSendingMsg(true);
         // await preapproveTxns();
-        console.debug(`[onSubmitAddMessage] Calling event_chat::send_message on package: ${packageId}`);
+        console.debug(`[onSubmitAddMessage] Calling event_chat::send_message on package: ${polymediaPackageId}`);
 
         const messageText = getChatInputValue();
         const tx = new TransactionBlock();
         tx.moveCall({
-            target: `${packageId}::event_chat::send_message`,
+            target: `${polymediaPackageId}::event_chat::send_message`,
             typeArguments: [],
             arguments: [
                 tx.object(chatId),
@@ -803,7 +799,7 @@ const onChangeChatInput = (e: SyntheticEvent) => {
 /*
 const preapproveTxns = useCallback(async () => {
     await wallet?.requestPreapproval({
-        packageObjectId: packageId,
+        packageObjectId: polymediaPackageId,
         module: 'vector_chat',
         function: 'add_message',
         objectId: chatId,

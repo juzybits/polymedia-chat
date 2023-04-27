@@ -4,24 +4,16 @@ import { NetworkName } from '@polymedia/webutils';
 
 const POLYMEDIA_PACKAGE_LOCALNET = '0xb0effff6ecd97100c8d08743ef133d00387c61a559d2eaedca6b808fe671fa6a';
 const SUI_FANS_CHAT_ID_LOCALNET = '0x6313ac0fab76dcc38c75ef42fd1617599070e76a5c29ad72f65e1121b5dae220';
-const POLYMEDIA_PACKAGE_LOCALNET_SPECIAL = '0x123';
-const SUI_FANS_CHAT_ID_LOCALNET_SPECIAL = '0x123';
 
 const POLYMEDIA_PACKAGE_DEVNET = '0x3e36cb11d01e891da2ca4d82afa740529aed7425c862f5a323bebf7696cd8b96';
 const SUI_FANS_CHAT_ID_DEVNET = '0x3cd3ead8634aaa51a870c9f1b43e7980bd0d0593d503dd7cd3066af0d2e47438';
-const POLYMEDIA_PACKAGE_DEVNET_SPECIAL = '0x91c1316dbd38adbdd5e42e4e9e2c171fea406ae7df9b25efc720897230711f76';
-const SUI_FANS_CHAT_ID_DEVNET_SPECIAL = '0xc9651b8146e04c32a1c9defd6b6a37b90a229c988c6f20c67de56267bb3c7b9f';
 
 const POLYMEDIA_PACKAGE_TESTNET = '0xc3d40c8b1d7e8360c2b0046029a6ed597cffd538eca888e1d7ecc9d6760bb9df';
 const SUI_FANS_CHAT_ID_TESTNET = '0x2c82d0dda82b799aaba1be2ca4c464a9502d75e5468d381ada7c26d9cae7c654';
-const POLYMEDIA_PACKAGE_TESTNET_SPECIAL = '0x123';
-const SUI_FANS_CHAT_ID_TESTNET_SPECIAL = '0x789';
 
 type Config = {
   polymediaPackageId: string;
-  polymediaPackageIdSpecial: string;
   suiFansChatId: string;
-  suiFansChatIdSpecial: string;
 };
 
 export function getConfig(network: NetworkName): Config {
@@ -29,23 +21,17 @@ export function getConfig(network: NetworkName): Config {
         case 'localnet':
             return {
                 polymediaPackageId: POLYMEDIA_PACKAGE_LOCALNET,
-                polymediaPackageIdSpecial: POLYMEDIA_PACKAGE_LOCALNET_SPECIAL,
                 suiFansChatId: SUI_FANS_CHAT_ID_LOCALNET,
-                suiFansChatIdSpecial: SUI_FANS_CHAT_ID_LOCALNET_SPECIAL,
             };
         case 'devnet':
             return {
                 polymediaPackageId: POLYMEDIA_PACKAGE_DEVNET,
-                polymediaPackageIdSpecial: POLYMEDIA_PACKAGE_DEVNET_SPECIAL,
                 suiFansChatId: SUI_FANS_CHAT_ID_DEVNET,
-                suiFansChatIdSpecial: SUI_FANS_CHAT_ID_DEVNET_SPECIAL,
             };
         case 'testnet':
             return {
                 polymediaPackageId: POLYMEDIA_PACKAGE_TESTNET,
-                polymediaPackageIdSpecial: POLYMEDIA_PACKAGE_TESTNET_SPECIAL,
                 suiFansChatId: SUI_FANS_CHAT_ID_TESTNET,
-                suiFansChatIdSpecial: SUI_FANS_CHAT_ID_TESTNET_SPECIAL,
             };
         default:
             throw new Error('Invalid network: ' + network);
