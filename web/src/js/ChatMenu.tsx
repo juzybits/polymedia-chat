@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useOutletContext } from 'react-router-dom';
 import { SuiMoveObject } from '@mysten/sui.js';
+import { linkToExplorer } from '@polymedia/webutils';
 
 import { AppContext } from './App';
 import { Nav } from './components/Nav';
@@ -76,7 +77,7 @@ export function ChatMenu() {
                     <div className='menu-field'>
                         <span className='menu-field-label'>Object ID:</span>
                         <span className='menu-field-value'>
-                            <a href={'https://explorer.sui.io/object/'+chatObj.fields.id.id+'?network='+network} target='_blank'>
+                            <a href={linkToExplorer(network, 'object', chatObj.fields.id.id)} target='_blank'>
                                 {chatObj.fields.id.id}
                             </a>
                         </span>
