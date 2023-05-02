@@ -15,9 +15,9 @@ export function ChatNew() {
     const [waiting, setWaiting] = useState(false);
     const [error, setError] = useState('');
 
-    const { network, notify, setConnectModalOpen } = useOutletContext<AppContext>();
+    const { network, notify, rpcProvider, setConnectModalOpen } = useOutletContext<AppContext>();
     const { polymediaPackageId } = getConfig(network);
-    const { isConnected, signAndExecuteTransactionBlock } = useWalletKit();
+    const { isConnected, signTransactionBlock } = useWalletKit();
 
     /* Effects */
 
@@ -28,7 +28,7 @@ export function ChatNew() {
     /* Event handlers */
 
     const navigate = useNavigate();
-    const onSubmitCreateChat = (e: SyntheticEvent) => {
+    const onSubmitCreateChat = async (e: SyntheticEvent) => {
         e.preventDefault();
         if (!isConnected) {
             setConnectModalOpen(true);
@@ -47,8 +47,12 @@ export function ChatNew() {
             ],
         });
 
-        signAndExecuteTransactionBlock({
+        const signedTx = await signTransactionBlock({
             transactionBlock: tx,
+        });
+        return rpcProvider.executeTransactionBlock({
+            transactionBlock: signedTx.transactionBlockBytes,
+            signature: signedTx.signature,
             options: {
                 showEffects: true,
             },
@@ -59,9 +63,7 @@ export function ChatNew() {
                 console.debug('[onSubmitCreateChat] Success:', resp);
                 const newObjId = (effects.created as OwnedObjectRef[])[0].reference.objectId;
                 notify('SUCCESS!');
-                navigate('/' + newObjId, {
-                    state: { isNewChat: true }
-                });
+                navigate('/' + newObjId);
             } else {
                 setError(effects.status.error || 'Unexpected error. Response: '+JSON.stringify(resp));
             }

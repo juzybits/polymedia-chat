@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, SyntheticEvent } from 'react';
-import { Link, useLocation, useParams, useOutletContext } from 'react-router-dom';
+import { Link, useParams, useOutletContext } from 'react-router-dom';
 import {
     SuiAddress,
     SuiEvent,
@@ -78,7 +78,7 @@ export const ChatView: React.FC = () =>
         setConnectModalOpen
     } = useOutletContext<AppContext>();
     const { polymediaPackageId, suiFansChatId } = getConfig(network);
-    const { currentAccount, signAndExecuteTransactionBlock } = useWalletKit();
+    const { currentAccount, signTransactionBlock } = useWalletKit();
     /* User and Polymedia Profile */
     const profileManager = new ProfileManager({network, rpcProvider});
     const refProfiles = useRef( new Map<SuiAddress, ChatProfile|null>() );
@@ -221,7 +221,6 @@ export const ChatView: React.FC = () =>
 
     /* Messages */
 
-    const location = useLocation();
     const loadChatRoom = async () =>
     {
         // Pull the ChatRoom object
@@ -233,18 +232,12 @@ export const ChatView: React.FC = () =>
                 },
             });
             if (resp.error) {
-                if (location.state && location.state.isNewChat) {
-                    // Sometimes there is lag after the chat is created, so let's retry
-                    setTimeout(loadChatRoom, 1500);
-                    return;
-                } else {
-                    const errMsg = '[loadChatRoom] Object does not exist. resp.error: ' + JSON.stringify(resp.error);
-                    console.warn(errMsg);
-                    setUIError(errMsg);
-                    return;
-                }
+                const errMsg = '[loadChatRoom] Object does not exist. resp.error: ' + JSON.stringify(resp.error);
+                console.warn(errMsg);
+                setUIError(errMsg);
+                return;
             } else if (!resp.data) {
-                const errMsg = '[loadChatRoom] UNEXPECTED Missing object data. resp: ' + JSON.stringify(resp);
+                const errMsg = '[loadChatRoom] Missing object data. resp: ' + JSON.stringify(resp);
                 console.warn(errMsg);
                 setUIError(errMsg);
                 return;
@@ -475,8 +468,12 @@ export const ChatView: React.FC = () =>
             ],
         });
 
-        signAndExecuteTransactionBlock({
+        const signedTx = await signTransactionBlock({
             transactionBlock: tx,
+        });
+        return rpcProvider.executeTransactionBlock({
+            transactionBlock: signedTx.transactionBlockBytes,
+            signature: signedTx.signature,
             options: {
                 showEffects: true,
             },
