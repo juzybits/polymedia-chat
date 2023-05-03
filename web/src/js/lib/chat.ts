@@ -11,6 +11,9 @@ const SUI_FANS_CHAT_ID_DEVNET = '0x3cd3ead8634aaa51a870c9f1b43e7980bd0d0593d503d
 const POLYMEDIA_PACKAGE_TESTNET = '0xc3d40c8b1d7e8360c2b0046029a6ed597cffd538eca888e1d7ecc9d6760bb9df';
 const SUI_FANS_CHAT_ID_TESTNET = '0x2c82d0dda82b799aaba1be2ca4c464a9502d75e5468d381ada7c26d9cae7c654';
 
+const POLYMEDIA_PACKAGE_MAINNET = '0x9bccd22304e984ff1e565c2bd7ac8254b0ee2788190373daae33432ace873c18';
+const SUI_FANS_CHAT_ID_MAINNET = '0x0b047c44f30a678e79ecd3122d6a80b585fdd2b583c4dae9d71b0d45501106b5';
+
 type Config = {
   polymediaPackageId: string;
   suiFansChatId: string;
@@ -32,6 +35,11 @@ export function getConfig(network: NetworkName): Config {
             return {
                 polymediaPackageId: POLYMEDIA_PACKAGE_TESTNET,
                 suiFansChatId: SUI_FANS_CHAT_ID_TESTNET,
+            };
+        case 'mainnet':
+            return {
+                polymediaPackageId: POLYMEDIA_PACKAGE_MAINNET,
+                suiFansChatId: SUI_FANS_CHAT_ID_MAINNET,
             };
         default:
             throw new Error('Invalid network: ' + network);
