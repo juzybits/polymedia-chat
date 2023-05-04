@@ -52,7 +52,7 @@ export const MagicAddress: React.FC<{
 export const MagicLink: React.FC<{href: string}> = ({href}) => {
     return isTrustedDomain(href)
         ? <a href={href} target='_blank'>{href}</a>
-        : <>href</>;
+        : <>{href}</>;
 };
 
 /// The result of parseMagicText()

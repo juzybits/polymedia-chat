@@ -384,6 +384,7 @@ const trustedDomains = new Map<string, boolean>([
     ['stuff.co.nz', true],
     ['sui.io', true],
     ['suifoundation.org', true],
+    ['suifrens.com', true],
     ['surveymonkey.com', true],
     ['t.co', true],
     ['t.me', true],
