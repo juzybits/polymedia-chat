@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { WalletKitProvider } from '@mysten/wallet-kit';
 import { Connection, JsonRpcProvider } from '@mysten/sui.js';
-import { NetworkName, loadNetwork, loadRpcConfig } from '@polymedia/webutils';
+import { NetworkName, isLocalhost, loadNetwork, loadRpcConfig } from '@polymedia/webutils';
 
 export type AppContext = {
     network: NetworkName,
@@ -21,7 +21,7 @@ export function App()
 
     useEffect(() => {
         async function initialize() {
-            const network = loadNetwork();
+            const network = isLocalhost() ? loadNetwork() : 'mainnet';
             const rpcConfig = await loadRpcConfig({
                 network,
                 customEndpoints: {

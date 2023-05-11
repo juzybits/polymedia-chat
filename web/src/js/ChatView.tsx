@@ -316,7 +316,7 @@ export const ChatView: React.FC = () =>
                 });
                 allEvents.push(...events.data);
                 remainingEvents -= limit;
-                if (events.nextCursor) {
+                if (events.hasNextPage) {
                     cursor = events.nextCursor;
                 } else {
                     break;
