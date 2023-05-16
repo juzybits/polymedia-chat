@@ -259,7 +259,7 @@ export const ChatView: React.FC = () =>
         refPullRecentIntervalId.current = setInterval(pullRecentMessages, PULL_RECENT_INTERVAL, PULL_RECENT_AMOUNT);
 
         await resubscribeToEvents();
-        // Periodically resubscribe (the browser closes the websocket after 30 seconds of innactivity)
+        // Periodically resubscribe (the browser closes the websocket after 30 seconds of inactivity)
         refResubscribeIntervalId.current = setInterval(resubscribeToEvents, RESUBSCRIBE_INTERVAL);
     };
 
