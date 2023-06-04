@@ -1,7 +1,8 @@
 {
+    "private": true,
     "name": "@polymedia/chat-web",
     "author": "@juzybits (https://polymedia.app)",
-    "private": true,
+    "license": "CC-BY-NC-SA-4.0",
     "dependencies": {
         "@emoji-mart/react": "^1.0.0",
         "@mysten/sui.js": "latest",

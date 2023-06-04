@@ -1,4 +1,4 @@
-// Trusted domains
+// Trusted domains // TODO: remove this. Instead, show warning and let user choose to trust the domain.
 
 // Only include top-level + 2nd-level domains (exclude subdomains). E.g.
 // www.google.com -> google.com
@@ -59,7 +59,6 @@ const trustedDomains = new Map<string, boolean>([
     ['bigcommerce.com', true],
     ['biglobe.ne.jp', true],
     ['bing.com', true],
-    ['bit.ly', true],
     ['blackberry.com', true],
     ['blog.fc2.com', true],
     ['blogger.com', true],
@@ -168,7 +167,6 @@ const trustedDomains = new Map<string, boolean>([
     ['gnu.org', true],
     ['godaddy.com', true],
     ['gofundme.com', true],
-    ['goo.gl', true],
     ['goodreads.com', true],
     ['google.ca', true],
     ['google.co.id', true],
@@ -413,7 +411,6 @@ const trustedDomains = new Map<string, boolean>([
     ['time.com', true],
     ['timeweb.ru', true],
     ['tinypic.com', true],
-    ['tinyurl.com', true],
     ['tradingview.com', true],
     ['tripadvisor.com', true],
     ['tumblr.com', true],
