@@ -38,15 +38,14 @@ export function App()
 
                     // testnet_fullnode: 'https://node.shinami.com/api/v1/sui_testnet_c515e9bfb6cc1d541cbda378339a3cf9',
                     // testnet_websocket: 'wss://node.shinami.com/ws/v1/sui_testnet_c515e9bfb6cc1d541cbda378339a3cf9',
-                }
+                // }
             });
             const rpcProvider = new JsonRpcProvider(
                 new Connection(rpcConfig),
                 {
                     socketOptions: {
-                        connectTimeout: 12000,
                         callTimeout: 12000,
-                        reconnectInterval: 3000,
+                        reconnectTimeout: 3000,
                         maxReconnects: 1,
                     },
                 },

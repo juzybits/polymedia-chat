@@ -8,6 +8,7 @@ import {
     TransactionBlock,
     TransactionDigest,
     TransactionEffects,
+    Unsubscribe,
 } from '@mysten/sui.js';
 import { useWalletKit } from '@mysten/wallet-kit';
 import { PolymediaProfile, ProfileManager } from '@polymedia/profile-sdk';
@@ -93,7 +94,7 @@ export const ChatView: React.FC = () =>
     const [isSendingMsg, setIsSendingMsg] = useState(false); // waiting for a message txn to complete
     const refMessages = useRef(messages);
     /* Reloading messages */
-    const refEventSubscriptionId = useRef(0);
+    const refUnsubscribeEvent = useRef<Unsubscribe|null>(null);
     const refResubscribeIntervalId = useRef<ReturnType<typeof setInterval>|null>(null);
     const refIsResubscribeOngoing = useRef(false);
     const refPullRecentIntervalId = useRef<ReturnType<typeof setInterval>|null>(null);
@@ -346,19 +347,19 @@ export const ChatView: React.FC = () =>
     };
 
     const subscribeToEvents = async () => {
-        if (refEventSubscriptionId.current) {
+        if (refUnsubscribeEvent.current) {
             console.debug('[subscribeToEvents] Already subscribed. Skipping.');
             return;
         }
         try {
-            refEventSubscriptionId.current = await rpcProvider.subscribeEvent({
+            refUnsubscribeEvent.current = await rpcProvider.subscribeEvent({
                 filter: {And: [
                     { MoveEventType: polymediaPackageId+'::event_chat::MessageEvent' },
                     { MoveEventField: { 'path': '/room', 'value': chatId} },
                 ]},
                 onMessage: (event: SuiEvent) => eventsToMessages([event]),
             });
-            console.debug('[subscribeToEvents] Subscribed:', refEventSubscriptionId.current);
+            console.debug('[subscribeToEvents] Subscribed.');
             setUIError('');
         } catch (err) {
             const errMsg = '[subscribeToEvents] ' + err;
@@ -368,14 +369,14 @@ export const ChatView: React.FC = () =>
     };
 
     const unsubscribeFromEvents = async () => {
-        if (!refEventSubscriptionId.current) {
+        if (!refUnsubscribeEvent.current) {
             console.debug('[unsubscribeFromEvents] Not active subscription. Skipping.');
             return;
         }
         try {
-            const subFoundAndRemoved = await rpcProvider.unsubscribeEvent({id: refEventSubscriptionId.current});
-            refEventSubscriptionId.current = 0;
-            console.debug('[unsubscribeFromEvents] Unsubscribed. subFoundAndRemoved:', subFoundAndRemoved);
+            const unsubscribed = await refUnsubscribeEvent.current();
+            refUnsubscribeEvent.current = null;
+            console.debug('[unsubscribeFromEvents] Unsubscribed: ', unsubscribed);
             setUIError('');
         } catch (err) {
             const errMsg = '[unsubscribeFromEvents] ' + err;
