@@ -24,7 +24,8 @@ export function App()
             const network = isLocalhost() ? loadNetwork() : 'mainnet';
             const rpcConfig = await loadRpcConfig({
                 network,
-                customEndpoints: {
+                noFetch: true,
+                // customEndpoints: {
                     // devnet_fullnode: 'https://fullnode.devnet.sui.io'
                     // devnet_fullnode: 'https://node.shinami.com/api/v1/186668da9c42b69678719e785ed644a2',
                     // devnet_websocket: 'wss://node.shinami.com/ws/v1/186668da9c42b69678719e785ed644a2',
