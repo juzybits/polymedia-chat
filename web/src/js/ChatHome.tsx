@@ -61,9 +61,9 @@ export function ChatHome() {
                 Stay in the loop
             </h2>
             <div className='home-links'>
-                <a href='https://polymedia.app/' target='_blank'>About</a> •&nbsp;
-                <a href='https://discord.gg/3ZaE69Eq78' target='_blank'>Discord</a> •&nbsp;
-                <a href='https://twitter.com/polymedia_app' target='_blank'>Twitter</a>
+                <a href='https://polymedia.app/' target='_blank' rel='noopener'>About</a> •&nbsp;
+                <a href='https://discord.gg/3ZaE69Eq78' target='_blank' rel='noopener'>Discord</a> •&nbsp;
+                <a href='https://twitter.com/polymedia_app' target='_blank' rel='noopener'>Twitter</a>
                 <br/>
             </div>
         </div>

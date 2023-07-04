@@ -77,7 +77,7 @@ export function ChatMenu() {
                     <div className='menu-field'>
                         <span className='menu-field-label'>Object ID:</span>
                         <span className='menu-field-value'>
-                            <a href={linkToExplorer(network, 'object', chatObj.fields.id.id)} target='_blank'>
+                            <a href={linkToExplorer(network, 'object', chatObj.fields.id.id)} target='_blank' rel='noopener'>
                                 {chatObj.fields.id.id}
                             </a>
                         </span>

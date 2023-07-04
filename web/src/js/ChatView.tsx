@@ -712,7 +712,7 @@ export const ChatView: React.FC = () =>
                     </div>
                     {magicText.images &&
                     <div className='message-images'>
-                        { magicText.images.map((url, idx) => <a href={url} target='_blank' key={idx}><img src={url}/></a>) }
+                        { magicText.images.map((url, idx) => <a href={url} target='_blank' rel='noopener nofollow noreferrer' key={idx}><img src={url}/></a>) }
                     </div>}
                     {/*{teaserButtons}*/}
                     {/*{magicText.tweets &&
@@ -747,7 +747,7 @@ export const ChatView: React.FC = () =>
 
             { showProfileCTA && <div id='profile-cta'>
                 <span className='cta-text'>Hey anon, <a href='https://profile.polymedia.app/manage'
-                    target='_blank' onClick={closeProfileCTA}>create a profile
+                    target='_blank' rel='noopener' onClick={closeProfileCTA}>create a profile
                     </a> so people know what to call you.
                 </span>
                 <span className='cta-close'><span onClick={closeProfileCTA}>close</span>

@@ -51,7 +51,7 @@ export const MagicAddress: React.FC<{
 
 export const MagicLink: React.FC<{href: string}> = ({href}) => {
     return isTrustedDomain(href)
-        ? <a href={href} target='_blank'>{href}</a>
+        ? <a href={href} target='_blank' rel='noopener nofollow noreferrer'>{href}</a>
         : <>{href}</>;
 };
 
