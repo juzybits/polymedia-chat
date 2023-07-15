@@ -264,6 +264,7 @@ const trustedDomains = new Map<string, boolean>([
     ['myshopify.com', true],
     ['myspace.com', true],
     ['mysql.com', true],
+    ['mystenlabs.com', true],
     ['namecheap.com', true],
     ['narod.ru', true],
     ['nasa.gov', true],
