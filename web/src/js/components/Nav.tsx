@@ -1,6 +1,6 @@
 /// Navigation bar
 
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useOutletContext, Link } from 'react-router-dom';
 import { useWalletKit, ConnectModal } from '@mysten/wallet-kit';
 
@@ -8,6 +8,7 @@ import { NetworkName, NetworkSelector, isLocalhost } from '@polymedia/webutils';
 import { AppContext } from '../App';
 import '../../css/Nav.less';
 import imgLogo from '../../img/logo.png';
+import { PolymediaProfile, ProfileManager } from '@polymedia/profile-sdk';
 
 type NavProps = {
     network: NetworkName,
@@ -17,9 +18,28 @@ type NavProps = {
 
 export function Nav({ network, menuPath, menuTitle }: NavProps)
 {
+    const {
+        profileManager,
+        connectModalOpen,
+        setConnectModalOpen
+    } = useOutletContext<AppContext>();
     const { currentAccount, disconnect } = useWalletKit();
-    const { connectModalOpen, setConnectModalOpen } = useOutletContext<AppContext>();
     const showNetworkSelector = isLocalhost();
+    const [ userProfile, setUserProfile ] = useState<PolymediaProfile|null>(null);
+
+    useEffect(() => {
+        const reloadUserProfile = async () => {
+            if (!currentAccount) {
+                setUserProfile(null);
+            } else {
+                const profile = await profileManager.getProfile({
+                    lookupAddress: currentAccount.address
+                });
+                setUserProfile(profile);
+            }
+        };
+        reloadUserProfile();
+    }, [currentAccount]);
 
     return <>
         <ConnectModal
@@ -45,10 +65,17 @@ export function Nav({ network, menuPath, menuTitle }: NavProps)
             <div id='nav-btn-user' className='nav-btn'>
             {currentAccount
             ?
-                <span id='nav-btn-disconnect'
-                      onClick={ async () => { await disconnect(); setConnectModalOpen(true); } }>
-                    {'@' + currentAccount.address.slice(2, 6)}
-                </span>
+                <span
+                    id='nav-btn-disconnect'
+                    onClick={ async () => {
+                        await disconnect();
+                        setConnectModalOpen(true);
+                    }
+                }>{
+                    userProfile
+                    ? userProfile.name
+                    : '@' + currentAccount.address.slice(2, 6)
+                }</span>
             :
                 <span id='nav-btn-connect'
                       onClick={() => setConnectModalOpen(true)}>
