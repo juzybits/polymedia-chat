@@ -11,7 +11,7 @@ import {
     Unsubscribe,
 } from '@mysten/sui.js';
 import { useWalletKit } from '@mysten/wallet-kit';
-import { PolymediaProfile, ProfileManager } from '@polymedia/profile-sdk';
+import { PolymediaProfile } from '@polymedia/profile-sdk';
 // import FingerprintJS from '@fingerprintjs/fingerprintjs'
 
 import { AppContext } from './App';
@@ -74,6 +74,7 @@ export const ChatView: React.FC = () =>
     const {
         network,
         rpcProvider,
+        profileManager,
         notify,
         connectModalOpen,
         setConnectModalOpen
@@ -81,7 +82,6 @@ export const ChatView: React.FC = () =>
     const { polymediaPackageId, suiFansChatId } = getConfig(network);
     const { currentAccount, signTransactionBlock } = useWalletKit();
     /* User and Polymedia Profile */
-    const profileManager = new ProfileManager({network, rpcProvider});
     const refProfiles = useRef( new Map<SuiAddress, ChatProfile|null>() );
     const refHasCurrentAccount = useRef(false);
     const refLastUserAddr = useRef(localStorage.getItem('polymedia.userAddr') || ''); // MAYBE: store an array

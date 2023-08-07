@@ -3,10 +3,12 @@ import { Outlet } from 'react-router-dom';
 import { WalletKitProvider } from '@mysten/wallet-kit';
 import { Connection, JsonRpcProvider } from '@mysten/sui.js';
 import { NetworkName, isLocalhost, loadNetwork, loadRpcConfig } from '@polymedia/webutils';
+import { ProfileManager } from '@polymedia/profile-sdk';
 
 export type AppContext = {
     network: NetworkName,
     rpcProvider: JsonRpcProvider,
+    profileManager: ProfileManager
     notify: (text: string) => void,
     connectModalOpen: boolean,
     setConnectModalOpen: React.Dispatch<React.SetStateAction<boolean>>,
@@ -18,6 +20,7 @@ export function App()
     const [notification, setNotification] = useState('');
     const [network, setNetwork] = useState<NetworkName|null>(null);
     const [rpcProvider, setRpcProvider] = useState<JsonRpcProvider|null>(null);
+    const [profileManager, setProfileManager] = useState<ProfileManager|null>(null);
 
     useEffect(() => {
         async function initialize() {
@@ -52,6 +55,7 @@ export function App()
             );
             setNetwork(network);
             setRpcProvider(rpcProvider);
+            setProfileManager( new ProfileManager({network, rpcProvider}) );
         };
         initialize();
     }, []);
@@ -61,13 +65,14 @@ export function App()
         setTimeout(() => { setNotification('') }, 1200);
     };
 
-    if (!network || !rpcProvider) {
+    if (!network || !rpcProvider || !profileManager) {
         return <></>;
     }
 
     const appContext: AppContext = {
         network,
         rpcProvider,
+        profileManager,
         notify,
         connectModalOpen,
         setConnectModalOpen,
