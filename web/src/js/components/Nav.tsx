@@ -4,11 +4,12 @@ import { ReactNode, useEffect, useState } from 'react';
 import { useOutletContext, Link } from 'react-router-dom';
 import { useWalletKit, ConnectModal } from '@mysten/wallet-kit';
 
-import { NetworkName, NetworkSelector, isLocalhost } from '@polymedia/webutils';
+import { NetworkSelector } from '@polymedia/react-components';
+import { NetworkName, isLocalhost } from '@polymedia/webutils';
 import { AppContext } from '../App';
 import '../../css/Nav.less';
 import imgLogo from '../../img/logo.png';
-import { PolymediaProfile, ProfileManager } from '@polymedia/profile-sdk';
+import { PolymediaProfile } from '@polymedia/profile-sdk';
 
 type NavProps = {
     network: NetworkName,
