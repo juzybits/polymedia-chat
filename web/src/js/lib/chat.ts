@@ -98,7 +98,7 @@ function parseItem(resp: GetObjectDataResponse): Item|null
 export async function getItems(objectIds: string[]): Promise<Item[]>
 {
     console.debug(`[getItem] Fetching ${objectIds.length} objects`);
-    return rpcPrivate.getObjectBatch(objectIds)
+    return suiClient.getObjectBatch(objectIds)
         .then((objectsData: GetObjectDataResponse[]) => {
             return objectsData.reduce((items: Item[], resp: GetObjectDataResponse) => {
                 const item = parseItem(resp);

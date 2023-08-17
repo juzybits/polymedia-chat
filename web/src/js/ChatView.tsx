@@ -1,15 +1,13 @@
 import { useEffect, useRef, useState, SyntheticEvent } from 'react';
 import { Link, useParams, useOutletContext } from 'react-router-dom';
 import {
-    SuiAddress,
     SuiEvent,
     SuiMoveObject,
     SuiObjectResponse,
-    TransactionBlock,
-    TransactionDigest,
     TransactionEffects,
     Unsubscribe,
-} from '@mysten/sui.js';
+} from '@mysten/sui.js/client';
+import { TransactionBlock } from '@mysten/sui.js/transactions';
 import { useWalletKit } from '@mysten/wallet-kit';
 import { PolymediaProfile } from '@polymedia/profile-sdk';
 // import FingerprintJS from '@fingerprintjs/fingerprintjs'
@@ -30,13 +28,13 @@ const PULL_RECENT_AMOUNT_1ST_PULL = 50; // How many recent messages to pull the 
 // const MAX_MESSAGES = 500;
 
 type Message = {
-    author: SuiAddress,
+    author: string,
     text: string,
     timestamp: number,
 };
 
 type MessageEvent = {
-    room: SuiAddress,
+    room: string,
     text: string,
 };
 
@@ -73,7 +71,7 @@ export const ChatView: React.FC = () =>
     /* Global state */
     const {
         network,
-        rpcProvider,
+        suiClient,
         profileManager,
         notify,
         connectModalOpen,
@@ -82,7 +80,7 @@ export const ChatView: React.FC = () =>
     const { polymediaPackageId, suiFansChatId } = getConfig(network);
     const { currentAccount, signTransactionBlock } = useWalletKit();
     /* User and Polymedia Profile */
-    const refProfiles = useRef( new Map<SuiAddress, ChatProfile|null>() );
+    const refProfiles = useRef( new Map<string, ChatProfile|null>() );
     const refHasCurrentAccount = useRef(false);
     const refLastUserAddr = useRef(localStorage.getItem('polymedia.userAddr') || ''); // MAYBE: store an array
     const [showProfileCTA, setShowProfileCTA] = useState(false);
@@ -90,7 +88,7 @@ export const ChatView: React.FC = () =>
     // const refUserClosedTeaser = useRef(false);
     /* Chat messages */
     const [chatObj, setChatObj] = useState<SuiMoveObject|null>(null);
-    const [messages, setMessages] = useState(new Map<TransactionDigest, Message>);
+    const [messages, setMessages] = useState(new Map<string, Message>);
     const [isSendingMsg, setIsSendingMsg] = useState(false); // waiting for a message txn to complete
     const refMessages = useRef(messages);
     /* Reloading messages */
@@ -181,8 +179,8 @@ export const ChatView: React.FC = () =>
         }
     };
 
-    const fetchProfiles = (authors: Set<SuiAddress>) => {
-        let newAuthors = new Set<SuiAddress>();
+    const fetchProfiles = (authors: Set<string>) => {
+        let newAuthors = new Set<string>();
         for (const author of authors) {
             if (!refProfiles.current.has(author)) {
                 newAuthors.add(author);
@@ -197,7 +195,7 @@ export const ChatView: React.FC = () =>
             return;
         }
         console.debug(`[fetchProfiles] Looking up ${newAuthors.size} new authors`);
-        profileManager.getProfiles({lookupAddresses: newAuthors})
+        profileManager.getProfilesByOwner({lookupAddresses: newAuthors})
         .then(newProfiles => {
             for (const [address, profile] of newProfiles.entries()) {
                 let chatProfile: ChatProfile|null = null;
@@ -226,7 +224,7 @@ export const ChatView: React.FC = () =>
     {
         // Pull the ChatRoom object
         try {
-            const resp: SuiObjectResponse = await rpcProvider.getObject({
+            const resp: SuiObjectResponse = await suiClient.getObject({
                 id: chatId,
                 options: {
                     showContent: true,
@@ -275,7 +273,7 @@ export const ChatView: React.FC = () =>
         setIsLoadingMore(true);
         try {
             const currentOldestMsgTxDigest = messages.keys().next().value;
-            const oldEvents = await rpcProvider.queryEvents({
+            const oldEvents = await suiClient.queryEvents({
                 query: { MoveEventType: polymediaPackageId+'::event_chat::MessageEvent' }, // TODO: filter by 'room' field (https://github.com/MystenLabs/sui/issues/11031)
                 cursor: { txDigest: currentOldestMsgTxDigest, eventSeq: '0' },
                 limit: 50,
@@ -305,7 +303,7 @@ export const ChatView: React.FC = () =>
             let cursor = null;
             while (remainingEvents > 0) {
                 const limit = Math.min(remainingEvents, 50);
-                const events = await rpcProvider.queryEvents({
+                const events = await suiClient.queryEvents({
                     query: { MoveEventType: polymediaPackageId+'::event_chat::MessageEvent' }, // TODO: filter by 'room' field (https://github.com/MystenLabs/sui/issues/11031)
                     // query: {And: [
                     //     { MoveEventType: polymediaPackageId+'::event_chat::MessageEvent' },
@@ -352,7 +350,7 @@ export const ChatView: React.FC = () =>
             return;
         }
         try {
-            refUnsubscribeEvent.current = await rpcProvider.subscribeEvent({
+            refUnsubscribeEvent.current = await suiClient.subscribeEvent({
                 filter: {And: [
                     { MoveEventType: polymediaPackageId+'::event_chat::MessageEvent' },
                     { MoveEventField: { 'path': '/room', 'value': chatId} },
@@ -387,14 +385,14 @@ export const ChatView: React.FC = () =>
 
     const eventsToMessages = (events: Array<SuiEvent>, prepend=false) => {
         const userIsBanned = isBannedUser();
-        const authorAddresses = new Set<SuiAddress>();
+        const authorAddresses = new Set<string>();
         const oldMessages: typeof messages = new Map();
         for (const event of events) {
             // Skip if already included in map (common when called from pullRecentMessages)
             if (refMessages.current.has(event.id.txDigest))
                 continue;
             // Check that the message belongs to this ChatRoom (needed for initial load,
-            // because rpcProvider.getEvents() can't filter by field)
+            // because suiClient.getEvents() can't filter by field)
             const msgEvent = event.parsedJson as MessageEvent;
             if (msgEvent.room != chatId) {
                 continue;
@@ -472,7 +470,7 @@ export const ChatView: React.FC = () =>
         const signedTx = await signTransactionBlock({
             transactionBlock: tx,
         });
-        return rpcProvider.executeTransactionBlock({
+        return suiClient.executeTransactionBlock({
             transactionBlock: signedTx.transactionBlockBytes,
             signature: signedTx.signature,
             options: {
@@ -492,7 +490,7 @@ export const ChatView: React.FC = () =>
                     });
                     // Update state
                     setMessages(new Map(refMessages.current));
-                    fetchProfiles(new Set<SuiAddress>([refLastUserAddr.current]));
+                    fetchProfiles(new Set<string>([refLastUserAddr.current]));
                 }
                 // log([refUserFingerprint.current, refLastUserAddr.current, getChatInputValue()]);
             } else {

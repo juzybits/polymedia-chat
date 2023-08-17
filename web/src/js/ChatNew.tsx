@@ -15,7 +15,7 @@ export function ChatNew() {
     const [waiting, setWaiting] = useState(false);
     const [error, setError] = useState('');
 
-    const { network, notify, rpcProvider, setConnectModalOpen } = useOutletContext<AppContext>();
+    const { network, notify, suiClient, setConnectModalOpen } = useOutletContext<AppContext>();
     const { polymediaPackageId } = getConfig(network);
     const { isConnected, signTransactionBlock } = useWalletKit();
 
@@ -50,7 +50,7 @@ export function ChatNew() {
         const signedTx = await signTransactionBlock({
             transactionBlock: tx,
         });
-        return rpcProvider.executeTransactionBlock({
+        return suiClient.executeTransactionBlock({
             transactionBlock: signedTx.transactionBlockBytes,
             signature: signedTx.signature,
             options: {

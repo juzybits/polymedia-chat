@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useOutletContext } from 'react-router-dom';
-import { SuiMoveObject } from '@mysten/sui.js';
+import { SuiMoveObject } from '@mysten/sui.js/client';
 import { linkToExplorer } from '@polymedia/webutils';
 
 import { AppContext } from './App';
@@ -12,7 +12,7 @@ export function ChatMenu() {
     const [chatObj, setChatObj] = useState<SuiMoveObject|null>(null);
     const [error, setError] = useState('');
 
-    const { network, rpcProvider } = useOutletContext<AppContext>();
+    const { network, suiClient } = useOutletContext<AppContext>();
     const { suiFansChatId } = getConfig(network);
 
     let chatId = useParams().uid || '';
@@ -32,7 +32,7 @@ export function ChatMenu() {
 
     const loadObject = async () => {
         console.debug('[loadObject] Fetching object:', chatId);
-        rpcProvider.getObject({
+        suiClient.getObject({
             id: chatId,
             options: {
                 showContent: true,
@@ -55,6 +55,7 @@ export function ChatMenu() {
 
     /* HTML */
 
+    const objFields = chatObj?.fields as any;
     return <div id='page' className='page-tool'>
     <div className='menu-wrapper'>
 
@@ -77,26 +78,26 @@ export function ChatMenu() {
                     <div className='menu-field'>
                         <span className='menu-field-label'>Object ID:</span>
                         <span className='menu-field-value'>
-                            <a href={linkToExplorer(network, 'object', chatObj.fields.id.id)} target='_blank' rel='noopener'>
-                                {chatObj.fields.id.id}
+                            <a href={linkToExplorer(network, 'object', objFields.id.id)} target='_blank' rel='noopener'>
+                                {objFields.id.id}
                             </a>
                         </span>
                     </div>
                     <div className='menu-field'>
                         <span className='menu-field-label'>Name:</span>
-                        <span className='menu-field-value'>{chatObj.fields.name}</span>
+                        <span className='menu-field-value'>{objFields.name}</span>
                     </div>
                     <div className='menu-field'>
                         <span className='menu-field-label'>Description:</span>
-                        <span className='menu-field-value'>{chatObj.fields.description}</span>
+                        <span className='menu-field-value'>{objFields.description}</span>
                     </div>
                     {/*<div className='menu-field'>
                         <span className='menu-field-label'>Max messages:</span>
-                        <span className='menu-field-value'>{chatObj.fields.max_msg_amount}</span>
+                        <span className='menu-field-value'>{objFields.max_msg_amount}</span>
                     </div>
                     <div className='menu-field'>
                         <span className='menu-field-label'>Max message length:</span>
-                        <span className='menu-field-value'>{chatObj.fields.max_msg_length}</span>
+                        <span className='menu-field-value'>{objFields.max_msg_length}</span>
                     </div>
                     <div className='menu-field'>
                         <span className='menu-field-label'>Version:</span>

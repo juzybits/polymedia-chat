@@ -33,7 +33,7 @@ export function Nav({ network, menuPath, menuTitle }: NavProps)
             if (!currentAccount) {
                 setUserProfile(null);
             } else {
-                const profile = await profileManager.getProfile({
+                const profile = await profileManager.getProfileByOwner({
                     lookupAddress: currentAccount.address
                 });
                 setUserProfile(profile);

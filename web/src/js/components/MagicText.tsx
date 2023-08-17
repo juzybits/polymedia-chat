@@ -1,7 +1,6 @@
 /// Transform plain text into rich text HTML (with links, images, clickable addresses, etc)
 
 import React from 'react';
-import { SuiAddress } from '@mysten/sui.js';
 
 import { ChatProfile } from '../ChatView';
 import { shortenAddress, getAddressColor } from '../lib/addresses';
@@ -18,7 +17,7 @@ const REGEX_URL = new RegExp(/(?:https?|ipfs):\/\/[^\s\/$.?#].[^\s]*[^\s.,|]+/ig
 
 /// Shorten a 0x address, style it, and make it clickable
 export const MagicAddress: React.FC<{
-    address: SuiAddress,
+    address: string,
     profile: ChatProfile|null|undefined,
     onClickAddress: (address: string) => void,
 }> = ({
@@ -63,7 +62,7 @@ export type MagicText = {
 };
 
 /// Parse plaintext and format any URLs and 0x addresses in it
-export function parseMagicText(profiles: Map<SuiAddress, ChatProfile|null>, plainText: string, onClickAddress: (address: string) => void)
+export function parseMagicText(profiles: Map<string, ChatProfile|null>, plainText: string, onClickAddress: (address: string) => void)
 {
     let key = 0;
     const chunk = (contents: any) => {

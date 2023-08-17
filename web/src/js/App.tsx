@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
+import { SuiClient, SuiHTTPTransport } from '@mysten/sui.js/client';
 import { WalletKitProvider } from '@mysten/wallet-kit';
-import { Connection, JsonRpcProvider } from '@mysten/sui.js';
 import { NetworkName, isLocalhost, loadNetwork, loadRpcConfig } from '@polymedia/webutils';
 import { ProfileManager } from '@polymedia/profile-sdk';
 
 export type AppContext = {
     network: NetworkName,
-    rpcProvider: JsonRpcProvider,
+    suiClient: SuiClient,
     profileManager: ProfileManager
     notify: (text: string) => void,
     connectModalOpen: boolean,
@@ -19,7 +19,7 @@ export function App()
     const [connectModalOpen, setConnectModalOpen] = useState(false);
     const [notification, setNotification] = useState('');
     const [network, setNetwork] = useState<NetworkName|null>(null);
-    const [rpcProvider, setRpcProvider] = useState<JsonRpcProvider|null>(null);
+    const [suiClient, setSuiClient] = useState<SuiClient|null>(null);
     const [profileManager, setProfileManager] = useState<ProfileManager|null>(null);
 
     useEffect(() => {
@@ -43,19 +43,22 @@ export function App()
                     // testnet_websocket: 'wss://node.shinami.com/ws/v1/sui_testnet_c515e9bfb6cc1d541cbda378339a3cf9',
                 // }
             });
-            const rpcProvider = new JsonRpcProvider(
-                new Connection(rpcConfig),
-                {
-                    socketOptions: {
+
+            const suiClient = new SuiClient({
+                transport: new SuiHTTPTransport({
+                    url: rpcConfig.fullnode,
+                    websocket: {
+                        url: rpcConfig.websocket,
                         callTimeout: 12000,
                         reconnectTimeout: 3000,
                         maxReconnects: 1,
                     },
-                },
-            );
+                }),
+            });
+
             setNetwork(network);
-            setRpcProvider(rpcProvider);
-            setProfileManager( new ProfileManager({network, rpcProvider}) );
+            setSuiClient(suiClient);
+            setProfileManager( new ProfileManager({network, suiClient}) );
         };
         initialize();
     }, []);
@@ -65,13 +68,13 @@ export function App()
         setTimeout(() => { setNotification('') }, 1200);
     };
 
-    if (!network || !rpcProvider || !profileManager) {
+    if (!network || !suiClient || !profileManager) {
         return <></>;
     }
 
     const appContext: AppContext = {
         network,
-        rpcProvider,
+        suiClient,
         profileManager,
         notify,
         connectModalOpen,
