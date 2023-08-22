@@ -2,6 +2,6 @@
 
 ## How to run locally
 ```
-yarn
-yarn serve
+pnpm i
+pnpm serve
 ```

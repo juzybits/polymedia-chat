@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { SuiClient, SuiHTTPTransport } from '@mysten/sui.js/client';
 import { WalletKitProvider } from '@mysten/wallet-kit';
-import { NetworkName, isLocalhost, loadNetwork, loadRpcConfig } from '@polymedia/webutils';
+import { NetworkName, isLocalhost, loadNetwork, getRpcConfig } from '@polymedia/webutils';
 import { ProfileManager } from '@polymedia/profile-sdk';
 
 export type AppContext = {
@@ -25,9 +25,9 @@ export function App()
     useEffect(() => {
         async function initialize() {
             const network = isLocalhost() ? loadNetwork() : 'mainnet';
-            const rpcConfig = await loadRpcConfig({
+            const rpcConfig = await getRpcConfig({
                 network,
-                noFetch: true,
+                fetch: false,
                 // customEndpoints: {
                     // devnet_fullnode: 'https://fullnode.devnet.sui.io'
                     // devnet_fullnode: 'https://node.shinami.com/api/v1/186668da9c42b69678719e785ed644a2',
