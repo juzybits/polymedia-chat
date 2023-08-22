@@ -60,7 +60,16 @@
         input {
             background: var(--bg-panel);
             &.disabled {
-                cursor: pointer;
+                /*
+                By default, click events on the disabled input won't bubble up to the underlying
+                .chat-input-wrapper, and the connect modal won't be shown.
+                We fix this by disabling pointer events on the disabled input. That way it becomes
+                transparent to clicks, and .chat-input-wrapper can capture them.
+                    https://github.com/whatwg/html/issues/5886
+                    https://stackoverflow.com/a/32925830
+                */
+                pointer-events: none;
+
             }
         }
     }
