@@ -2,7 +2,6 @@ import { useEffect, useRef, useState, SyntheticEvent } from 'react';
 import { Link, useParams, useOutletContext } from 'react-router-dom';
 import {
     SuiEvent,
-    SuiMoveObject,
     SuiObjectResponse,
     TransactionEffects,
     Unsubscribe,
@@ -18,7 +17,7 @@ import { Nav } from './components/Nav';
 import { parseMagicText, MagicAddress } from './components/MagicText';
 import { timeAgo } from './lib/common';
 import { getAddressColor, getAddressEmoji } from './lib/addresses';
-import { getConfig } from './lib/chat';
+import { ChatRoom, getConfig } from './lib/chat';
 import '../css/Chat.less';
 
 const RESUBSCRIBE_INTERVAL = 24000; // How often to resubscribeToEvents()
@@ -87,7 +86,7 @@ export const ChatView: React.FC = () =>
     const refUserClosedProfileCTA = useRef(false);
     // const refUserClosedTeaser = useRef(false);
     /* Chat messages */
-    const [chatObj, setChatObj] = useState<SuiMoveObject|null>(null);
+    const [chatObj, setChatObj] = useState<ChatRoom|null>(null);
     const [messages, setMessages] = useState(new Map<string, Message>);
     const [isSendingMsg, setIsSendingMsg] = useState(false); // waiting for a message txn to complete
     const refMessages = useRef(messages);
@@ -242,7 +241,9 @@ export const ChatView: React.FC = () =>
                 return;
             } else {
                 setUIError('');
-                setChatObj(resp.data.content as SuiMoveObject);
+                const content = resp.data.content;
+                const isObj = content && content.dataType === 'moveObject';
+                setChatObj(isObj ? content.fields as ChatRoom : null);
             }
         } catch(err) {
             const errMsg = '[loadChatRoom] Unexpected error while loading ChatRoom object: ' + err;
@@ -631,13 +632,13 @@ export const ChatView: React.FC = () =>
 
     /* HTML */
 
-    const description = chatObj ? chatObj.fields.description : '';
+    const description = chatObj ? chatObj.description : '';
     return <div id='page' className='page-tool'>
     <div id='chat-wrapper'>
         <Nav network={network} menuPath={`/${chatAlias}/menu`} />
         <div className='chat-top'>
             <div className='chat-title'>
-               <h1 className='chat-title'>{chatObj ? chatObj.fields.name : 'Loading...'}</h1>
+               <h1 className='chat-title'>{chatObj ? chatObj.name : 'Loading...'}</h1>
                 { chatObj && <span className='chat-title-divider'></span> }
                 <Link className='chat-description' to={`/${chatAlias}/menu`}>
                     { description.length > 70 ? description.slice(0, 70)+' ...': description }

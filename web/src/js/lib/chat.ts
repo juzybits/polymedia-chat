@@ -14,6 +14,15 @@ const SUI_FANS_CHAT_ID_TESTNET = '0x2c82d0dda82b799aaba1be2ca4c464a9502d75e5468d
 const POLYMEDIA_PACKAGE_MAINNET = '0x9bccd22304e984ff1e565c2bd7ac8254b0ee2788190373daae33432ace873c18';
 const SUI_FANS_CHAT_ID_MAINNET = '0x0b047c44f30a678e79ecd3122d6a80b585fdd2b583c4dae9d71b0d45501106b5';
 
+/**
+ * Represents a `polymedia_chat::event_chat::ChatRoom` Sui object
+ */
+export type ChatRoom = {
+    id: string;
+    name: string;
+    description: string;
+}
+
 type Config = {
   polymediaPackageId: string;
   suiFansChatId: string;
