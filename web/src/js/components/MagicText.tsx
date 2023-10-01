@@ -1,6 +1,7 @@
 /// Transform plain text into rich text HTML (with links, images, clickable addresses, etc)
 
 import React from 'react';
+import { ADDRESS_REGEX } from '@polymedia/webutils';
 
 import { ChatProfile } from '../ChatView';
 import { shortenAddress, getAddressColor } from '../lib/addresses';
@@ -8,7 +9,7 @@ import { isTrustedDomain } from '../lib/domains';
 import badgeAdmin from '../../img/badge_admin.svg';
 import badgeVerified from '../../img/badge_verified.svg';
 
-const REGEX_ADDRESS = new RegExp(/0x[a-fA-F0-9]{64}/g);
+const REGEX_ADDRESS = new RegExp(ADDRESS_REGEX, 'g');
 // TODO: support image URLs like https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9G...
 // TODO: support image URLs like data:image/jpeg;base64,/9j/...
 const REGEX_IMAGE = new RegExp(/[.=/](apng|avif|gif|jpeg|jpg|png|svg|webp)[^a-zA-Z]?/);
