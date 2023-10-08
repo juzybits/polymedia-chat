@@ -8,7 +8,6 @@ import { NetworkSelector } from '@polymedia/react-components';
 import { NetworkName, isLocalhost } from '@polymedia/webutils';
 import { AppContext } from '../App';
 import '../../css/Nav.less';
-import imgLogo from '../../img/logo.png';
 import { PolymediaProfile } from '@polymedia/profile-sdk';
 
 type NavProps = {
@@ -56,7 +55,7 @@ export function Nav({ network, menuPath, menuTitle }: NavProps)
             <div id='nav-title'>
             <span>
                 <Link to='/'>
-                    <img id='home-logo' src={imgLogo} alt='Polymedia logo' />
+                    <img id='home-logo' src='https://assets.polymedia.app/img/all/logo-nomargin-transparent-512x512.webp' alt='Polymedia logo' />
                     <span id='nav-title-polymedia'>POLYMEDIA</span>
                     <span id='nav-title-chat'>&nbsp;CHAT</span>
                 </Link>

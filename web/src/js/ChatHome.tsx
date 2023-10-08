@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import '../css/Home.less';
-import imgLogo from '../img/logo.png';
 
 export function ChatHome() {
     useEffect(() => {
@@ -13,7 +12,7 @@ export function ChatHome() {
         <div className='home-welcome header'>
             <h1>
                 <Link to='/'>
-                    <img src={imgLogo} alt='Polymedia logo' />
+                    <img src='https://assets.polymedia.app/img/all/logo-nomargin-transparent-512x512.webp' alt='Polymedia logo' />
                     POLYMEDIA CHAT
                 </Link>
             </h1>
