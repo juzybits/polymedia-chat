@@ -50,6 +50,7 @@ export function ChatNew() {
 
         const signedTx = await signTransactionBlock({
             transactionBlock: tx,
+            chain: `sui:${network}`,
         });
         return suiClient.executeTransactionBlock({
             transactionBlock: signedTx.transactionBlockBytes,
