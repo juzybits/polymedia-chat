@@ -1,14 +1,13 @@
 /// Navigation bar
 
-import { ReactNode, useEffect, useState } from 'react';
-import { useOutletContext, Link } from 'react-router-dom';
-import { useWalletKit, ConnectModal } from '@mysten/wallet-kit';
-
-import { NetworkSelector } from '@polymedia/react-components';
-import { NetworkName, isLocalhost } from '@polymedia/webutils';
-import { AppContext } from '../App';
-import '../../css/Nav.less';
+import { ConnectModal, useWalletKit } from '@mysten/wallet-kit';
 import { PolymediaProfile } from '@polymedia/profile-sdk';
+import { NetworkSelector } from '@polymedia/react-components';
+import { NetworkName, isLocalhost, shortenAddress } from '@polymedia/webutils';
+import { ReactNode, useEffect, useState } from 'react';
+import { Link, useOutletContext } from 'react-router-dom';
+import '../../css/Nav.less';
+import { AppContext } from '../App';
 
 type NavProps = {
     network: NetworkName,
@@ -74,7 +73,7 @@ export function Nav({ network, menuPath, menuTitle }: NavProps)
                 }>{
                     userProfile
                     ? userProfile.name
-                    : '@' + currentAccount.address.slice(2, 6)
+                    : shortenAddress(currentAccount.address)
                 }</span>
             :
                 <span id='nav-btn-connect'

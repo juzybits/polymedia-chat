@@ -1,13 +1,12 @@
 /// Transform plain text into rich text HTML (with links, images, clickable addresses, etc)
 
+import { ADDRESS_REGEX, shortenAddress } from '@polymedia/webutils';
 import React from 'react';
-import { ADDRESS_REGEX } from '@polymedia/webutils';
-
-import { ChatProfile } from '../ChatView';
-import { shortenAddress, getAddressColor } from '../lib/addresses';
-import { isTrustedDomain } from '../lib/domains';
 import badgeAdmin from '../../img/badge_admin.svg';
 import badgeVerified from '../../img/badge_verified.svg';
+import { ChatProfile } from '../ChatView';
+import { getAddressColor } from '../lib/addresses';
+import { isTrustedDomain } from '../lib/domains';
 
 const REGEX_ADDRESS = new RegExp(ADDRESS_REGEX, 'g');
 // TODO: support image URLs like https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9G...

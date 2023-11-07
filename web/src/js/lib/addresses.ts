@@ -1,14 +1,5 @@
 // Convenience functions related to Sui addresses
 
-// export function shorten(text: string, start: number, end: number, separator: string): string {
-//     return !text ? '' : text.slice(0, start) + separator + (end?text.slice(-end):'')
-// }
-
-/// Transform an address like '0x123456789abc' into '@89abc'
-export function shortenAddress(address: string): string {
-    return '@' + address.slice(2, 6) + '..' + address.slice(-4);
-}
-
 /// Return a CSS color from an address in a deterministic way
 export function getAddressColor(address: string, offset: number, bright=false): string {
     if (!bright) {
