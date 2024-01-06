@@ -5,9 +5,6 @@ import { WalletKitProvider } from '@mysten/wallet-kit';
 import { NetworkName, isLocalhost, loadNetwork, getRpcConfig } from '@polymedia/webutils';
 import { ProfileManager } from '@polymedia/profile-sdk';
 
-import { registerSuiSnapWallet } from "@kunalabs-io/sui-snap-wallet";
-registerSuiSnapWallet();
-
 export type AppContext = {
     network: NetworkName,
     suiClient: SuiClient,

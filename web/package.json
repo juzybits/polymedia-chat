@@ -5,7 +5,6 @@
     "license": "Apache-2.0",
     "dependencies": {
         "@emoji-mart/react": "^1.1.1",
-        "@kunalabs-io/sui-snap-wallet": "latest",
         "@mysten/sui.js": "latest",
         "@mysten/wallet-kit": "latest",
         "@polymedia/profile-sdk": "latest",
