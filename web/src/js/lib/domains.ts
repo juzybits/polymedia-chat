@@ -154,6 +154,7 @@ const trustedDomains = new Map<string, boolean>([
     ['frontiersin.org', true],
     ['ft.com', true],
     ['ftc.gov', true],
+    ['fudthepug.com', true],
     ['garanteprivacy.it', true],
     ['geocities.com', true],
     ['getbootstrap.com', true],
