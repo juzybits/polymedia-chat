@@ -6,8 +6,8 @@ license = "Apache-2.0"
 published-at = "0x9bccd22304e984ff1e565c2bd7ac8254b0ee2788190373daae33432ace873c18"
 
 [dependencies]
-# Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "mainnet" }
-Sui = { local = "../../sui/crates/sui-framework/packages/sui-framework" }
+Sui = { git = "https://github.com/MystenLabs/sui.git", subdir = "crates/sui-framework/packages/sui-framework", rev = "framework/mainnet" }
+# Sui = { local = "../../../../sui/crates/sui-framework/packages/sui-framework" }
 
 [addresses]
 polymedia_chat = "0x9bccd22304e984ff1e565c2bd7ac8254b0ee2788190373daae33432ace873c18"
